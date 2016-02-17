@@ -1,0 +1,52 @@
+{
+  "name": "rdf-normalize",
+  "version": "0.4.0-dev",
+  "description": "An implementation of the RDF Dataset Normalization Algorithm in JavaScript",
+  "homepage": "http://github.com/digitalbazaar/rdf-normalize",
+  "author": {
+    "name": "Digital Bazaar, Inc.",
+    "email": "support@digitalbazaar.com",
+    "url": "http://digitalbazaar.com/"
+  },
+  "contributors": [
+    {
+      "name": "Dave Longley",
+      "email": "dlongley@digitalbazaar.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/digitalbazaar/rdf-normalize"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalbazaar/rdf-normalize/issues",
+    "email": "support@digitalbazaar.com"
+  },
+  "license": "BSD-3-Clause",
+  "main": "index.js",
+  "dependencies": {
+    "es6-promise": "~2.0.1",
+    "mocha": "^2.4.5",
+    "mocha-phantomjs": "^4.0.2"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "commander": "^2.8.0",
+    "mocha": "^2.2.5",
+    "mocha-phantomjs": "^3.5.6"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "keywords": [
+    "JSON",
+    "Linked Data",
+    "JSON-LD",
+    "RDF",
+    "Semantic Web",
+    "jsonld"
+  ],
+  "scripts": {
+    "test": "mocha -R spec --check-leaks test/ && node conformance-test"
+  }
+}
