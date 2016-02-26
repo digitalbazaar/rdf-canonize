@@ -67,58 +67,50 @@ var api = {};
 module.exports = api;
 
 /**
- * Asynchronously performs RDF dataset normalization on the given input. The
- * input is JSON-LD unless the 'inputFormat' options is used. The output is an
- * RDF dataset unless the 'format' option is used.
+ * Asynchronously canonizes an RDF dataset.
  *
- * @param input the input to normalize as JSON-LD or as a format specified by
- *          the 'inputFormat' option.
+ * @param dataset the dataset to canonize.
  * @param [options] the options to use:
- *          [algorithm] the normalization algorithm to use, `URDNA2015` or
+ *          [algorithm] the canonicalization algorithm to use, `URDNA2015` or
  *            `URGNA2012` (default: `URGNA2012`).
- *          [base] the base IRI to use.
- *          [expandContext] a context to expand with.
- *          [inputFormat] the format if input is not JSON-LD:
- *            'application/nquads' for N-Quads.
- *          [format] the format if output is a string:
- *            'application/nquads' for N-Quads.
- *          [documentLoader(url, callback(err, remoteDoc))] the document loader.
- * @param callback(err, normalized) called once the operation completes.
+ * @param callback(err, canonical) called once the operation completes.
  */
-api.normalize = function(input, options, callback) {
-  // TODO: transform input to dataset
-  var dataset = {};
-
+api.canonize = function(dataset, options, callback) {
   if(options.algorithm === 'URDNA2015') {
     return new URDNA2015(options).main(dataset, callback);
   }
   if(options.algorithm === 'URGNA2012') {
     return new URGNA2012(options).main(dataset, callback);
   }
+
+          /*if(self.options.format === 'application/nquads') {
+            result = normalized.join('');
+            return callback();
+          }
+
+          result = _parseNQuads(normalized.join(''));*/
+
   callback(new Error(
-    'Invalid RDF Dataset Normalization algorithm: ' + options.algorithm));
+    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm));
 };
 
 /**
- * Asynchronously performs RDF dataset normalization on the given input. The
- * input is JSON-LD unless the 'inputFormat' options is used. The output is an
- * RDF dataset unless the 'format' option is used.
+ * Synchronously canonizes an RDF dataset.
  *
- * @param input the input to normalize as JSON-LD or as a format specified by
- *          the 'inputFormat' option.
+ * @param dataset the dataset to canonize.
  * @param [options] the options to use:
- *          [algorithm] the normalization algorithm to use, `URDNA2015` or
+ *          [algorithm] the canonicalization algorithm to use, `URDNA2015` or
  *            `URGNA2012` (default: `URGNA2012`).
- *          [base] the base IRI to use.
- *          [expandContext] a context to expand with.
- *          [inputFormat] the format if input is not JSON-LD:
- *            'application/nquads' for N-Quads.
- *          [format] the format if output is a string:
- *            'application/nquads' for N-Quads.
- *          [documentLoader(url, callback(err, remoteDoc))] the document loader.
  *
- * @return the normalized RDF dataset in the format specified via the options.
+ * @return the RDF dataset in canonical form.
  */
-api.normalizeSync = function(input, options) {
-  // TODO: implement
+api.canonizeSync = function(dataset, options) {
+  if(options.algorithm === 'URDNA2015') {
+    return new URDNA2015(options).mainSync(dataset);
+  }
+  if(options.algorithm === 'URGNA2012') {
+    return new URGNA2012(options).mainSync(dataset);
+  }
+  new Error(
+    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
 };
