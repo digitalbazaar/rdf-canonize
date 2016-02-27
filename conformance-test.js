@@ -1,5 +1,5 @@
 /**
- * Test runner for rdf-normalize.
+ * Test runner for rdf-canonize.
  *
  * @author Dave Longley
  *
@@ -13,61 +13,27 @@
 var _nodejs = (typeof process !== 'undefined' &&
   process.versions && process.versions.node);
 
+var fs = require('fs');
+var program;
+var assert;
+
 if(_nodejs) {
-  var _jsdir = getEnv().JSDIR || 'js';
-  var fs = require('fs');
   var path = require('path');
-  var normalize = require('./index');
-  var assert = require('assert');
-  var program = require('commander');
+  assert = require('assert');
+  program = require('commander');
   program
     .option('--earl [filename]', 'Output an earl report')
     .option('--bail', 'Bail when a test fails')
+    .option('--test-dir', 'Test directory')
     .parse(process.argv);
 } else {
-  // Function.bind polyfill for phantomjs from:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Compatibility
-  (function() {
-    if (!Function.prototype.bind) {
-      Function.prototype.bind = function(oThis) {
-        if (typeof this !== 'function') {
-          // closest thing possible to the ECMAScript 5
-          // internal IsCallable function
-          throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-        }
-
-        var aArgs   = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP    = function() {},
-            fBound  = function() {
-              return fToBind.apply(this instanceof fNOP
-                     ? this
-                     : oThis,
-                     aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-
-        if (this.prototype) {
-          // native functions don't have a prototype
-          fNOP.prototype = this.prototype;
-        }
-        fBound.prototype = new fNOP();
-
-        return fBound;
-      };
-    }
-  })();
-
-  var fs = require('fs');
   var system = require('system');
   require('./setImmediate');
-  var _jsdir = getEnv().JSDIR || 'js';
-  require('../' + _jsdir + '/jsonld');
-  jsonld = jsonldjs;
   window.Promise = require('es6-promise').Promise;
-  var assert = require('chai').assert;
+  assert = require('chai').assert;
   require('mocha/mocha');
   require('mocha-phantomjs/lib/mocha-phantomjs/core_extensions');
-  var program = {};
+  program = {};
   for(var i = 0; i < system.args.length; ++i) {
     var arg = system.args[i];
     if(arg.indexOf('--') === 0) {
@@ -89,72 +55,13 @@ if(_nodejs) {
   });
 }
 
-var JSONLD_TEST_SUITE = '../json-ld.org/test-suite';
-var ROOT_MANIFEST_DIR = resolvePath(
-  getEnv().JSONLD_TEST_SUITE || JSONLD_TEST_SUITE);
+var canonize = require('./index');
 
+var TEST_SUITE = '../normalization/tests';
+var ROOT_MANIFEST_DIR = resolvePath(program['testDir'] || TEST_SUITE);
 var TEST_TYPES = {
-  'jld:CompactTest': {
-    fn: 'compact',
-    params: [
-      readTestUrl('input'),
-      readTestJson('context'),
-      createTestOptions()
-    ],
-    compare: compareExpectedJson
-  },
-  'jld:ExpandTest': {
-    fn: 'expand',
-    params: [
-      readTestUrl('input'),
-      createTestOptions()
-    ],
-    compare: compareExpectedJson
-  },
-  'jld:FlattenTest': {
-    fn: 'flatten',
-    params: [
-      readTestUrl('input'),
-      readTestJson('context'),
-      createTestOptions()
-    ],
-    compare: compareExpectedJson
-  },
-  'jld:FrameTest': {
-    fn: 'frame',
-    params: [
-      readTestUrl('input'),
-      readTestJson('frame'),
-      createTestOptions()
-    ],
-    compare: compareExpectedJson
-  },
-  'jld:FromRDFTest': {
-    fn: 'fromRDF',
-    params: [
-      readTestNQuads('input'),
-      createTestOptions({format: 'application/nquads'})
-    ],
-    compare: compareExpectedJson
-  },
-  'jld:NormalizeTest': {
-    fn: 'normalize',
-    params: [
-      readTestUrl('input'),
-      createTestOptions({format: 'application/nquads'})
-    ],
-    compare: compareExpectedNQuads
-  },
-  'jld:ToRDFTest': {
-    fn: 'toRDF',
-    params: [
-      readTestUrl('input'),
-      createTestOptions({format: 'application/nquads'})
-    ],
-    compare: compareExpectedNQuads
-  },
   'rdfn:Urgna2012EvalTest': {
-    fn: 'normalize',
+    fn: canonize,
     params: [
       readTestNQuads('action'),
       createTestOptions({
@@ -166,7 +73,7 @@ var TEST_TYPES = {
     compare: compareExpectedNQuads
   },
   'rdfn:Urdna2015EvalTest': {
-    fn: 'normalize',
+    fn: canonize,
     params: [
       readTestNQuads('action'),
       createTestOptions({
@@ -185,13 +92,11 @@ var SKIP_TESTS = [];
 var earl = new EarlReport();
 
 // run tests
-describe('JSON-LD', function() {
-  if(!program['webidl-only']) {
-    var filename = joinPath(ROOT_MANIFEST_DIR, 'manifest.jsonld');
-    var rootManifest = readJson(filename);
-    rootManifest.filename = filename;
-    addManifest(rootManifest);
-  }
+describe('rdf-canonize', function() {
+  var filename = joinPath(ROOT_MANIFEST_DIR, 'manifest.jsonld');
+  var rootManifest = readJson(filename);
+  rootManifest.filename = filename;
+  addManifest(rootManifest);
 
   if(program.earl) {
     var filename = resolvePath(program.earl);
@@ -263,25 +168,20 @@ function addTest(manifest, test) {
   test.manifest = manifest;
   var description = test_id + ' ' + (test.purpose || test.name);
 
+  // FIXME: test async callback mode, async promise mode, and sync mode
   // get appropriate API and run test
-  var api = _nodejs ? jsonld : jsonld.promises;
+  var api = _nodejs ? canonize : canonize.promises;
   it(description, function(done) {
     this.timeout(5000);
-    var testInfo = TEST_TYPES[getJsonLdTestType(test)];
-    var fn = testInfo.fn;
+    var testInfo = TEST_TYPES[getTestType(test)];
     var params = testInfo.params;
     params = params.map(function(param) {return param(test);});
     var callback = function(err, result) {
       try {
-        if(isNegativeTest(test)) {
-          compareExpectedError(test, err);
-        // default is to assume positive and skip isPositiveTest(test) check
-        } else {
-          if(err) {
-            throw err;
-          }
-          testInfo.compare(test, result);
+        if(err) {
+          throw err;
         }
+        testInfo.compare(test, result);
         earl.addAssertion(test, true);
         return done();
       } catch(ex) {
@@ -305,23 +205,17 @@ function addTest(manifest, test) {
     }
 
     // promise is undefined for node.js API
-    var promise = api[fn].apply(api, params);
+    var promise = canonize.canonize.apply(api, params);
 
     if(!_nodejs) {
-      promise.then(callback.bind(null, null), callback);
+      promise.then(function(result) {
+        callback(null, result);
+      }).catch(callback);
     }
   });
 }
 
-function isPositiveTest(test) {
-  return isJsonLdType(test, 'jld:PositiveEvaluationTest');
-}
-
-function isNegativeTest(test) {
-  return isJsonLdType(test, 'jld:NegativeEvaluationTest');
-}
-
-function getJsonLdTestType(test) {
+function getTestType(test) {
   var types = Object.keys(TEST_TYPES);
   for(var i = 0; i < types.length; ++i) {
     if(isJsonLdType(test, types[i])) {
@@ -340,25 +234,6 @@ function readManifestEntry(manifest, entry) {
   }
   entry.dirname = dirname(entry.filename || manifest.filename);
   return entry;
-}
-
-function readTestUrl(property) {
-  return function(test) {
-    if(!test[property]) {
-      return null;
-    }
-    return test.manifest.baseIri + test[property];
-  };
-}
-
-function readTestJson(property) {
-  return function(test) {
-    if(!test[property]) {
-      return null;
-    }
-    var filename = joinPath(test.dirname, test[property]);
-    return readJson(filename);
-  };
 }
 
 function readTestNQuads(property) {
@@ -384,13 +259,6 @@ function createTestOptions(opts) {
         options[key] = opts[key];
       }
     }
-    for(var key in options) {
-      if(key === 'expandContext') {
-        var filename = joinPath(test.dirname, options[key]);
-        options[key] = readJson(filename);
-      }
-    }
-
     return options;
   };
 }
@@ -406,20 +274,6 @@ function _getExpectProperty(test) {
   }
 }
 
-function compareExpectedJson(test, result) {
-  try {
-    var expect = readTestJson(_getExpectProperty(test))(test);
-    assert.deepEqual(result, expect);
-  } catch(ex) {
-    if(program.bail) {
-      console.log('\nTEST FAILED\n');
-      console.log('EXPECTED: ' + JSON.stringify(expect, null, 2));
-      console.log('ACTUAL: ' + JSON.stringify(result, null, 2));
-    }
-    throw ex;
-  }
-}
-
 function compareExpectedNQuads(test, result) {
   try {
     var expect = readTestNQuads(_getExpectProperty(test))(test);
@@ -429,22 +283,6 @@ function compareExpectedNQuads(test, result) {
       console.log('\nTEST FAILED\n');
       console.log('EXPECTED:\n' + expect);
       console.log('ACTUAL:\n' + result);
-    }
-    throw ex;
-  }
-}
-
-function compareExpectedError(test, err) {
-  try {
-    var expect = test[_getExpectProperty(test)];
-    var result = getJsonLdErrorCode(err);
-    assert.ok(err);
-    assert.equal(result, expect);
-  } catch(ex) {
-    if(program.bail) {
-      console.log('\nTEST FAILED\n');
-      console.log('EXPECTED: ' + expect);
-      console.log('ACTUAL: ' + result);
     }
     throw ex;
   }
@@ -473,21 +311,6 @@ function getJsonLdValues(node, property) {
     }
   }
   return rval;
-}
-
-function getJsonLdErrorCode(err) {
-  if(!err) {
-    return null;
-  }
-  if(err.details) {
-    if(err.details.code) {
-      return err.details.code;
-    }
-    if(err.details.cause) {
-      return getJsonLdErrorCode(err.details.cause);
-    }
-  }
-  return err.name;
 }
 
 function readJson(filename) {
@@ -535,13 +358,6 @@ function basename(filename) {
   return filename.substr(idx + 1);
 }
 
-function getEnv() {
-  if(_nodejs) {
-    return process.env;
-  }
-  return system.env;
-}
-
 function EarlReport() {
   var today = new Date();
   today = today.getFullYear() + '-' +
@@ -574,9 +390,9 @@ function EarlReport() {
     ],
     'doap:name': 'jsonld.js',
     'dc:title': 'jsonld.js',
-    'doap:homepage': 'https://github.com/digitalbazaar/rdf-normalize',
+    'doap:homepage': 'https://github.com/digitalbazaar/rdf-canonize',
     'doap:license':
-      'https://github.com/digitalbazaar/rdf-normalize/blob/master/LICENSE',
+      'https://github.com/digitalbazaar/rdf-canonize/blob/master/LICENSE',
     'doap:description': 'A JSON-LD processor for JavaScript',
     'doap:programming-language': 'JavaScript',
     'dc:creator': 'https://github.com/dlongley',
