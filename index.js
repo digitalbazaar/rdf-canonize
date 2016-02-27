@@ -60,6 +60,8 @@
 
 var URDNA2015 = require('./lib/urdna2015');
 var URGNA2012 = require('./lib/urgna2015');
+var URDNA2015Sync = require('./lib/urdna2015Sync');
+var URGNA2012Sync = require('./lib/urgna2015Sync');
 
 'use strict';
 
@@ -83,12 +85,12 @@ api.canonize = function(dataset, options, callback) {
     return new URGNA2012(options).main(dataset, callback);
   }
 
-          /*if(self.options.format === 'application/nquads') {
-            result = normalized.join('');
-            return callback();
-          }
+  /*if(self.options.format === 'application/nquads') {
+    result = normalized.join('');
+    return callback();
+  }
 
-          result = _parseNQuads(normalized.join(''));*/
+  result = _parseNQuads(normalized.join(''));*/
 
   callback(new Error(
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm));
@@ -106,10 +108,10 @@ api.canonize = function(dataset, options, callback) {
  */
 api.canonizeSync = function(dataset, options) {
   if(options.algorithm === 'URDNA2015') {
-    return new URDNA2015(options).mainSync(dataset);
+    return new URDNA2015Sync(options).main(dataset);
   }
   if(options.algorithm === 'URGNA2012') {
-    return new URGNA2012(options).mainSync(dataset);
+    return new URGNA2012Sync(options).main(dataset);
   }
   new Error(
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
