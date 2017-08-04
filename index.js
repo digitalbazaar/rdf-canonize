@@ -59,9 +59,9 @@
 */
 
 var URDNA2015 = require('./lib/urdna2015');
-var URGNA2012 = require('./lib/urgna2015');
+var URGNA2012 = require('./lib/urgna2012');
 var URDNA2015Sync = require('./lib/urdna2015Sync');
-var URGNA2012Sync = require('./lib/urgna2015Sync');
+var URGNA2012Sync = require('./lib/urgna2012Sync');
 
 'use strict';
 
