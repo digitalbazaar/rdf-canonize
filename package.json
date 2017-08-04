@@ -35,7 +35,7 @@
     "mocha-phantomjs": "^4.1.0"
   },
   "engines": {
-    "node": "*"
+    "node": ">=4"
   },
   "keywords": [
     "JSON",
