@@ -24,15 +24,26 @@
   },
   "license": "BSD-3-Clause",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "lib/*.js",
+    "dist/*.min.js",
+    "dist/*.min.js.map"
+  ],
   "dependencies": {
-    "es6-promise": "~2.0.1",
-    "node-forge": "^0.7.1"
+    "es6-promise": "~2.0.1"
   },
   "devDependencies": {
-    "chai": "^4.1.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.1.1",
     "commander": "^2.8.0",
     "mocha": "^3.5.0",
-    "mocha-phantomjs": "^4.1.0"
+    "mocha-phantomjs": "^4.1.0",
+    "node-forge": "^0.7.1",
+    "webpack": "^3.5.4",
+    "webpack-merge": "^4.1.0"
   },
   "engines": {
     "node": ">=4"
@@ -46,6 +57,11 @@
     "jsonld"
   ],
   "scripts": {
+    "prepublish": "npm run build",
+    "build": "webpack",
     "test": "mocha -R spec --check-leaks test/ conformance-test.js"
+  },
+  "browser": {
+    "./lib/messageDigest": "./lib/messageDigest-browser.js"
   }
 }
