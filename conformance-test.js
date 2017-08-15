@@ -20,12 +20,18 @@ var assert;
 if(_nodejs) {
   var path = require('path');
   assert = require('assert');
+  /*
   program = require('commander');
   program
     .option('--earl [filename]', 'Output an earl report')
     .option('--bail', 'Bail when a test fails')
     .option('--test-dir', 'Test directory')
     .parse(process.argv);
+  */
+  program = {};
+  program.earl = process.env.EARL;
+  program.bail = process.env.BAIL === 'true';
+  program.testDir = process.env.TEST_DIR;
 } else {
   var system = require('system');
   require('./setImmediate');
@@ -55,15 +61,16 @@ if(_nodejs) {
   });
 }
 
-var canonize = require('./index');
+var canonize = require('.');
+var nquads = require('./lib/nquads');
 
 var TEST_SUITE = '../normalization/tests';
 var ROOT_MANIFEST_DIR = resolvePath(program['testDir'] || TEST_SUITE);
 var TEST_TYPES = {
   'rdfn:Urgna2012EvalTest': {
-    fn: canonize,
+    fn: canonize.canonize,
     params: [
-      readTestNQuads('action'),
+      parseNQuads(readTestNQuads('action')),
       createTestOptions({
         algorithm: 'URGNA2012',
         inputFormat: 'application/nquads',
@@ -73,9 +80,9 @@ var TEST_TYPES = {
     compare: compareExpectedNQuads
   },
   'rdfn:Urdna2015EvalTest': {
-    fn: canonize,
+    fn: canonize.canonize,
     params: [
-      readTestNQuads('action'),
+      parseNQuads(readTestNQuads('action')),
       createTestOptions({
         algorithm: 'URDNA2015',
         inputFormat: 'application/nquads',
@@ -205,7 +212,7 @@ function addTest(manifest, test) {
     }
 
     // promise is undefined for node.js API
-    var promise = canonize.canonize.apply(api, params);
+    var promise = testInfo.fn.apply(api, params);
 
     if(!_nodejs) {
       promise.then(function(result) {
@@ -243,6 +250,12 @@ function readTestNQuads(property) {
     }
     var filename = joinPath(test.dirname, test[property]);
     return readFile(filename);
+  };
+}
+
+function parseNQuads(fn) {
+  return function(test) {
+    return nquads.parse(fn(test));
   };
 }
 

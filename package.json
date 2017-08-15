@@ -46,6 +46,6 @@
     "jsonld"
   ],
   "scripts": {
-    "test": "mocha -R spec --check-leaks test/ && node conformance-test"
+    "test": "mocha -R spec --check-leaks test/ conformance-test.js"
   }
 }
