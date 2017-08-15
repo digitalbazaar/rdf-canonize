@@ -60,6 +60,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "webpack",
+    "fetch-test-suite": "if [ ! -e test-suites/normalization ]; then git clone --depth 1 https://github.com/json-ld/normalization.git test-suites/normalization; fi",
     "test": "mocha -R spec --check-leaks test/ conformance-test.js"
   },
   "browser": {

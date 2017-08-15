@@ -64,8 +64,16 @@ if(_nodejs) {
 var canonize = require('.');
 var nquads = require('./lib/nquads');
 
-var TEST_SUITE = '../normalization/tests';
-var ROOT_MANIFEST_DIR = resolvePath(program['testDir'] || TEST_SUITE);
+var _TEST_SUITE_PATHS = [
+  program['testDir'],
+  '../normalization/tests',
+  './test-suites/normalization/tests',
+];
+var TEST_SUITE = _TEST_SUITE_PATHS.find(pathExists);
+if(!TEST_SUITE) {
+  throw new Error('Test suite not found.')
+}
+var ROOT_MANIFEST_DIR = resolvePath(TEST_SUITE);
 var TEST_TYPES = {
   'rdfn:Urgna2012EvalTest': {
     fn: canonize.canonize,
@@ -328,6 +336,13 @@ function getJsonLdValues(node, property) {
 
 function readJson(filename) {
   return JSON.parse(readFile(filename));
+}
+
+function pathExists(filename) {
+  if(_nodejs) {
+    return fs.existsSync(filename);
+  }
+  return fs.exists(filename);
 }
 
 function readFile(filename) {
