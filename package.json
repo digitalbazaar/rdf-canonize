@@ -9,10 +9,7 @@
     "url": "http://digitalbazaar.com/"
   },
   "contributors": [
-    {
-      "name": "Dave Longley",
-      "email": "dlongley@digitalbazaar.com"
-    }
+    "Dave Longley <dlongley@digitalbazaar.com>"
   ],
   "repository": {
     "type": "git",
