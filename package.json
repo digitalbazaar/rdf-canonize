@@ -1,8 +1,8 @@
 {
-  "name": "rdf-normalize",
+  "name": "rdf-canonize",
   "version": "0.4.0-dev",
   "description": "An implementation of the RDF Dataset Normalization Algorithm in JavaScript",
-  "homepage": "http://github.com/digitalbazaar/rdf-normalize",
+  "homepage": "http://github.com/digitalbazaar/rdf-canonize",
   "author": {
     "name": "Digital Bazaar, Inc.",
     "email": "support@digitalbazaar.com",
@@ -16,10 +16,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/digitalbazaar/rdf-normalize"
+    "url": "http://github.com/digitalbazaar/rdf-canonize"
   },
   "bugs": {
-    "url": "https://github.com/digitalbazaar/rdf-normalize/issues",
+    "url": "https://github.com/digitalbazaar/rdf-canonize/issues",
     "email": "support@digitalbazaar.com"
   },
   "license": "BSD-3-Clause",

@@ -1,4 +1,4 @@
-# rdf-normalize ChangeLog
+# rdf-canonize ChangeLog
 
 ### Added
 - RDF Dataset Normalization async implementation from [jsonld.js][].
