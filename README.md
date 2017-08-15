@@ -81,7 +81,7 @@ This should be a sibling directory of the rdf-canonize directory or in a
 `test-suites` dir. To clone shallow copies into the `test-suites` dir you can
 use the following:
 
-    npm run fetch-test-suites
+    npm run fetch-test-suite
 
 Node.js tests can be run with a simple command:
 
