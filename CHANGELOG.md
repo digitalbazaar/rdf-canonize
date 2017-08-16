@@ -1,5 +1,8 @@
 # rdf-canonize ChangeLog
 
+### Fixed
+- Move node-forge to dependencies.
+
 ## 0.1.0 - 2017-08-15
 
 ### Added

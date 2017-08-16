@@ -28,7 +28,8 @@
     "dist/*.min.js.map"
   ],
   "dependencies": {
-    "es6-promise": "~2.0.1"
+    "es6-promise": "~2.0.1",
+    "node-forge": "^0.7.1"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",
@@ -39,7 +40,6 @@
     "commander": "^2.8.0",
     "mocha": "^3.5.0",
     "mocha-phantomjs": "^4.1.0",
-    "node-forge": "^0.7.1",
     "webpack": "^3.5.4",
     "webpack-merge": "^4.1.0"
   },
