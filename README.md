@@ -65,7 +65,7 @@ Source
 
 The source code for this library is available at:
 
-http://github.com/digitalbazaar/rdf-canonize
+https://github.com/digitalbazaar/rdf-canonize
 
 Tests
 -----
@@ -97,7 +97,7 @@ To generate earl reports:
     # generate the earl report for node.js
     EARL=earl-node.jsonld npm test
 
-[Digital Bazaar]: http://digitalbazaar.com/
-[JSON-LD]: http://json-ld.org/
+[Digital Bazaar]: https://digitalbazaar.com/
+[JSON-LD]: https://json-ld.org/
 [RDF Dataset Normalization Algorithm]: https://json-ld.github.io/normalization/
 [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
