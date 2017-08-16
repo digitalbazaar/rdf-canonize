@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 0.1.0 - 2017-08-15
+
 ### Added
 - RDF Dataset Normalization async implementation from [jsonld.js][].
 - webpack support.
