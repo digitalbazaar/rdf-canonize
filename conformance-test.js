@@ -62,7 +62,7 @@ if(_nodejs) {
 }
 
 var canonize = require('.');
-var nquads = require('./lib/nquads');
+var NQuads = require('./lib/NQuads');
 
 var _TEST_SUITE_PATHS = [
   program['testDir'],
@@ -263,7 +263,7 @@ function readTestNQuads(property) {
 
 function parseNQuads(fn) {
   return function(test) {
-    return nquads.parse(fn(test));
+    return NQuads.parse(fn(test));
   };
 }
 
