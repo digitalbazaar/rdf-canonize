@@ -33,39 +33,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-/*
-(function (root, factory) {
-  if(typeof define === "function" && define.amd) {
-    define(["postal"], factory);
-  } else if(typeof module === "object" && module.exports) {
-    module.exports = factory(require("postal"));
-  } else {
-    root.myModule = factory(root.postal);
-  }
-}(this, function(postal) {
-  var sub;
-  var ch = postal.channel("myModule");
-  var myModule = {
-    sayHi:function() {
-      ch.publish("hey.yall", { msg: "myModule sez hai" });
-    },
-    dispose: function() {
-      sub.unsubscribe();
-    }
-  };
-  return myModule;
-}));
-*/
-
-var URDNA2015 = require('./lib/urdna2015');
-var URGNA2012 = require('./lib/urgna2012');
+const URDNA2015 = require('./lib/URDNA2015');
+const URGNA2012 = require('./lib/URGNA2012');
 var URDNA2015Sync = require('./lib/urdna2015Sync');
 var URGNA2012Sync = require('./lib/urgna2012Sync');
 
 'use strict';
 
-var api = {};
+const api = {};
 module.exports = api;
 
 /**
