@@ -32,13 +32,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+'use strict';
 
 const URDNA2015 = require('./lib/URDNA2015');
 const URGNA2012 = require('./lib/URGNA2012');
 const URDNA2015Sync = require('./lib/URDNA2015Sync');
 const URGNA2012Sync = require('./lib/URGNA2012Sync');
-
-'use strict';
 
 const api = {};
 module.exports = api;
