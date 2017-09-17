@@ -35,8 +35,8 @@
 
 const URDNA2015 = require('./lib/URDNA2015');
 const URGNA2012 = require('./lib/URGNA2012');
-var URDNA2015Sync = require('./lib/urdna2015Sync');
-var URGNA2012Sync = require('./lib/urgna2012Sync');
+const URDNA2015Sync = require('./lib/URDNA2015Sync');
+const URGNA2012Sync = require('./lib/URGNA2012Sync');
 
 'use strict';
 
