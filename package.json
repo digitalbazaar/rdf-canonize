@@ -61,6 +61,6 @@
     "test": "mocha -R spec --check-leaks test/ conformance-test.js"
   },
   "browser": {
-    "./lib/messageDigest": "./lib/messageDigest-browser.js"
+    "./lib/MessageDigest": "./lib/MessageDigest-browser.js"
   }
 }
