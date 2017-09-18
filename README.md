@@ -20,7 +20,7 @@ npm install rdf-canonize
 ```
 
 ```js
-var canonize = require('rdf-canonize');
+const canonize = require('rdf-canonize');
 ```
 
 ### Browser (AMD) + npm
@@ -39,7 +39,7 @@ Examples
 --------
 
 ```js
-var dataset = {
+const dataset = {
   // ...
 };
 
