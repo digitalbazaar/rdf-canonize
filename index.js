@@ -34,6 +34,7 @@
  */
 'use strict';
 
+const util = require('./lib/util');
 const URDNA2015 = require('./lib/URDNA2015');
 const URGNA2012 = require('./lib/URGNA2012');
 const URDNA2015Sync = require('./lib/URDNA2015Sync');
@@ -50,24 +51,44 @@ module.exports = api;
  *          [algorithm] the canonicalization algorithm to use, `URDNA2015` or
  *            `URGNA2012` (default: `URGNA2012`).
  * @param callback(err, canonical) called once the operation completes.
+ *
+ * @return a Promise that resolves to the canonicalized RDF Dataset.
  */
 api.canonize = function(dataset, options, callback) {
+  let _resolve;
+  let _reject;
+  const promise = new Promise((resolve, reject) => {
+    _resolve = resolve;
+    _reject = reject;
+  });
+
+  const _callback = callback || (() => {});
+  callback = (err, canonical) => {
+    if(err) {
+      return _reject(err);
+    }
+
+    /*if(options.format === 'application/nquads') {
+      canonical = canonical.join('');
+    }
+    canonical = _parseNQuads(canonical.join(''));*/
+
+    _resolve(canonical);
+    _callback(err, canonical);
+  };
+
   if(options.algorithm === 'URDNA2015') {
-    return new URDNA2015(options).main(dataset, callback);
-  }
-  if(options.algorithm === 'URGNA2012') {
-    return new URGNA2012(options).main(dataset, callback);
+    new URDNA2015(options).main(dataset, callback);
+  } else if(options.algorithm === 'URGNA2012') {
+    new URGNA2012(options).main(dataset, callback);
+  } else {
+    util.setImmediate(() => {
+      callback(new Error(
+        'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm));
+    });
   }
 
-  /*if(self.options.format === 'application/nquads') {
-    result = normalized.join('');
-    return callback();
-  }
-
-  result = _parseNQuads(normalized.join(''));*/
-
-  callback(new Error(
-    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm));
+  return promise;
 };
 
 /**
@@ -87,6 +108,6 @@ api.canonizeSync = function(dataset, options) {
   if(options.algorithm === 'URGNA2012') {
     return new URGNA2012Sync(options).main(dataset);
   }
-  new Error(
+  throw new Error(
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
 };
