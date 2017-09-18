@@ -35,7 +35,6 @@
 'use strict';
 
 const util = require('./lib/util');
-const IdentifierIssuer = require('./lib/IdentifierIssuer');
 const URDNA2015 = require('./lib/URDNA2015');
 const URGNA2012 = require('./lib/URGNA2012');
 const URDNA2015Sync = require('./lib/URDNA2015Sync');
@@ -44,7 +43,9 @@ const URGNA2012Sync = require('./lib/URGNA2012Sync');
 const api = {};
 module.exports = api;
 
-api.IdentifierIssuer = IdentifierIssuer;
+// expose helpers
+api.NQuads = require('./lib/NQuads');
+api.IdentifierIssuer = require('./lib/IdentifierIssuer');
 
 /**
  * Asynchronously canonizes an RDF dataset.
