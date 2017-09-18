@@ -215,7 +215,7 @@ function addTest(manifest, test) {
   });
 
   // run sync test
-  /*it(description + ' (synchronous)', function(done) {
+  it(description + ' (synchronous)', function(done) {
     this.timeout(5000);
     const callback = createCallback(done);
     let result;
@@ -225,7 +225,7 @@ function addTest(manifest, test) {
       return callback(e);
     }
     callback(null, result);
-  });*/
+  });
 }
 
 function getTestType(test) {
