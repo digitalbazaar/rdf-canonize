@@ -78,7 +78,6 @@ if(!TEST_SUITE) {
 const ROOT_MANIFEST_DIR = resolvePath(TEST_SUITE);
 const TEST_TYPES = {
   'rdfn:Urgna2012EvalTest': {
-    fn: canonize.canonize,
     params: [
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
@@ -90,7 +89,6 @@ const TEST_TYPES = {
     compare: compareExpectedNQuads
   },
   'rdfn:Urdna2015EvalTest': {
-    fn: canonize.canonize,
     params: [
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
@@ -177,52 +175,57 @@ function addTest(manifest, test) {
 
   // expand @id and input base
   const test_id = test['@id'] || test['id'];
-  //var number = test_id.substr(2);
   test['@id'] = manifest.baseIri + basename(manifest.filename) + test_id;
   test.base = manifest.baseIri + test.input;
   test.manifest = manifest;
   const description = test_id + ' ' + (test.purpose || test.name);
 
-  // run test
-  it(description, function(done) {
-    this.timeout(5000);
-    const testInfo = TEST_TYPES[getTestType(test)];
-    const params = testInfo.params.map(param => param(test));
-    const callback = (err, result) => {
-      try {
-        if(err) {
-          throw err;
-        }
-        testInfo.compare(test, result);
-        earl.addAssertion(test, true);
-        return done();
-      } catch(ex) {
-        if(program.bail) {
-          if(ex.name !== 'AssertionError') {
-            console.log('\nError: ', JSON.stringify(ex, null, 2));
-          }
-          if(_nodejs) {
-            process.exit();
-          } else {
-            phantom.exit();
-          }
-        }
-        earl.addAssertion(test, false);
-        return done(ex);
+  const testInfo = TEST_TYPES[getTestType(test)];
+  const params = testInfo.params.map(param => param(test));
+  const createCallback = done => (err, result) => {
+    try {
+      if(err) {
+        throw err;
       }
-    };
-
-    // test callback API on node.js
-    if(_nodejs) {
-      params.push(callback);
+      testInfo.compare(test, result);
+      earl.addAssertion(test, true);
+      return done();
+    } catch(ex) {
+      if(program.bail) {
+        if(ex.name !== 'AssertionError') {
+          console.log('\nError: ', JSON.stringify(ex, null, 2));
+        }
+        if(_nodejs) {
+          process.exit();
+        } else {
+          phantom.exit();
+        }
+      }
+      earl.addAssertion(test, false);
+      return done(ex);
     }
+  };
 
-    const promise = testInfo.fn.apply(canonize, params);
-
-    if(!_nodejs) {
-      promise.then(callback.bind(null, null), callback);
-    }
+  // run async test
+  it(description + ' (asynchronous)', function(done) {
+    this.timeout(5000);
+    const callback = createCallback(done);
+    const promise = canonize.canonize.apply(null, params);
+    promise.then(callback.bind(null, null), callback);
   });
+
+  // run sync test
+  /*it(description + ' (synchronous)', function(done) {
+    this.timeout(5000);
+    const callback = createCallback(done);
+    let result;
+    try {
+      result = canonize.canonizeSync.apply(null, params);
+    } catch(e) {
+      return callback(e);
+    }
+    callback(null, result);
+  });*/
 }
 
 function getTestType(test) {
