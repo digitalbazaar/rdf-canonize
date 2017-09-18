@@ -1,5 +1,11 @@
 # rdf-canonize ChangeLog
 
+## 0.1.2 - 2017-09-17
+
+### Changed
+- Change internals to use ES6.
+- Return Promise from API for async method.
+
 ## 0.1.1 - 2017-08-15
 
 ### Fixed
