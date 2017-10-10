@@ -40,6 +40,11 @@ const URGNA2012 = require('./lib/URGNA2012');
 const URDNA2015Sync = require('./lib/URDNA2015Sync');
 const URGNA2012Sync = require('./lib/URGNA2012Sync');
 
+let URDNA2015Native;
+try {
+  URDNA2015Native = require('bindings')('urdna2015');
+} catch(e) {}
+
 const api = {};
 module.exports = api;
 
@@ -54,6 +59,8 @@ api.IdentifierIssuer = require('./lib/IdentifierIssuer');
  * @param [options] the options to use:
  *          [algorithm] the canonicalization algorithm to use, `URDNA2015` or
  *            `URGNA2012` (default: `URGNA2012`).
+ *          [usePureJavaScript] only use JavaScript implementation
+ *            (default: false).
  * @param callback(err, canonical) called once the operation completes.
  *
  * @return a Promise that resolves to the canonicalized RDF Dataset.
@@ -77,7 +84,11 @@ api.canonize = util.callbackify(async function(dataset, options) {
 
   // TODO: convert algorithms to Promise-based async
   if(options.algorithm === 'URDNA2015') {
-    new URDNA2015(options).main(dataset, callback);
+    if(URDNA2015Native && !options.usePureJavaScript) {
+      URDNA2015Native.main({dataset}, callback);
+    } else {
+      new URDNA2015(options).main(dataset, callback);
+    }
   } else if(options.algorithm === 'URGNA2012') {
     new URGNA2012(options).main(dataset, callback);
   } else {

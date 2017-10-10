@@ -182,6 +182,12 @@ function addTest(manifest, test) {
 
   const testInfo = TEST_TYPES[getTestType(test)];
   const params = testInfo.params.map(param => param(test));
+  // custom params for js only async mode
+  const jsParams = testInfo.params.map(param => param(test));
+  jsParams[1].usePureJavaScript = true;
+  // custom params for native only async mode (if available)
+  const nativeParams = testInfo.params.map(param => param(test));
+  nativeParams[1].usePureJavaScript = false;
   const createCallback = done => (err, result) => {
     try {
       if(err) {
@@ -206,11 +212,19 @@ function addTest(manifest, test) {
     }
   };
 
-  // run async test
-  it(description + ' (asynchronous)', function(done) {
+  // run async js test
+  it(description + ' (asynchronous js)', function(done) {
     this.timeout(5000);
     const callback = createCallback(done);
-    const promise = canonize.canonize.apply(null, params);
+    const promise = canonize.canonize.apply(null, jsParams);
+    promise.then(callback.bind(null, null), callback);
+  });
+
+  // run async native test
+  it(description + ' (asynchronous native)', function(done) {
+    this.timeout(5000);
+    const callback = createCallback(done);
+    const promise = canonize.canonize.apply(null, nativeParams);
     promise.then(callback.bind(null, null), callback);
   });
 

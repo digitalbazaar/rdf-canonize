@@ -28,7 +28,9 @@
     "dist/*.min.js.map"
   ],
   "dependencies": {
+    "bindings": "^1.3.0",
     "es6-promise": "~2.0.1",
+    "nan": "^2.7.0",
     "node-forge": "^0.7.1"
   },
   "devDependencies": {
