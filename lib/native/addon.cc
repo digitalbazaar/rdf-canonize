@@ -3,8 +3,8 @@
  *
  * Copyright (c) 2017 Digital Bazaar, Inc.
  *
- * MIT License
- * <https://github.com/digitalbazaar/equihash/blob/master/LICENSE>
+ * BSD License
+ * <https://github.com/digitalbazaar/rdf-canonize/blob/master/LICENSE>
  ********************************************************************/
 
 #include <nan.h>
@@ -33,18 +33,22 @@ using v8::Object;
 using v8::String;
 using v8::Value;
 
+using namespace RdfCanonize;
+
 class Urdna2015Worker : public AsyncWorker {
 public:
-  Urdna2015Worker(Urdna2015 urdna2015, Callback* callback)
-    : AsyncWorker(callback), urdna2015(urdna2015) {}
-  ~Urdna2015Worker() {}
+  Urdna2015Worker(Urdna2015 urdna2015, Dataset* dataset, Callback* callback)
+    : AsyncWorker(callback), urdna2015(urdna2015), dataset(dataset) {}
+  ~Urdna2015Worker() {
+    delete dataset;
+  }
 
   // Executed inside the worker-thread.
   // It is not safe to access V8, or V8 data structures
   // here, so everything we need for input and output
   // should go on `this`.
   void Execute () {
-    output = urdna2015.main();
+    output = urdna2015.main(*dataset);
   }
 
   // Executed when the async work is complete
@@ -62,8 +66,11 @@ public:
 
 private:
   Urdna2015 urdna2015;
+  Dataset* dataset;
   std::string output;
 };
+
+static bool createTerm(Term*& term, const Handle<Object>& object);
 
 NAN_METHOD(Main) {
   // ensure first argument is an object
@@ -85,8 +92,8 @@ NAN_METHOD(Main) {
   Handle<Value> maxTotalCallStackDepthValue =
     object->Get(New("maxTotalCallStackDepth").ToLocalChecked());
   */
-  Handle<Object> datasetValue =
-    Handle<Object>::Cast(object->Get(New("dataset").ToLocalChecked()));
+  Handle<Array> datasetArray =
+    Handle<Array>::Cast(object->Get(New("dataset").ToLocalChecked()));
 
   /*
   const unsigned maxCallStackDepth =
@@ -95,62 +102,109 @@ NAN_METHOD(Main) {
     To<unsigned>(maxTotalCallStackDepthValue).FromJust();
   */
 
-  Dataset dataset;
-  Handle<Array> quadNames =
-    Handle<Array>::Cast(datasetValue->GetOwnPropertyNames());
+  //Urdna2015 urdna2015(maxCallStackDepth, maxTotalCallStackDepth);
+  Urdna2015 urdna2015(0, 0);
+
+  Dataset* dataset = new Dataset();
 
   Local<String> subjectKey = New("subject").ToLocalChecked();
   Local<String> predicateKey = New("predicate").ToLocalChecked();
   Local<String> objectKey = New("object").ToLocalChecked();
-  Local<String> nameKey = New("name").ToLocalChecked();
-  Local<String> typeKey = New("type").ToLocalChecked();
-  Local<String> valueKey = New("value").ToLocalChecked();
-  Local<String> datatypeKey = New("datatype").ToLocalChecked();
+  Local<String> graphKey = New("graph").ToLocalChecked();
 
   // TODO: check for valid structure
-  for(size_t gi = 0; gi < quadNames->Length(); ++gi) {
-    Local<Value> quadName = quadNames->Get(gi);
-    Handle<Array> quads = Handle<Array>::Cast(datasetValue->Get(quadName));
-    Graph g;
-    for(size_t qi = 0; qi < quads->Length(); ++qi) {
-      Handle<Object> quad = Handle<Object>::Cast(quads->Get(qi));
+  for(size_t di = 0; di < datasetArray->Length(); ++di) {
+    Handle<Object> quad = Handle<Object>::Cast(datasetArray->Get(di));
 
-      Handle<Object> subject =
-        Handle<Object>::Cast(quad->Get(subjectKey));
-      Handle<Object> predicate =
-        Handle<Object>::Cast(quad->Get(predicateKey));
-      Handle<Object> object =
-        Handle<Object>::Cast(quad->Get(objectKey));
-      Handle<Object> name =
-        Handle<Object>::Cast(quad->Get(nameKey));
+    Handle<Object> subject =
+      Handle<Object>::Cast(quad->Get(subjectKey));
+    Handle<Object> predicate =
+      Handle<Object>::Cast(quad->Get(predicateKey));
+    Handle<Object> object =
+      Handle<Object>::Cast(quad->Get(objectKey));
 
-      Quad q(
-        QuadValue(
-          *Utf8String(subject->Get(typeKey)),
-          *Utf8String(subject->Get(valueKey)),
-          *Utf8String(subject->Get(datatypeKey))),
-        QuadValue(
-          *Utf8String(predicate->Get(typeKey)),
-          *Utf8String(predicate->Get(valueKey)),
-          *Utf8String(predicate->Get(valueKey))),
-        QuadValue(
-          *Utf8String(object->Get(typeKey)),
-          *Utf8String(object->Get(valueKey)),
-          *Utf8String(object->Get(datatypeKey))),
-        QuadValue(
-          *Utf8String(name->Get(typeKey)),
-          *Utf8String(name->Get(valueKey)),
-          *Utf8String(name->Get(datatypeKey))));
-      g.push_back(q);
+    Quad* q = new Quad();
+
+    if(!(createTerm(q->subject, subject) &&
+      createTerm(q->predicate, predicate) &&
+      createTerm(q->object, object))) {
+      delete q;
+      delete dataset;
+      return;
     }
 
-    dataset[*Utf8String(quadName)] = g;
+    if(quad->Has(graphKey)) {
+      Handle<Object> graph = Handle<Object>::Cast(quad->Get(graphKey));
+      if(!createTerm(q->graph, graph)) {
+        delete q;
+        delete dataset;
+        return;
+      }
+    }
+
+    dataset->quads.push_back(q);
   }
 
-  //Urdna2015 urdna2015(maxCallStackDepth, maxTotalCallStackDepth, dataset);
-  Urdna2015 urdna2015(0, 0, dataset);
+  AsyncQueueWorker(new Urdna2015Worker(urdna2015, dataset, callback));
+}
 
-  AsyncQueueWorker(new Urdna2015Worker(urdna2015, callback));
+static bool createTerm(Term*& term, const Handle<Object>& object) {
+  Local<String> termTypeKey = New("termType").ToLocalChecked();
+  Local<String> valueKey = New("value").ToLocalChecked();
+  Local<String> datatypeKey = New("datatype").ToLocalChecked();
+  Local<String> languageKey = New("language").ToLocalChecked();
+
+  if(!(object->Has(termTypeKey) && object->Get(termTypeKey)->IsString())) {
+    Nan::ThrowTypeError(
+      "'termType' must be 'BlankNode', 'NamedNode', " \
+      "'Literal', or 'DefaultGraph'.");
+    return false;
+  }
+
+  Utf8String termType(object->Get(termTypeKey));
+
+  if(strcmp(*termType, "BlankNode") == 0) {
+    term = new BlankNode();
+  } else if(strcmp(*termType, "NamedNode") == 0) {
+    term = new NamedNode();
+  } else if(strcmp(*termType, "Literal") == 0) {
+    Literal* literal = new Literal();
+    term = literal;
+    if(object->Has(datatypeKey)) {
+      Handle<Object> datatype =
+        Handle<Object>::Cast(object->Get(datatypeKey));
+      if(!datatype->IsObject() || datatype->IsNull()) {
+        Nan::ThrowError(
+          "'termType' must be 'BlankNode', 'NamedNode', " \
+          "'Literal', or 'DefaultGraph'.");
+        return false;
+      }
+      Term* dataTypeTerm;
+      if(!createTerm(dataTypeTerm, datatype)) {
+        return false;
+      }
+      if(dataTypeTerm->termType != TermType::NAMED_NODE) {
+        Nan::ThrowError("datatype 'termType' must be 'NamedNode'.");
+        delete dataTypeTerm;
+        return false;
+      }
+      literal->datatype = (NamedNode*)dataTypeTerm;
+    }
+    if(object->Has(languageKey)) {
+      literal->language = *Utf8String(object->Get(languageKey));
+    }
+  } else if(strcmp(*termType, "DefaultGraph") == 0) {
+    term = new DefaultGraph();
+  } else {
+    Nan::ThrowError(
+      "'termType' must be 'BlankNode', 'NamedNode', " \
+      "'Literal', or 'DefaultGraph'.");
+    return false;
+  }
+
+  term->value = *Utf8String(object->Get(valueKey));
+
+  return true;
 }
 
 NAN_MODULE_INIT(InitAll) {
