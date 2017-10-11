@@ -58,29 +58,24 @@ api.IdentifierIssuer = require('./lib/IdentifierIssuer');
  *
  * @return a Promise that resolves to the canonicalized RDF Dataset.
  */
-api.canonize = function(dataset, options, callback) {
-  let _resolve;
-  let _reject;
+api.canonize = util.callbackify(function(dataset, options) {
+  let callback;
   const promise = new Promise((resolve, reject) => {
-    _resolve = resolve;
-    _reject = reject;
+    callback = (err, canonical) => {
+      if(err) {
+        return reject(err);
+      }
+
+      /*if(options.format === 'application/nquads') {
+        canonical = canonical.join('');
+      }
+      canonical = _parseNQuads(canonical.join(''));*/
+
+      resolve(canonical);
+    };
   });
 
-  const _callback = callback || (() => {});
-  callback = (err, canonical) => {
-    if(err) {
-      return _reject(err);
-    }
-
-    /*if(options.format === 'application/nquads') {
-      canonical = canonical.join('');
-    }
-    canonical = _parseNQuads(canonical.join(''));*/
-
-    _resolve(canonical);
-    _callback(err, canonical);
-  };
-
+  // TODO: convert algorithms to Promise-based async
   if(options.algorithm === 'URDNA2015') {
     new URDNA2015(options).main(dataset, callback);
   } else if(options.algorithm === 'URGNA2012') {
@@ -93,7 +88,7 @@ api.canonize = function(dataset, options, callback) {
   }
 
   return promise;
-};
+});
 
 /**
  * Synchronously canonizes an RDF dataset.
