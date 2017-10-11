@@ -63,6 +63,7 @@
     "test": "mocha -R spec --check-leaks test/ conformance-test.js"
   },
   "browser": {
-    "./lib/MessageDigest": "./lib/MessageDigest-browser.js"
+    "./lib/MessageDigest": "./lib/MessageDigest-browser.js",
+    "bindings": false
   }
 }
