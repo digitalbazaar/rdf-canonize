@@ -11,3 +11,7 @@ trim_trailing_whitespace = true
 [*.{js,json,jsonld,yaml,yml}]
 indent_style = space
 indent_size = 2
+
+[*.{h,cc}]
+indent_style = space
+indent_size = 2
