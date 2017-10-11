@@ -58,7 +58,7 @@ api.IdentifierIssuer = require('./lib/IdentifierIssuer');
  *
  * @return a Promise that resolves to the canonicalized RDF Dataset.
  */
-api.canonize = util.callbackify(function(dataset, options) {
+api.canonize = util.callbackify(async function(dataset, options) {
   let callback;
   const promise = new Promise((resolve, reject) => {
     callback = (err, canonical) => {
@@ -81,10 +81,8 @@ api.canonize = util.callbackify(function(dataset, options) {
   } else if(options.algorithm === 'URGNA2012') {
     new URGNA2012(options).main(dataset, callback);
   } else {
-    util.setImmediate(() => {
-      callback(new Error(
-        'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm));
-    });
+    throw new Error(
+      'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
   }
 
   return promise;
