@@ -21,7 +21,6 @@ struct BlankNodeInfo {
   Hash hash;
 };
 
-typedef std::vector<NodeIdentifier> NodeIdentifierList;
 typedef std::map<NodeIdentifier, BlankNodeInfo> BlankNodeInfoMap;
 typedef std::map<Hash, NodeIdentifierList> HashToBlankNodeMap;
 
@@ -43,17 +42,18 @@ struct Urdna2015 {
     canonicalIssuer("_:c14n"),
     maxCallStackDepth(maxCallStackDepth),
     maxTotalCallStackDepth(maxTotalCallStackDepth) {};
-  ~Urdna2015() {};
+  virtual ~Urdna2015() {};
 
   std::string main(const Dataset& dataset);
-  Hash hashFirstDegreeQuads(NodeIdentifier id);
-  Hash hashRelatedBlankNode(
+  virtual Hash hashFirstDegreeQuads(NodeIdentifier id);
+  virtual Hash hashRelatedBlankNode(
     NodeIdentifier related, const Quad& quad,
     IdentifierIssuer& issuer, char position);
-  HashPath hashNDegreeQuads(NodeIdentifier id, IdentifierIssuer*& issuer);
-  Term* modifyFirstDegreeComponent(NodeIdentifier id, const Term& component);
-  std::string getRelatedPredicate(const Quad& quad);
-  HashToBlankNodeMap createHashToRelated(
+  virtual HashPath hashNDegreeQuads(
+    NodeIdentifier id, IdentifierIssuer*& issuer);
+  virtual Term* modifyFirstDegreeComponent(NodeIdentifier id, Term& component);
+  virtual std::string getRelatedPredicate(const Quad& quad);
+  virtual HashToBlankNodeMap createHashToRelated(
     NodeIdentifier id, IdentifierIssuer*& issuer);
 };
 

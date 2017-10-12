@@ -28,23 +28,21 @@ static void printTerm(const Term& term);
 // TODO: rename "component" to "term" everywhere?
 
 string Urdna2015::main(const Dataset& dataset) {
-  QuadSet::const_iterator dit = dataset.quads.begin();
-  printf("dataset:\n");
-  while(dit != dataset.quads.end()) {
-    Quad& q = **dit;
-    printf("  quad:\n");
-    printf("    subject:\n");
-    printTerm(*(q.subject));
-    printf("    predicate:\n");
-    printTerm(*(q.predicate));
-    printf("    object:\n");
-    printTerm(*(q.object));
-    if(q.graph != NULL) {
-      printf("    graph:\n");
-      printTerm(*(q.graph));
-    }
-    dit++;
-  }
+  // QuadSet::const_iterator dit = dataset.quads.begin();
+  // printf("dataset:\n");
+  // while(dit != dataset.quads.end()) {
+  //   Quad& q = **dit;
+  //   printf("  quad:\n");
+  //   printf("    subject:\n");
+  //   printTerm(*(q.subject));
+  //   printf("    predicate:\n");
+  //   printTerm(*(q.predicate));
+  //   printf("    object:\n");
+  //   printTerm(*(q.object));
+  //   printf("    graph:\n");
+  //   printTerm(*(q.graph));
+  //   dit++;
+  // }
 
   // 4.4) Normalization Algorithm
 
@@ -184,8 +182,9 @@ string Urdna2015::main(const Dataset& dataset) {
       // in result, issue a canonical identifier, in the same order,
       // using the Issue Identifier algorithm, passing canonical
       // issuer and existing identifier.
-      for(auto& kv : hashPath.second->existing) {
-        canonicalIssuer.getNew(kv.first);
+      printf("hash order: %s\n", hashPath.first.c_str());
+      for(auto& id : hashPath.second->ordered) {
+        canonicalIssuer.getNew(id);
       }
     }
   }
@@ -284,7 +283,7 @@ Hash Urdna2015::hashRelatedBlankNode(
   // 2) Initialize a string input to the value of position.
   // Note: We use a hash object instead.
   MessageDigest md(hashAlgorithm);
-  md.update(&position);
+  md.update(position);
 
   // 3) If position is not g, append <, the value of the predicate in quad,
   // and > to input.
@@ -310,6 +309,7 @@ HashPath Urdna2015::hashNDegreeQuads(
   MessageDigest md(hashAlgorithm);
   // TODO: consider using heap
   HashToBlankNodeMap hashToRelated = createHashToRelated(id, issuer);
+  //string tmp;
 
   // 4) Create an empty string, data to hash.
   // Note: We created a hash object `md` above instead.
@@ -321,6 +321,7 @@ HashPath Urdna2015::hashNDegreeQuads(
   for(Hash hash : hashes) {
     // 5.1) Append the related hash to the data to hash.
     md.update(hash);
+    //tmp.append(hash);
 
     // 5.2) Create a string chosen path.
     string chosenPath;
@@ -423,6 +424,7 @@ HashPath Urdna2015::hashNDegreeQuads(
 
     // 5.5) Append chosen path to data to hash.
     md.update(chosenPath);
+    //tmp.append(chosenPath);
 
     // 5.6) Replace issuer, by reference, with chosen issuer.
     issuer = chosenIssuer;
@@ -430,17 +432,20 @@ HashPath Urdna2015::hashNDegreeQuads(
 
   // 6) Return issuer and the hash that results from passing data to hash
   // through the hash algorithm.
+  // printf("BIG INPUT: %s\n", tmp.c_str());
+  // string foo = md.digest();
+  // printf("BIG HASH: %s\n", foo.c_str());
+  // return HashPath(foo, issuer);
   return HashPath(md.digest(), issuer);
 }
 
 // helper for modifying component during Hash First Degree Quads
 Term* Urdna2015::modifyFirstDegreeComponent(
-  NodeIdentifier id, const Term& component) {
+  NodeIdentifier id, Term& component) {
   Term* copy = component.clone();
-  if(component.termType != TermType::BLANK_NODE) {
-    return copy;
+  if(component.termType == TermType::BLANK_NODE) {
+    copy->value = (component.value == id ? "_:a" : "_:z");
   }
-  copy->value = (component.value == id ? "_:a" : "_:z");
   return copy;
 }
 
@@ -468,7 +473,7 @@ HashToBlankNodeMap Urdna2015::createHashToRelated(
     // 3.1) For each component in quad, if component is the subject, object,
     // and graph name and it is a blank node that is not identified by
     // identifier:
-    unsigned counter = 0;
+    unsigned counter = -1;
     for(const Term* component : {q->subject, q->object, q->graph}) {
       counter++;
       if(!(component->termType == TermType::BLANK_NODE &&
@@ -535,7 +540,7 @@ static void printTerm(const Term& term) {
     if(datatype != NULL) {
       printf("      datatype: \n");
       printTerm(*datatype);
-    } else if(language != "") {
+    } else if(language.size() != 0) {
       printf("      language: %s\n", language.c_str());
     }
   }

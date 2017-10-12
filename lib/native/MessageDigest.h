@@ -16,6 +16,7 @@ struct MessageDigest {
 
   MessageDigest(const char* algorithm);
   ~MessageDigest();
+  void update(const char& c);
   void update(const std::string& msg);
   std::string digest();
 };

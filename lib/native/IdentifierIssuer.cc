@@ -30,8 +30,9 @@ NodeIdentifier IdentifierIssuer::getNew(const NodeIdentifier& old) {
   // get next identifier
   NodeIdentifier id = getNew();
 
-  // save mapping
+  // save mapping and order
   existing[old] = id;
+  ordered.push_back(old);
 
   return id;
 }

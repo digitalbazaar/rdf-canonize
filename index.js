@@ -148,11 +148,14 @@ function legacyDatasetToQuads(dataset) {
               termType: 'NamedNode',
               value: oldComponent.datatype
             };
-          } else if('language' in oldComponent) {
-            newComponent.datatype = {
-              termType: 'NamedNode',
-              value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString'
-            };
+          }
+          if('language' in oldComponent) {
+            if(!('datatype' in newComponent)) {
+              newComponent.datatype = {
+                termType: 'NamedNode',
+                value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString'
+              };
+            }
             newComponent.language = oldComponent.language;
           }
         }
@@ -173,7 +176,8 @@ function legacyDatasetToQuads(dataset) {
     });
   }
 
-  console.log('quads', JSON.stringify(quads, null, 2));
+  //console.log('dataset', JSON.stringify(dataset, null, 2));
+  //console.log('quads', JSON.stringify(quads, null, 2));
   //process.exit(1);
 
   return quads;

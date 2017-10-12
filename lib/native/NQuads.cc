@@ -77,7 +77,7 @@ string NQuads::serializeQuad(const Quad& quad) {
     nquad << "\"" << escaped << "\"";
     if(literal->datatype != NULL) {
       if(literal->datatype->value == RDF_LANGSTRING) {
-        if(literal->language.size() > 0) {
+        if(literal->language.size() != 0) {
           nquad << "@" << literal->language;
         }
       } else if(literal->datatype->value != XSD_STRING) {
@@ -96,5 +96,6 @@ string NQuads::serializeQuad(const Quad& quad) {
   }
 
   nquad << " .\n";
+  //printf("nquad: %s\n", nquad.str().c_str());
   return nquad.str();
 }

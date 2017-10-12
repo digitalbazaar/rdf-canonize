@@ -34,6 +34,12 @@ MessageDigest::~MessageDigest() {
   EVP_MD_CTX_cleanup(&context);
 }
 
+void MessageDigest::update(const char& c) {
+  if(hashFn != NULL) {
+    EVP_DigestUpdate(&context, &c, 1);
+  }
+}
+
 void MessageDigest::update(const string& msg) {
   if(hashFn != NULL) {
     EVP_DigestUpdate(&context, msg.c_str(), msg.size());
@@ -41,7 +47,7 @@ void MessageDigest::update(const string& msg) {
 }
 
 string MessageDigest::digest() {
-  if(hashFn != NULL) {
+  if(hashFn == NULL) {
     return "error";
   }
 
