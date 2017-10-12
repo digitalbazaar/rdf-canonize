@@ -116,31 +116,29 @@ NAN_METHOD(Main) {
   for(size_t di = 0; di < datasetArray->Length(); ++di) {
     Handle<Object> quad = Handle<Object>::Cast(datasetArray->Get(di));
 
+    // TODO: ensure all keys are present and represent objects
+
     Handle<Object> subject =
       Handle<Object>::Cast(quad->Get(subjectKey));
     Handle<Object> predicate =
       Handle<Object>::Cast(quad->Get(predicateKey));
     Handle<Object> object =
       Handle<Object>::Cast(quad->Get(objectKey));
+    Handle<Object> graph =
+      Handle<Object>::Cast(quad->Get(graphKey));
 
     Quad* q = new Quad();
 
     if(!(createTerm(q->subject, subject) &&
       createTerm(q->predicate, predicate) &&
-      createTerm(q->object, object))) {
+      createTerm(q->object, object) &&
+      createTerm(q->graph, graph))) {
       delete q;
       delete dataset;
       return;
     }
 
-    if(quad->Has(graphKey)) {
-      Handle<Object> graph = Handle<Object>::Cast(quad->Get(graphKey));
-      if(!createTerm(q->graph, graph)) {
-        delete q;
-        delete dataset;
-        return;
-      }
-    }
+    // TODO: ensure q is valid (term types all valid for s, p, o, g, etc.)
 
     dataset->quads.push_back(q);
   }

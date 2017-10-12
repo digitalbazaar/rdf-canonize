@@ -23,7 +23,7 @@ struct Term {
 
   Term(const TermType& termType, const std::string& value = "") :
     termType(termType), value(value) {};
-  Term* clone() {
+  Term* clone() const {
     return new Term(termType, value);
   }
 };
@@ -31,7 +31,7 @@ struct Term {
 struct BlankNode : public Term {
   BlankNode(const std::string& value = "") :
     Term(TermType::BLANK_NODE, value) {};
-  Term* clone() {
+  Term* clone() const {
     return new BlankNode(value);
   }
 };
@@ -39,7 +39,7 @@ struct BlankNode : public Term {
 struct NamedNode : public Term {
   NamedNode(const std::string& value = "") :
     Term(TermType::NAMED_NODE, value) {};
-  Term* clone() {
+  Term* clone() const {
     return new NamedNode(value);
   }
 };
@@ -55,7 +55,7 @@ struct Literal : public Term {
       delete datatype;
     }
   }
-  Term* clone() {
+  Term* clone() const {
     Literal* literal = new Literal();
     literal->language = language;
     if(datatype != NULL) {
@@ -67,7 +67,7 @@ struct Literal : public Term {
 
 struct DefaultGraph : public Term {
   DefaultGraph() : Term(TermType::DEFAULT_GRAPH) {};
-  Term* clone() {
+  Term* clone() const {
     return new DefaultGraph();
   }
 };
@@ -83,17 +83,12 @@ struct Quad {
     delete subject;
     delete predicate;
     delete object;
-    if(graph != NULL) {
-      delete graph;
-      graph = NULL;
-    }
+    delete graph;
 
     subject = toCopy.subject->clone();
     predicate = toCopy.predicate->clone();
     object = toCopy.object->clone();
-    if(toCopy.graph != NULL) {
-      graph = toCopy.graph->clone();
-    }
+    graph = toCopy.graph->clone();
 
     return *this;
   }
@@ -121,8 +116,8 @@ struct Dataset {
 
   ~Dataset() {
     printf("destroy dataset\n");
-    for(QuadSet::iterator i = quads.begin(); i != quads.end(); ++i) {
-      delete *i;
+    for(Quad* quad : quads) {
+      delete quad;
     }
   }
 };
