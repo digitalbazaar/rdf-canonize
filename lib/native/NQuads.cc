@@ -96,6 +96,5 @@ string NQuads::serializeQuad(const Quad& quad) {
   }
 
   nquad << " .\n";
-  //printf("nquad: %s\n", nquad.str().c_str());
   return nquad.str();
 }

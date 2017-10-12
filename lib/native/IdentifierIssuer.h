@@ -47,14 +47,6 @@ struct IdentifierIssuerPool {
 
   IdentifierIssuer* copy(const IdentifierIssuer* toCopy) {
     IdentifierIssuer* issuer = new IdentifierIssuer(*toCopy);
-    // printf("copying issuer:\n");
-    // for(const auto& kv : toCopy->existing) {
-    //   printf("%s => %s\n", kv.first.c_str(), kv.second.c_str());
-    // }
-    // printf("copy:\n");
-    // for(const auto& kv : issuer->existing) {
-    //   printf("%s => %s\n", kv.first.c_str(), kv.second.c_str());
-    // }
     issuers.push_back(issuer);
     return issuer;
   }

@@ -96,7 +96,6 @@ struct Quad {
     return *this;
   }
   ~Quad() {
-    //printf("destroy quad\n");
     if(subject != NULL) {
       delete subject;
     }
@@ -118,7 +117,6 @@ struct Dataset {
   QuadSet quads;
 
   ~Dataset() {
-    //printf("destroy dataset\n");
     for(Quad* quad : quads) {
       delete quad;
     }

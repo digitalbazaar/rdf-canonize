@@ -173,8 +173,9 @@ string Urdna2015::main(const Dataset& dataset) {
     // lexicographically-sorted by the hash in result:
     sort(
       hashPathList.begin(), hashPathList.end(),
+      // TODO: use string operator fn instead of lambda?
       [] (const HashPath& a, const HashPath& b) {
-        return a.first.compare(b.first);
+        return a.first < b.first;
       });
     for(HashPath& hashPath : hashPathList) {
       // 6.3.1) For each blank node identifier, existing identifier,
@@ -182,7 +183,6 @@ string Urdna2015::main(const Dataset& dataset) {
       // in result, issue a canonical identifier, in the same order,
       // using the Issue Identifier algorithm, passing canonical
       // issuer and existing identifier.
-      printf("hash order: %s\n", hashPath.first.c_str());
       for(auto& id : hashPath.second->ordered) {
         canonicalIssuer.getNew(id);
       }
@@ -432,10 +432,6 @@ HashPath Urdna2015::hashNDegreeQuads(
 
   // 6) Return issuer and the hash that results from passing data to hash
   // through the hash algorithm.
-  // printf("BIG INPUT: %s\n", tmp.c_str());
-  // string foo = md.digest();
-  // printf("BIG HASH: %s\n", foo.c_str());
-  // return HashPath(foo, issuer);
   return HashPath(md.digest(), issuer);
 }
 
