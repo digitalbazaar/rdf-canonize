@@ -23,7 +23,8 @@ struct Term {
 
   Term(const TermType& termType, const std::string& value = "") :
     termType(termType), value(value) {};
-  Term* clone() const {
+  virtual ~Term() {};
+  virtual Term* clone() const {
     return new Term(termType, value);
   }
 };
@@ -31,7 +32,8 @@ struct Term {
 struct BlankNode : public Term {
   BlankNode(const std::string& value = "") :
     Term(TermType::BLANK_NODE, value) {};
-  Term* clone() const {
+  virtual ~BlankNode() {};
+  virtual Term* clone() const {
     return new BlankNode(value);
   }
 };
@@ -39,7 +41,8 @@ struct BlankNode : public Term {
 struct NamedNode : public Term {
   NamedNode(const std::string& value = "") :
     Term(TermType::NAMED_NODE, value) {};
-  Term* clone() const {
+  virtual ~NamedNode() {};
+  virtual Term* clone() const {
     return new NamedNode(value);
   }
 };
@@ -50,13 +53,13 @@ struct Literal : public Term {
 
   Literal(const std::string& value = "") :
     Term(TermType::LITERAL, value), datatype(NULL) {};
-  ~Literal() {
+  virtual ~Literal() {
     if(datatype != NULL) {
       delete datatype;
     }
   }
-  Term* clone() const {
-    Literal* literal = new Literal();
+  virtual Term* clone() const {
+    Literal* literal = new Literal(value);
     literal->language = language;
     if(datatype != NULL) {
       literal->datatype = (NamedNode*)datatype->clone();
@@ -67,7 +70,7 @@ struct Literal : public Term {
 
 struct DefaultGraph : public Term {
   DefaultGraph() : Term(TermType::DEFAULT_GRAPH) {};
-  Term* clone() const {
+  virtual Term* clone() const {
     return new DefaultGraph();
   }
 };
