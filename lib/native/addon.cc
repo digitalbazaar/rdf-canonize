@@ -70,6 +70,7 @@ private:
   std::string output;
 };
 
+static bool fillDataset(Dataset& dataset, Handle<Array>& datasetArray);
 static bool createTerm(Term*& term, const Handle<Object>& object);
 
 NAN_METHOD(Main) {
@@ -106,7 +107,52 @@ NAN_METHOD(Main) {
   Urdna2015 urdna2015(0, 0);
 
   Dataset* dataset = new Dataset();
+  if(!fillDataset(*dataset, datasetArray)) {
+    delete dataset;
+    // TODO: call `callback` with the error?
+    return;
+  }
 
+  AsyncQueueWorker(new Urdna2015Worker(urdna2015, dataset, callback));
+}
+
+NAN_METHOD(MainSync) {
+  // ensure first argument is an object
+  if(!info[0]->IsObject()) {
+    Nan::ThrowTypeError("'options' must be an object");
+    return;
+  }
+
+  Handle<Object> object = Handle<Object>::Cast(info[0]);
+  /*
+  Handle<Value> maxCallStackDepthValue =
+    object->Get(New("maxCallStackDepth").ToLocalChecked());
+  Handle<Value> maxTotalCallStackDepthValue =
+    object->Get(New("maxTotalCallStackDepth").ToLocalChecked());
+  */
+  Handle<Array> datasetArray =
+    Handle<Array>::Cast(object->Get(New("dataset").ToLocalChecked()));
+
+  /*
+  const unsigned maxCallStackDepth =
+    To<unsigned>(maxCallStackDepthValue).FromJust();
+  const unsigned maxTotalCallStackDepth =
+    To<unsigned>(maxTotalCallStackDepthValue).FromJust();
+  */
+
+  //Urdna2015 urdna2015(maxCallStackDepth, maxTotalCallStackDepth);
+  Urdna2015 urdna2015(0, 0);
+
+  Dataset dataset;
+  if(!fillDataset(dataset, datasetArray)) {
+    return;
+  }
+
+  std::string output = urdna2015.main(dataset);
+  info.GetReturnValue().Set(New(output.c_str()).ToLocalChecked());
+}
+
+static bool fillDataset(Dataset& dataset, Handle<Array>& datasetArray) {
   Local<String> subjectKey = New("subject").ToLocalChecked();
   Local<String> predicateKey = New("predicate").ToLocalChecked();
   Local<String> objectKey = New("object").ToLocalChecked();
@@ -134,16 +180,15 @@ NAN_METHOD(Main) {
       createTerm(q->object, object) &&
       createTerm(q->graph, graph))) {
       delete q;
-      delete dataset;
-      return;
+      return false;
     }
 
     // TODO: ensure q is valid (term types all valid for s, p, o, g, etc.)
 
-    dataset->quads.push_back(q);
+    dataset.quads.push_back(q);
   }
 
-  AsyncQueueWorker(new Urdna2015Worker(urdna2015, dataset, callback));
+  return true;
 }
 
 static bool createTerm(Term*& term, const Handle<Object>& object) {
@@ -209,6 +254,9 @@ NAN_MODULE_INIT(InitAll) {
   Set(
     target, New<String>("main").ToLocalChecked(),
     GetFunction(New<FunctionTemplate>(Main)).ToLocalChecked());
+  Set(
+    target, New<String>("mainSync").ToLocalChecked(),
+    GetFunction(New<FunctionTemplate>(MainSync)).ToLocalChecked());
 }
 
 NODE_MODULE(addon, InitAll)

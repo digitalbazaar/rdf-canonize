@@ -121,6 +121,9 @@ api.canonizeSync = function(dataset, options) {
   }
 
   if(options.algorithm === 'URDNA2015') {
+    if(URDNA2015Native && !options.usePureJavaScript) {
+      return URDNA2015Native.mainSync({dataset});
+    }
     return new URDNA2015Sync(options).main(dataset);
   }
   if(options.algorithm === 'URGNA2012') {
