@@ -296,7 +296,6 @@ HashPath Urdna2015::hashNDegreeQuads(
   MessageDigest md(hashAlgorithm);
   // TODO: consider using heap
   HashToBlankNodeMap hashToRelated = createHashToRelated(id, issuer);
-  //string tmp;
 
   // 4) Create an empty string, data to hash.
   // Note: We created a hash object `md` above instead.
@@ -308,7 +307,6 @@ HashPath Urdna2015::hashNDegreeQuads(
   for(Hash hash : hashes) {
     // 5.1) Append the related hash to the data to hash.
     md.update(hash);
-    //tmp.append(hash);
 
     // 5.2) Create a string chosen path.
     string chosenPath;
@@ -411,7 +409,6 @@ HashPath Urdna2015::hashNDegreeQuads(
 
     // 5.5) Append chosen path to data to hash.
     md.update(chosenPath);
-    //tmp.append(chosenPath);
 
     // 5.6) Replace issuer, by reference, with chosen issuer.
     issuer = chosenIssuer;
