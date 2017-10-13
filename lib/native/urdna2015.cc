@@ -23,26 +23,13 @@ static const char* POSITIONS = "sog";
 static void getSortedHashes(
   HashToBlankNodeMap& hashToBlankNodeMap, vector<Hash>& hashes);
 
+static void printDataset(const Dataset& dataset);
 static void printTerm(const Term& term);
 
 // TODO: rename "component" to "term" everywhere?
 
 string Urdna2015::main(const Dataset& dataset) {
-  // QuadSet::const_iterator dit = dataset.quads.begin();
-  // printf("dataset:\n");
-  // while(dit != dataset.quads.end()) {
-  //   Quad& q = **dit;
-  //   printf("  quad:\n");
-  //   printf("    subject:\n");
-  //   printTerm(*(q.subject));
-  //   printf("    predicate:\n");
-  //   printTerm(*(q.predicate));
-  //   printf("    object:\n");
-  //   printTerm(*(q.object));
-  //   printf("    graph:\n");
-  //   printTerm(*(q.graph));
-  //   dit++;
-  // }
+  // printDataset(dataset);
 
   // 4.4) Normalization Algorithm
 
@@ -507,6 +494,24 @@ static void getSortedHashes(
     hashes.push_back(kv.first);
   }
   sort(hashes.begin(), hashes.end());
+}
+
+static void printDataset(const Dataset& dataset) {
+  QuadSet::const_iterator dit = dataset.quads.begin();
+  printf("dataset:\n");
+  while(dit != dataset.quads.end()) {
+    Quad& q = **dit;
+    printf("  quad:\n");
+    printf("    subject:\n");
+    printTerm(*(q.subject));
+    printf("    predicate:\n");
+    printTerm(*(q.predicate));
+    printf("    object:\n");
+    printTerm(*(q.object));
+    printf("    graph:\n");
+    printTerm(*(q.graph));
+    dit++;
+  }
 }
 
 static void printTerm(const Term& term) {
