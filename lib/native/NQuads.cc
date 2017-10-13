@@ -86,13 +86,12 @@ string NQuads::serializeQuad(const Quad& quad) {
     }
   }
 
-  if(g->termType != TermType::DEFAULT_GRAPH) {
-    // graph can only be a named or blank node, not a literal
-    if(g->termType == TermType::NAMED_NODE) {
-      nquad << "<" << g->value << ">";
-    } else {
-      nquad << " " << g->value;
-    }
+  // graph can only be a NamedNode or a BlankNode (or DefaultGraph, but that
+  // does not add to the `nquad`), not a literal
+  if(g->termType == TermType::NAMED_NODE) {
+    nquad << "<" << g->value << ">";
+  } else if(g->termType == TermType::BLANK_NODE) {
+    nquad << " " << g->value;
   }
 
   nquad << " .\n";

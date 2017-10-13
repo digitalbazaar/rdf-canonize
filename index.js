@@ -82,12 +82,14 @@ api.canonize = util.callbackify(async function(dataset, options) {
     };
   });
 
+  // back-compat with legacy dataset
+  if(!Array.isArray(dataset)) {
+    dataset = api.NQuads.legacyDatasetToQuads(dataset);
+  }
+
   // TODO: convert algorithms to Promise-based async
   if(options.algorithm === 'URDNA2015') {
     if(URDNA2015Native && !options.usePureJavaScript) {
-      if(!Array.isArray(dataset)) {
-        dataset = legacyDatasetToQuads(dataset);
-      }
       URDNA2015Native.main({dataset}, callback);
     } else {
       new URDNA2015(options).main(dataset, callback);
@@ -113,6 +115,11 @@ api.canonize = util.callbackify(async function(dataset, options) {
  * @return the RDF dataset in canonical form.
  */
 api.canonizeSync = function(dataset, options) {
+  // back-compat with legacy dataset
+  if(!Array.isArray(dataset)) {
+    dataset = api.NQuads.legacyDatasetToQuads(dataset);
+  }
+
   if(options.algorithm === 'URDNA2015') {
     return new URDNA2015Sync(options).main(dataset);
   }
@@ -122,63 +129,3 @@ api.canonizeSync = function(dataset, options) {
   throw new Error(
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
 };
-
-function legacyDatasetToQuads(dataset) {
-  const quads = [];
-
-  const termTypeMap = {
-    'blank node': 'BlankNode',
-    'IRI': 'NamedNode',
-    'literal': 'Literal'
-  };
-
-  for(let graphName in dataset) {
-    const triples = dataset[graphName];
-    triples.forEach(triple => {
-      const quad = {};
-      for(let componentName in triple) {
-        const oldComponent = triple[componentName];
-        const newComponent = {
-          termType: termTypeMap[oldComponent.type],
-          value: oldComponent.value
-        };
-        if(newComponent.termType === 'Literal') {
-          if('datatype' in oldComponent) {
-            newComponent.datatype = {
-              termType: 'NamedNode',
-              value: oldComponent.datatype
-            };
-          }
-          if('language' in oldComponent) {
-            if(!('datatype' in newComponent)) {
-              newComponent.datatype = {
-                termType: 'NamedNode',
-                value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString'
-              };
-            }
-            newComponent.language = oldComponent.language;
-          }
-        }
-        quad[componentName] = newComponent;
-      }
-      if(graphName === '@default') {
-        quad.graph = {
-          termType: 'DefaultGraph',
-          value: ''
-        };
-      } else {
-        quad.graph = {
-          termType: graphName.startsWith('_:') ? 'BlankNode': 'NamedNode',
-          value: graphName
-        };
-      }
-      quads.push(quad);
-    });
-  }
-
-  //console.log('dataset', JSON.stringify(dataset, null, 2));
-  //console.log('quads', JSON.stringify(quads, null, 2));
-  //process.exit(1);
-
-  return quads;
-}
