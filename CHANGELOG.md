@@ -1,5 +1,8 @@
 # rdf-canonize ChangeLog
 
+### Added
+- Support Node.js 6.
+
 ## 0.1.5 - 2017-09-18
 
 ### Changed

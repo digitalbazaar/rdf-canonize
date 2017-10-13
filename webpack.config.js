@@ -18,7 +18,15 @@ module.exports = [];
 const outputs = [
   // core library
   {
-    entry: ['./index.js'],
+    entry: [
+      // 'babel-polyfill' is very large, list features explicitly
+      'regenerator-runtime/runtime',
+      'core-js/fn/object/assign',
+      'core-js/fn/promise',
+      'core-js/fn/symbol',
+      // main lib
+      './index.js'
+    ],
     filenameBase: 'rdf-canonize'
   }
 ];
@@ -51,8 +59,8 @@ outputs.forEach((info) => {
     // disable various node shims as jsonld handles this manually
     node: {
       Buffer: false,
-      process: false,
       crypto: false,
+      process: false,
       setImmediate: false
     }
   };
