@@ -70,8 +70,15 @@ private:
   std::string output;
 };
 
-static bool fillDataset(Dataset& dataset, Handle<Array>& datasetArray);
-static bool createTerm(Term*& term, const Handle<Object>& object);
+static bool fillDataset(
+  Dataset& dataset, const Handle<Array>& datasetArray);
+static bool createTerm(
+  Term*& term,
+  const Handle<Object>& object,
+  const Local<String>& termTypeKey,
+  const Local<String>& valueKey,
+  const Local<String>& datatypeKey,
+  const Local<String>& languageKey);
 
 NAN_METHOD(Main) {
   // ensure first argument is an object
@@ -152,11 +159,16 @@ NAN_METHOD(MainSync) {
   info.GetReturnValue().Set(New(output.c_str()).ToLocalChecked());
 }
 
-static bool fillDataset(Dataset& dataset, Handle<Array>& datasetArray) {
+static bool fillDataset(Dataset& dataset, const Handle<Array>& datasetArray) {
   Local<String> subjectKey = New("subject").ToLocalChecked();
   Local<String> predicateKey = New("predicate").ToLocalChecked();
   Local<String> objectKey = New("object").ToLocalChecked();
   Local<String> graphKey = New("graph").ToLocalChecked();
+
+  Local<String> termTypeKey = New("termType").ToLocalChecked();
+  Local<String> valueKey = New("value").ToLocalChecked();
+  Local<String> datatypeKey = New("datatype").ToLocalChecked();
+  Local<String> languageKey = New("language").ToLocalChecked();
 
   // TODO: check for valid structure
   for(size_t di = 0; di < datasetArray->Length(); ++di) {
@@ -175,10 +187,19 @@ static bool fillDataset(Dataset& dataset, Handle<Array>& datasetArray) {
 
     Quad* q = new Quad();
 
-    if(!(createTerm(q->subject, subject) &&
-      createTerm(q->predicate, predicate) &&
-      createTerm(q->object, object) &&
-      createTerm(q->graph, graph))) {
+    if(!(
+      createTerm(
+        q->subject, subject,
+        termTypeKey, valueKey, datatypeKey, languageKey) &&
+      createTerm(
+        q->predicate, predicate,
+        termTypeKey, valueKey, datatypeKey, languageKey) &&
+      createTerm(
+        q->object, object,
+        termTypeKey, valueKey, datatypeKey, languageKey) &&
+      createTerm(
+        q->graph, graph,
+        termTypeKey, valueKey, datatypeKey, languageKey))) {
       delete q;
       return false;
     }
@@ -191,12 +212,13 @@ static bool fillDataset(Dataset& dataset, Handle<Array>& datasetArray) {
   return true;
 }
 
-static bool createTerm(Term*& term, const Handle<Object>& object) {
-  Local<String> termTypeKey = New("termType").ToLocalChecked();
-  Local<String> valueKey = New("value").ToLocalChecked();
-  Local<String> datatypeKey = New("datatype").ToLocalChecked();
-  Local<String> languageKey = New("language").ToLocalChecked();
-
+static bool createTerm(
+  Term*& term,
+  const Handle<Object>& object,
+  const Local<String>& termTypeKey,
+  const Local<String>& valueKey,
+  const Local<String>& datatypeKey,
+  const Local<String>& languageKey) {
   if(!(object->Has(termTypeKey) && object->Get(termTypeKey)->IsString())) {
     Nan::ThrowTypeError(
       "'termType' must be 'BlankNode', 'NamedNode', " \
@@ -223,7 +245,9 @@ static bool createTerm(Term*& term, const Handle<Object>& object) {
         return false;
       }
       Term* dataTypeTerm;
-      if(!createTerm(dataTypeTerm, datatype)) {
+      if(!createTerm(
+        dataTypeTerm, datatype,
+        termTypeKey, valueKey, datatypeKey, languageKey)) {
         return false;
       }
       if(dataTypeTerm->termType != TermType::NAMED_NODE) {
