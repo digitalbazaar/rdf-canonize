@@ -229,12 +229,25 @@ function addTest(manifest, test) {
   });
 
   // run sync test
-  it(description + ' (synchronous)', function(done) {
+  it(description + ' (synchronous js)', function(done) {
     this.timeout(5000);
     const callback = createCallback(done);
     let result;
     try {
-      result = canonize.canonizeSync.apply(null, params);
+      result = canonize.canonizeSync.apply(null, jsParams);
+    } catch(e) {
+      return callback(e);
+    }
+    callback(null, result);
+  });
+
+  // run sync test
+  it(description + ' (synchronous native)', function(done) {
+    this.timeout(5000);
+    const callback = createCallback(done);
+    let result;
+    try {
+      result = canonize.canonizeSync.apply(null, nativeParams);
     } catch(e) {
       return callback(e);
     }
