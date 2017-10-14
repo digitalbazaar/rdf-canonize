@@ -6,6 +6,8 @@ node_js:
 sudo: false
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - g++-4.9
 install:
