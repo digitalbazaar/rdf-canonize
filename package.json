@@ -41,6 +41,7 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
     "babel-preset-node6-es6": "^11.2.5",
+    "benchmark": "^2.1.4",
     "chai": "^4.1.2",
     "commander": "^2.8.0",
     "core-js": "^2.5.1",
@@ -67,7 +68,8 @@
     "build-webpack": "webpack",
     "build-node6": "babel --no-babelrc --out-dir dist/node6 --presets=node6-es6 lib/*.js",
     "fetch-test-suite": "if [ ! -e test-suites/normalization ]; then git clone --depth 1 https://github.com/json-ld/normalization.git test-suites/normalization; fi",
-    "test": "mocha -R spec --check-leaks test/ conformance-test.js"
+    "test": "mocha -R spec --check-leaks test/ conformance-test.js",
+    "benchmark": "node benchmark/benchmark.js"
   },
   "browser": {
     "./index.js": "./lib/index.js",

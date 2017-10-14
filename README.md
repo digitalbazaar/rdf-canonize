@@ -54,19 +54,6 @@ Related Modules
 
 * [jsonld.js][]: An implementation of the [JSON-LD][] specification.
 
-Commercial Support
-------------------
-
-Commercial support for this library is available upon request from
-[Digital Bazaar][]: support@digitalbazaar.com
-
-Source
-------
-
-The source code for this library is available at:
-
-https://github.com/digitalbazaar/rdf-canonize
-
 Tests
 -----
 
@@ -96,6 +83,24 @@ To generate earl reports:
 
     # generate the earl report for node.js
     EARL=earl-node.jsonld npm test
+
+Benchmark
+---------
+
+    npm run benchmark
+
+Source
+------
+
+The source code for this library is available at:
+
+https://github.com/digitalbazaar/rdf-canonize
+
+Commercial Support
+------------------
+
+Commercial support for this library is available upon request from
+[Digital Bazaar][]: support@digitalbazaar.com
 
 [Digital Bazaar]: https://digitalbazaar.com/
 [JSON-LD]: https://json-ld.org/
