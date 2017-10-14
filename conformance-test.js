@@ -220,13 +220,15 @@ function addTest(manifest, test) {
     promise.then(callback.bind(null, null), callback);
   });
 
-  // run async native test
-  it(description + ' (asynchronous native)', function(done) {
-    this.timeout(5000);
-    const callback = createCallback(done);
-    const promise = canonize.canonize.apply(null, nativeParams);
-    promise.then(callback.bind(null, null), callback);
-  });
+  if(params[1].algorithm === 'URDNA2015') {
+    // run async native test
+    it(description + ' (asynchronous native)', function(done) {
+      this.timeout(5000);
+      const callback = createCallback(done);
+      const promise = canonize.canonize.apply(null, nativeParams);
+      promise.then(callback.bind(null, null), callback);
+    });
+  }
 
   // run sync test
   it(description + ' (synchronous js)', function(done) {
@@ -241,18 +243,20 @@ function addTest(manifest, test) {
     callback(null, result);
   });
 
-  // run sync test
-  it(description + ' (synchronous native)', function(done) {
-    this.timeout(5000);
-    const callback = createCallback(done);
-    let result;
-    try {
-      result = canonize.canonizeSync.apply(null, nativeParams);
-    } catch(e) {
-      return callback(e);
-    }
-    callback(null, result);
-  });
+  if(params[1].algorithm === 'URDNA2015') {
+    // run sync test
+    it(description + ' (synchronous native)', function(done) {
+      this.timeout(5000);
+      const callback = createCallback(done);
+      let result;
+      try {
+        result = canonize.canonizeSync.apply(null, nativeParams);
+      } catch(e) {
+        return callback(e);
+      }
+      callback(null, result);
+    });
+  }
 }
 
 function getTestType(test) {
