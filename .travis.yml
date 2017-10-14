@@ -11,7 +11,7 @@ addons:
     packages:
       - g++-4.9
 install:
-  - npm install
+  - CC=gcc-4.9 CXX=g++-4.9 npm install
   - npm run fetch-test-suite
 script:
   - if [ "x$BUNDLER" = "x" ]; then npm run test; fi
