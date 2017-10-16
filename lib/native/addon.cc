@@ -93,7 +93,7 @@ NAN_METHOD(Main) {
   }
 
   Callback* callback = new Callback(info[1].As<Function>());
-  Handle<Object> object = Handle<Object>::Cast(info[0]);
+  Handle<Object> object = info[0]->ToObject();
   /*
   Handle<Value> maxCallStackDepthValue =
     object->Get(New("maxCallStackDepth").ToLocalChecked());
@@ -130,7 +130,7 @@ NAN_METHOD(MainSync) {
     return;
   }
 
-  Handle<Object> object = Handle<Object>::Cast(info[0]);
+  Handle<Object> object = info[0]->ToObject();
   /*
   Handle<Value> maxCallStackDepthValue =
     object->Get(New("maxCallStackDepth").ToLocalChecked());
@@ -172,33 +172,24 @@ static bool fillDataset(Dataset& dataset, const Handle<Array>& datasetArray) {
 
   // TODO: check for valid structure
   for(size_t di = 0; di < datasetArray->Length(); ++di) {
-    Handle<Object> quad = Handle<Object>::Cast(datasetArray->Get(di));
+    Handle<Object> quad = datasetArray->Get(di)->ToObject();
 
     // TODO: ensure all keys are present and represent objects
-
-    Handle<Object> subject =
-      Handle<Object>::Cast(quad->Get(subjectKey));
-    Handle<Object> predicate =
-      Handle<Object>::Cast(quad->Get(predicateKey));
-    Handle<Object> object =
-      Handle<Object>::Cast(quad->Get(objectKey));
-    Handle<Object> graph =
-      Handle<Object>::Cast(quad->Get(graphKey));
 
     Quad* q = new Quad();
 
     if(!(
       createTerm(
-        q->subject, subject,
+        q->subject, quad->Get(subjectKey)->ToObject(),
         termTypeKey, valueKey, datatypeKey, languageKey) &&
       createTerm(
-        q->predicate, predicate,
+        q->predicate, quad->Get(predicateKey)->ToObject(),
         termTypeKey, valueKey, datatypeKey, languageKey) &&
       createTerm(
-        q->object, object,
+        q->object, quad->Get(objectKey)->ToObject(),
         termTypeKey, valueKey, datatypeKey, languageKey) &&
       createTerm(
-        q->graph, graph,
+        q->graph, quad->Get(graphKey)->ToObject(),
         termTypeKey, valueKey, datatypeKey, languageKey))) {
       delete q;
       return false;
@@ -229,15 +220,13 @@ static bool createTerm(
   Utf8String termType(object->Get(termTypeKey));
 
   if(strcmp(*termType, "BlankNode") == 0) {
-    term = new BlankNode();
+    term = new Term(TermType::BlankNode);
   } else if(strcmp(*termType, "NamedNode") == 0) {
-    term = new NamedNode();
+    term = new Term(TermType::NamedNode);
   } else if(strcmp(*termType, "Literal") == 0) {
-    Literal* literal = new Literal();
-    term = literal;
+    term = new Term(TermType::Literal);
     if(object->Has(datatypeKey)) {
-      Handle<Object> datatype =
-        Handle<Object>::Cast(object->Get(datatypeKey));
+      Handle<Object> datatype = object->Get(datatypeKey)->ToObject();
       if(!datatype->IsObject() || datatype->IsNull()) {
         Nan::ThrowError(
           "'termType' must be 'BlankNode', 'NamedNode', " \
@@ -250,18 +239,18 @@ static bool createTerm(
         termTypeKey, valueKey, datatypeKey, languageKey)) {
         return false;
       }
-      if(dataTypeTerm->termType != TermType::NAMED_NODE) {
+      if(dataTypeTerm->termType != TermType::NamedNode) {
         Nan::ThrowError("datatype 'termType' must be 'NamedNode'.");
         delete dataTypeTerm;
         return false;
       }
-      literal->datatype = (NamedNode*)dataTypeTerm;
+      term->datatype = dataTypeTerm;
     }
     if(object->Has(languageKey)) {
-      literal->language = *Utf8String(object->Get(languageKey));
+      term->language = new std::string(*Utf8String(object->Get(languageKey)));
     }
   } else if(strcmp(*termType, "DefaultGraph") == 0) {
-    term = new DefaultGraph();
+    term = new Term(TermType::DefaultGraph);
   } else {
     Nan::ThrowError(
       "'termType' must be 'BlankNode', 'NamedNode', " \
@@ -269,7 +258,9 @@ static bool createTerm(
     return false;
   }
 
-  term->value = *Utf8String(object->Get(valueKey));
+  const char* value = *Utf8String(object->Get(valueKey));
+  //term->setValue(value, true);
+  term->setValue(value, false);
 
   return true;
 }

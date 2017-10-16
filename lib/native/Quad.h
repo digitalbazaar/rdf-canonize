@@ -7,71 +7,84 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 
 namespace RdfCanonize {
 
 typedef enum {
-  BLANK_NODE,
-  NAMED_NODE,
-  LITERAL,
-  DEFAULT_GRAPH
+  BlankNode,
+  NamedNode,
+  Literal,
+  DefaultGraph
 } TermType;
 
 struct Term {
+  // all
   TermType termType;
-  std::string value;
+  char* value;
+  bool valueManaged;
 
-  Term(const TermType& termType, const std::string& value = "") :
-    termType(termType), value(value) {};
-  virtual ~Term() {};
-  virtual Term* clone() const {
-    return new Term(termType, value);
-  }
-};
+  // literal
+  Term* datatype;
+  std::string* language;
 
-struct BlankNode : public Term {
-  BlankNode(const std::string& value = "") :
-    Term(TermType::BLANK_NODE, value) {};
-  virtual ~BlankNode() {};
-  virtual Term* clone() const {
-    return new BlankNode(value);
-  }
-};
-
-struct NamedNode : public Term {
-  NamedNode(const std::string& value = "") :
-    Term(TermType::NAMED_NODE, value) {};
-  virtual ~NamedNode() {};
-  virtual Term* clone() const {
-    return new NamedNode(value);
-  }
-};
-
-struct Literal : public Term {
-  std::string language;
-  NamedNode* datatype;
-
-  Literal(const std::string& value = "") :
-    Term(TermType::LITERAL, value), datatype(NULL) {};
-  virtual ~Literal() {
+  Term(const TermType& termType) :
+    termType(termType),
+    value((char*)""), valueManaged(false),
+    datatype(NULL), language(NULL) {};
+  ~Term() {
+    if(value != NULL && valueManaged) {
+      free(value);
+    }
     if(datatype != NULL) {
       delete datatype;
     }
-  }
-  virtual Term* clone() const {
-    Literal* literal = new Literal(value);
-    literal->language = language;
-    if(datatype != NULL) {
-      literal->datatype = (NamedNode*)datatype->clone();
+    if(language != NULL) {
+      delete language;
     }
-    return literal;
+  };
+  // TODO: remove default for `manage`
+  void setValue(const std::string& newValue, bool manage = true) {
+    if(manage) {
+      if(!valueManaged) {
+        value = NULL;
+      }
+      value = (char*)realloc(value, newValue.size() + 1);
+      strcpy(value, newValue.c_str());
+    } else {
+      if(valueManaged) {
+        free(value);
+      }
+      value = (char*)newValue.c_str();
+    }
+    valueManaged = manage;
   }
-};
-
-struct DefaultGraph : public Term {
-  DefaultGraph() : Term(TermType::DEFAULT_GRAPH) {};
-  virtual Term* clone() const {
-    return new DefaultGraph();
+  // TODO: remove default for `manage`
+  void setValue(const char* newValue, bool manage = true) {
+    if(manage) {
+      if(!valueManaged) {
+        value = NULL;
+      }
+      value = (char*)realloc(value, strlen(newValue) + 1);
+      strcpy(value, newValue);
+    } else {
+      if(valueManaged) {
+        free(value);
+      }
+      value = (char*)newValue;
+    }
+    valueManaged = manage;
+  }
+  Term* clone() const {
+    Term* copy = new Term(termType);
+    copy->setValue(value, valueManaged);
+    if(datatype != NULL) {
+      copy->datatype = datatype->clone();
+    }
+    if(language != NULL) {
+      copy->language = new std::string(*language);
+    }
+    return copy;
   }
 };
 
@@ -80,18 +93,26 @@ struct Quad {
   Term* predicate;
   Term* object;
   Term* graph;
+  std::string* hash;
 
-  Quad() : subject(NULL), predicate(NULL), object(NULL), graph(NULL) {};
+  Quad() :
+    subject(NULL), predicate(NULL), object(NULL), graph(NULL), hash(NULL) {};
   Quad& operator=(const Quad& toCopy) {
     delete subject;
     delete predicate;
     delete object;
     delete graph;
+    delete hash;
 
     subject = toCopy.subject->clone();
     predicate = toCopy.predicate->clone();
     object = toCopy.object->clone();
     graph = toCopy.graph->clone();
+    if(toCopy.hash == NULL) {
+      hash = NULL;
+    } else {
+      hash = new std::string(*toCopy.hash);
+    }
 
     return *this;
   }
@@ -107,6 +128,9 @@ struct Quad {
     }
     if(graph != NULL) {
       delete graph;
+    }
+    if(hash != NULL) {
+      delete hash;
     }
   }
 };

@@ -29,7 +29,8 @@ static void printTerm(const Term& term);
 // TODO: rename "component" to "term" everywhere?
 
 string Urdna2015::main(const Dataset& dataset) {
-  // printDataset(dataset);
+  printDataset(dataset);
+  return "FIXME";
 
   // 4.4) Normalization Algorithm
 
@@ -44,7 +45,7 @@ string Urdna2015::main(const Dataset& dataset) {
     // to the quad using the blank node identifier in the blank node to
     // quads map, creating a new entry if necessary.
     for(Term* term : {q->subject, q->predicate, q->object, q->graph}) {
-      if(term->termType != TermType::BLANK_NODE) {
+      if(term->termType != TermType::BlankNode) {
         continue;
       }
       string id = term->value;
@@ -188,9 +189,12 @@ string Urdna2015::main(const Dataset& dataset) {
     // previously issued by canonical issuer.
     // Note: We optimize away the copy here.
     for(Term* term : {q->subject, q->predicate, q->object, q->graph}) {
-      if(term->termType == TermType::BLANK_NODE &&
-        term->value.find(canonicalIssuer.prefix) != 0) {
-        term->value = canonicalIssuer.getNew(term->value);
+      if(term->termType == TermType::BlankNode &&
+        strncmp(
+          canonicalIssuer.prefix.c_str(), term->value,
+          canonicalIssuer.prefix.size()) != 0) {
+        string tmp = canonicalIssuer.getNew(term->value);
+        term->setValue(tmp);
       }
     }
     // 7.2) Add quad copy to the normalized dataset.
@@ -423,8 +427,8 @@ HashPath Urdna2015::hashNDegreeQuads(
 Term* Urdna2015::modifyFirstDegreeComponent(
   NodeIdentifier id, Term& component) {
   Term* copy = component.clone();
-  if(component.termType == TermType::BLANK_NODE) {
-    copy->value = (component.value == id ? "_:a" : "_:z");
+  if(component.termType == TermType::BlankNode) {
+    copy->setValue(strcmp(component.value, id.c_str()) == 0 ? "_:a" : "_:z");
   }
   return copy;
 }
@@ -456,8 +460,8 @@ HashToBlankNodeMap Urdna2015::createHashToRelated(
     unsigned counter = -1;
     for(const Term* component : {q->subject, q->object, q->graph}) {
       counter++;
-      if(!(component->termType == TermType::BLANK_NODE &&
-        component->value != id)) {
+      if(!(component->termType == TermType::BlankNode &&
+        strcmp(component->value, id.c_str()) != 0)) {
         continue;
       }
       // 3.1.1) Set hash to the result of the Hash Related Blank Node
@@ -514,32 +518,32 @@ static void printDataset(const Dataset& dataset) {
 static void printTerm(const Term& term) {
   string termType;
   switch(term.termType) {
-    case TermType::BLANK_NODE:
+    case TermType::BlankNode:
       termType = "BlankNode";
       break;
-    case TermType::NAMED_NODE:
+    case TermType::NamedNode:
       termType = "NamedNode";
       break;
-    case TermType::LITERAL:
+    case TermType::Literal:
       termType = "Literal";
       break;
-    case TermType::DEFAULT_GRAPH:
+    case TermType::DefaultGraph:
       termType = "DefaultGraph";
       break;
   }
 
   printf("      termType: %s\n", termType.c_str());
-  if(term.termType != TermType::DEFAULT_GRAPH) {
-    printf("      value: %s\n", term.value.c_str());
+  if(term.termType != TermType::DefaultGraph) {
+    printf("      value: %s\n", term.value);
   }
-  if(term.termType == TermType::LITERAL) {
-    Term* datatype = ((Literal&)term).datatype;
-    string& language = ((Literal&)term).language;
+  if(term.termType == TermType::Literal) {
+    Term* datatype = term.datatype;
+    string* language = term.language;
     if(datatype != NULL) {
       printf("      datatype: \n");
       printTerm(*datatype);
-    } else if(language.size() != 0) {
-      printf("      language: %s\n", language.c_str());
+    } else if(language != NULL) {
+      printf("      language: %s\n", language->c_str());
     }
   }
 }

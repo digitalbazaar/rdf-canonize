@@ -17,9 +17,9 @@
 using namespace std;
 using namespace RdfCanonize;
 
-static string RDF_LANGSTRING =
+static const char* RDF_LANGSTRING =
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
-static string XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
+static const char* XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 static regex REGEX_BACK_SLASH("\\\\");
 static regex REGEX_TAB("\\\t");
 static regex REGEX_LF("\\\n");
@@ -52,7 +52,7 @@ string NQuads::serializeQuad(const Quad& quad) {
 
   // subject and predicate can only be named or blank nodes, not literals
   for(Term* t : {s, p}) {
-    if(t->termType == TermType::NAMED_NODE) {
+    if(t->termType == TermType::NamedNode) {
       nquad << "<" << t->value << ">";
     } else {
       nquad << t->value;
@@ -61,12 +61,11 @@ string NQuads::serializeQuad(const Quad& quad) {
   }
 
   // object is named or blank node or literal
-  if(o->termType == TermType::NAMED_NODE) {
+  if(o->termType == TermType::NamedNode) {
     nquad << "<" << o->value << ">";
-  } else if(o->termType == TermType::BLANK_NODE) {
+  } else if(o->termType == TermType::BlankNode) {
     nquad << o->value;
   } else {
-    Literal* literal = (Literal*)o;
     // TODO: optimize
     string escaped = o->value;
     escaped = regex_replace(escaped, REGEX_BACK_SLASH, "\\\\");
@@ -75,22 +74,22 @@ string NQuads::serializeQuad(const Quad& quad) {
     escaped = regex_replace(escaped, REGEX_CR, "\\r");
     escaped = regex_replace(escaped, REGEX_QUOTE, "\\\"");
     nquad << "\"" << escaped << "\"";
-    if(literal->datatype != NULL) {
-      if(literal->datatype->value == RDF_LANGSTRING) {
-        if(literal->language.size() != 0) {
-          nquad << "@" << literal->language;
+    if(o->datatype != NULL) {
+      if(strcmp(o->datatype->value, RDF_LANGSTRING) == 0) {
+        if(o->language != NULL) {
+          nquad << "@" << *(o->language);
         }
-      } else if(literal->datatype->value != XSD_STRING) {
-        nquad << "^^<" << literal->datatype->value << ">";
+      } else if(strcmp(o->datatype->value, XSD_STRING) != 0) {
+        nquad << "^^<" << o->datatype->value << ">";
       }
     }
   }
 
   // graph can only be a NamedNode or a BlankNode (or DefaultGraph, but that
   // does not add to the `nquad`), not a literal
-  if(g->termType == TermType::NAMED_NODE) {
+  if(g->termType == TermType::NamedNode) {
     nquad << "<" << g->value << ">";
-  } else if(g->termType == TermType::BLANK_NODE) {
+  } else if(g->termType == TermType::BlankNode) {
     nquad << " " << g->value;
   }
 

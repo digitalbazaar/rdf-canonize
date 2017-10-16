@@ -188,19 +188,19 @@ function addTest(manifest, test) {
       canonize.canonize(...jsParams).then(() => deferred.resolve());
     }
   });
-  // run async js benchmark x N
-  suite.add({
-    name: namepath.concat(
-      [description, `(asynchronous js x ${N})`]).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      const all = [];
-      for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonize(...jsParams));
-      }
-      Promise.all(all).then(() => deferred.resolve());
-    }
-  });
+  // // run async js benchmark x N
+  // suite.add({
+  //   name: namepath.concat(
+  //     [description, `(asynchronous js x ${N})`]).join(' / '),
+  //   defer: true,
+  //   fn: function(deferred) {
+  //     const all = [];
+  //     for(let i = 0; i < N; ++i) {
+  //       all.push(canonize.canonize(...jsParams));
+  //     }
+  //     Promise.all(all).then(() => deferred.resolve());
+  //   }
+  // });
   /*
   // run async js benchmark (callback)
   suite.add({
@@ -219,64 +219,64 @@ function addTest(manifest, test) {
       canonize.canonize(...nativeParams).then(() => deferred.resolve());
     }
   });
-  // run async native benchmark x N
-  suite.add({
-    name: namepath.concat(
-      [description, `(asynchronous native x ${N})`]).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      const all = [];
-      for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonize(...nativeParams));
-      }
-      Promise.all(all).then(() => deferred.resolve());
-    }
-  });
+  // // run async native benchmark x N
+  // suite.add({
+  //   name: namepath.concat(
+  //     [description, `(asynchronous native x ${N})`]).join(' / '),
+  //   defer: true,
+  //   fn: function(deferred) {
+  //     const all = [];
+  //     for(let i = 0; i < N; ++i) {
+  //       all.push(canonize.canonize(...nativeParams));
+  //     }
+  //     Promise.all(all).then(() => deferred.resolve());
+  //   }
+  // });
 
-  // run sync js benchmark
-  suite.add({
-    name: namepath.concat([description, '(synchronous js)']).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      canonize.canonizeSync(...jsParams);
-      deferred.resolve();
-    }
-  });
-  // run sync js benchmark x N
-  suite.add({
-    name: namepath.concat(
-      [description, `(synchronous js x ${N})`]).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      const all = [];
-      for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonizeSync(...jsParams));
-      }
-      Promise.all(all).then(() => deferred.resolve());
-    }
-  });
-  // run sync native benchmark
-  suite.add({
-    name: namepath.concat([description, '(synchronous native)']).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      canonize.canonizeSync(...nativeParams);
-      deferred.resolve();
-    }
-  });
-  // run sync native benchmark x N
-  suite.add({
-    name: namepath.concat(
-      [description, `(synchronous native x ${N})`]).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      const all = [];
-      for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonizeSync(...nativeParams));
-      }
-      Promise.all(all).then(() => deferred.resolve());
-    }
-  });
+  // // run sync js benchmark
+  // suite.add({
+  //   name: namepath.concat([description, '(synchronous js)']).join(' / '),
+  //   defer: true,
+  //   fn: function(deferred) {
+  //     canonize.canonizeSync(...jsParams);
+  //     deferred.resolve();
+  //   }
+  // });
+  // // run sync js benchmark x N
+  // suite.add({
+  //   name: namepath.concat(
+  //     [description, `(synchronous js x ${N})`]).join(' / '),
+  //   defer: true,
+  //   fn: function(deferred) {
+  //     const all = [];
+  //     for(let i = 0; i < N; ++i) {
+  //       all.push(canonize.canonizeSync(...jsParams));
+  //     }
+  //     Promise.all(all).then(() => deferred.resolve());
+  //   }
+  // });
+  // // run sync native benchmark
+  // suite.add({
+  //   name: namepath.concat([description, '(synchronous native)']).join(' / '),
+  //   defer: true,
+  //   fn: function(deferred) {
+  //     canonize.canonizeSync(...nativeParams);
+  //     deferred.resolve();
+  //   }
+  // });
+  // // run sync native benchmark x N
+  // suite.add({
+  //   name: namepath.concat(
+  //     [description, `(synchronous native x ${N})`]).join(' / '),
+  //   defer: true,
+  //   fn: function(deferred) {
+  //     const all = [];
+  //     for(let i = 0; i < N; ++i) {
+  //       all.push(canonize.canonizeSync(...nativeParams));
+  //     }
+  //     Promise.all(all).then(() => deferred.resolve());
+  //   }
+  // });
 
   /*
   // run sync js benchmark (try/catch)
