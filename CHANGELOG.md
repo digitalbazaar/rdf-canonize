@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 0.2.0 - 2017-10-16
+
 ### Added
 - Benchmark tool using the same manifests as the test system.
 - Support Node.js 6.
