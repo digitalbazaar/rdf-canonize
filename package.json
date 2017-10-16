@@ -22,6 +22,7 @@
   "license": "BSD-3-Clause",
   "main": "index.js",
   "files": [
+    "binding.gyp",
     "dist/*.js",
     "dist/*.js.map",
     "dist/node6/**/*.js",
