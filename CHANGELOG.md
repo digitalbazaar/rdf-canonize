@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 0.2.1 - 2017-10-16
+
 ### Fixed
 - Distribute `binding.gyp`.
 
