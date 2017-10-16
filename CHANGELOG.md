@@ -3,6 +3,8 @@
 ### Added
 - Benchmark tool using the same manifests as the test system.
 - Support Node.js 6.
+- Native Node.js addon support for URDNA2015. Improves performance.
+- `usePureJavaScript` option to only use JavaScript.
 
 ## 0.1.5 - 2017-09-18
 
