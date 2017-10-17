@@ -23,8 +23,8 @@ static const char* POSITIONS = "sog";
 static void getSortedHashes(
   HashToBlankNodeMap& hashToBlankNodeMap, vector<Hash>& hashes);
 
-static void printDataset(const Dataset& dataset);
-static void printTerm(const Term& term);
+//static void printDataset(const Dataset& dataset);
+//static void printTerm(const Term& term);
 
 // TODO: rename "component" to "term" everywhere?
 
@@ -492,7 +492,7 @@ static void getSortedHashes(
   }
   sort(hashes.begin(), hashes.end());
 }
-
+/*
 static void printDataset(const Dataset& dataset) {
   QuadSet::const_iterator dit = dataset.quads.begin();
   printf("dataset:\n");
@@ -543,3 +543,4 @@ static void printTerm(const Term& term) {
     }
   }
 }
+*/
