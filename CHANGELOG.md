@@ -3,6 +3,9 @@
 ### Fixed
 - Use const array initializer sizes.
 
+### Changed
+- Comment out debug logging.
+
 ## 0.2.1 - 2017-10-16
 
 ### Fixed
