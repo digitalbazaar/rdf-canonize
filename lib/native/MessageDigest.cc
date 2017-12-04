@@ -13,7 +13,7 @@
 using namespace std;
 using namespace RdfCanonize;
 
-static string _bytesToHex(const char* bytes, unsigned length);
+static string _bytesToHex(const char* bytes, const unsigned length);
 
 MessageDigest::MessageDigest(const char* algorithm) : hashFn(NULL) {
   EVP_MD_CTX_init(&context);
@@ -52,8 +52,9 @@ string MessageDigest::digest() {
   }
 
   // get hash
-  unsigned length = EVP_MD_size(hashFn);
-  char hash[length];
+  const unsigned maxLength = EVP_MD_size(hashFn);
+  unsigned length = maxLength;
+  char hash[maxLength];
   EVP_DigestFinal_ex(&context, (unsigned char*)hash, &length);
 
   // TODO: return bytes instead of hex
@@ -64,7 +65,7 @@ string MessageDigest::digest() {
 // initialize hexadecimal characters strings for fast lookups
 static const char* HEX_CHARS = "0123456789abcdef";
 
-static string _bytesToHex(const char* bytes, unsigned length) {
+static string _bytesToHex(const char* bytes, const unsigned length) {
   char hex[length * 2 + 1];
   char* ptr = hex;
   unsigned char* ubytes = (unsigned char*)bytes;
