@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 0.2.2 - 2017-12-04
+
 ### Fixed
 - Use const array initializer sizes.
 
