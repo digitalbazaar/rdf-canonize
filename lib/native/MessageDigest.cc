@@ -9,11 +9,12 @@
 
 #include "MessageDigest.h"
 #include <cstring>
+#include <vector>
 
 using namespace std;
 using namespace RdfCanonize;
 
-static string _bytesToHex(const char* bytes, const unsigned length);
+static string _bytesToHex(vector<unsigned char> &bytes, const size_t length);
 
 MessageDigest::MessageDigest(const char* algorithm) : hashFn(NULL) {
   EVP_MD_CTX_init(&context);
@@ -54,8 +55,8 @@ string MessageDigest::digest() {
   // get hash
   const unsigned maxLength = EVP_MD_size(hashFn);
   unsigned length = maxLength;
-  char hash[maxLength];
-  EVP_DigestFinal_ex(&context, (unsigned char*)hash, &length);
+  vector<unsigned char> hash(maxLength);
+  EVP_DigestFinal_ex(&context, hash.data(), &length);
 
   // TODO: return bytes instead of hex
   // convert hash to hexadecimal
@@ -65,18 +66,16 @@ string MessageDigest::digest() {
 // initialize hexadecimal characters strings for fast lookups
 static const char* HEX_CHARS = "0123456789abcdef";
 
-static string _bytesToHex(const char* bytes, const unsigned length) {
-  char hex[length * 2 + 1];
-  char* ptr = hex;
-  unsigned char* ubytes = (unsigned char*)bytes;
-  for(unsigned i = 0; i < length; ++i, ptr += 2) {
+static string _bytesToHex(vector<unsigned char> &bytes, const size_t length) {
+  string hex;
+  hex.reserve(length * 2);
+  for(size_t i = 0; i < length; ++i) {
     // hexadecimal uses 2 digits, each with 16 values (or 4 bits):
     // convert the top 4 bits
-    ptr[0] = HEX_CHARS[(ubytes[i] >> 4)];
+    hex.push_back(HEX_CHARS[(bytes[i] >> 4)]);
     // convert the bottom 4 bits
-    ptr[1] = HEX_CHARS[(ubytes[i] & 0x0f)];
+    hex.push_back(HEX_CHARS[(bytes[i] & 0x0f)]);
   }
-  ptr[0] = 0;
 
   return hex;
 }

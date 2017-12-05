@@ -1,5 +1,8 @@
 # rdf-canonize ChangeLog
 
+### Fixed
+- Avoid variable length arrays.  Not supported by some C++ compilers.
+
 ## 0.2.2 - 2017-12-04
 
 ### Fixed
