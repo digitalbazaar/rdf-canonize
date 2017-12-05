@@ -87,7 +87,7 @@ To generate earl reports:
 Benchmark
 ---------
 
-    npm run benchmark
+See docs in the [benchmark README](./benchmark/README.md).
 
 Source
 ------
