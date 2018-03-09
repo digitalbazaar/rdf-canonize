@@ -42,8 +42,8 @@ const TEST_TYPES = {
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
         algorithm: 'URGNA2012',
-        inputFormat: 'application/nquads',
-        format: 'application/nquads'
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads'
       })
     ]
   },
@@ -52,8 +52,18 @@ const TEST_TYPES = {
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
         algorithm: 'URDNA2015',
-        inputFormat: 'application/nquads',
-        format: 'application/nquads'
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads'
+      })
+    ]
+  },
+  'rdfn:Urdna2018EvalTest': {
+    params: [
+      parseNQuads(readTestNQuads('action')),
+      createTestOptions({
+        algorithm: 'URDNA2018',
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads'
       })
     ]
   },
@@ -115,7 +125,9 @@ function addManifest(manifest) {
       addManifest(entry);
     } else {
       // assume entry is a test
-      addTest(manifest, entry);
+      if(entry.name.startsWith('evil (1)')) {
+        addTest(manifest, entry);
+      }
     }
   }
   namepath.pop();
@@ -181,7 +193,7 @@ function addTest(manifest, test) {
   const N = 10;
 
   // run async js benchmark
-  suite.add({
+  /*suite.add({
     name: namepath.concat([description, '(asynchronous js)']).join(' / '),
     defer: true,
     fn: function(deferred) {
@@ -200,7 +212,7 @@ function addTest(manifest, test) {
       }
       Promise.all(all).then(() => deferred.resolve());
     }
-  });
+  });*/
   /*
   // run async js benchmark (callback)
   suite.add({
@@ -212,7 +224,7 @@ function addTest(manifest, test) {
   });
   */
   // run async native benchmark
-  suite.add({
+  /*suite.add({
     name: namepath.concat([description, '(asynchronous native)']).join(' / '),
     defer: true,
     fn: function(deferred) {
@@ -231,7 +243,7 @@ function addTest(manifest, test) {
       }
       Promise.all(all).then(() => deferred.resolve());
     }
-  });
+  });*/
 
   // run sync js benchmark
   suite.add({
@@ -243,7 +255,7 @@ function addTest(manifest, test) {
     }
   });
   // run sync js benchmark x N
-  suite.add({
+  /*suite.add({
     name: namepath.concat(
       [description, `(synchronous js x ${N})`]).join(' / '),
     defer: true,
@@ -254,7 +266,8 @@ function addTest(manifest, test) {
       }
       Promise.all(all).then(() => deferred.resolve());
     }
-  });
+  });*/
+  /*
   // run sync native benchmark
   suite.add({
     name: namepath.concat([description, '(synchronous native)']).join(' / '),
@@ -276,7 +289,7 @@ function addTest(manifest, test) {
       }
       Promise.all(all).then(() => deferred.resolve());
     }
-  });
+  });*/
 
   /*
   // run sync js benchmark (try/catch)

@@ -37,7 +37,7 @@
   "entries": [
     {
       "skip": false,
-      "only": false,
+      "only": true,
       "id": "#block-1",
       "type": "rdfn:Urdna2015EvalTest",
       "name": "block-1",
@@ -84,6 +84,61 @@
       "only": false,
       "id": "#block-1000",
       "type": "rdfn:Urdna2015EvalTest",
+      "name": "block-1000",
+      "comment": null,
+      "approval": "rdft:Proposed",
+      "action": "block-1000-in.nq",
+      "result": "block-1000-out.nq"
+    },
+    {
+      "skip": false,
+      "only": true,
+      "id": "#block-1",
+      "type": "rdfn:Urdna2018EvalTest",
+      "name": "block-1",
+      "comment": null,
+      "approval": "rdft:Proposed",
+      "action": "block-1-in.nq",
+      "result": "block-1-out.nq"
+    },
+    {
+      "skip": false,
+      "only": false,
+      "id": "#block-2",
+      "type": "rdfn:Urdna2018EvalTest",
+      "name": "block-2",
+      "comment": null,
+      "approval": "rdft:Proposed",
+      "action": "block-2-in.nq",
+      "result": "block-2-out.nq"
+    },
+    {
+      "skip": false,
+      "only": false,
+      "id": "#block-10",
+      "type": "rdfn:Urdna2018EvalTest",
+      "name": "block-10",
+      "comment": null,
+      "approval": "rdft:Proposed",
+      "action": "block-10-in.nq",
+      "result": "block-10-out.nq"
+    },
+    {
+      "skip": false,
+      "only": false,
+      "id": "#block-100",
+      "type": "rdfn:Urdna2018EvalTest",
+      "name": "block-100",
+      "comment": null,
+      "approval": "rdft:Proposed",
+      "action": "block-100-in.nq",
+      "result": "block-100-out.nq"
+    },
+    {
+      "skip": false,
+      "only": false,
+      "id": "#block-1000",
+      "type": "rdfn:Urdna2018EvalTest",
       "name": "block-1000",
       "comment": null,
       "approval": "rdft:Proposed",
