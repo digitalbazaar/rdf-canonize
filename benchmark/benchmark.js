@@ -125,7 +125,7 @@ function addManifest(manifest) {
       addManifest(entry);
     } else {
       // assume entry is a test
-      if(entry.name.startsWith('evil (1)')) {
+      if(entry.name.startsWith('evil (1)') || entry.name.startsWith('block')) {
         addTest(manifest, entry);
       }
     }
