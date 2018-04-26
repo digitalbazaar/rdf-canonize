@@ -17,7 +17,7 @@ using namespace RdfCanonize;
 static string _bytesToHex(vector<unsigned char> &bytes, const size_t length);
 
 MessageDigest::MessageDigest(const char* algorithm) : hashFn(NULL) {
-  EVP_MD_CTX_init(&context);
+  context = EVP_MD_CTX_create();
 
   if(strcmp(algorithm, "sha256") == 0) {
     hashFn = EVP_sha256();
@@ -27,23 +27,23 @@ MessageDigest::MessageDigest(const char* algorithm) : hashFn(NULL) {
 
   if(hashFn != NULL) {
     // initialize the message digest context (NULL uses the default engine)
-    EVP_DigestInit_ex(&context, hashFn, NULL);
+    EVP_DigestInit_ex(context, hashFn, NULL);
   }
 }
 
 MessageDigest::~MessageDigest() {
-  EVP_MD_CTX_cleanup(&context);
+  EVP_MD_CTX_destroy(context);
 }
 
 void MessageDigest::update(const char& c) {
   if(hashFn != NULL) {
-    EVP_DigestUpdate(&context, &c, 1);
+    EVP_DigestUpdate(context, &c, 1);
   }
 }
 
 void MessageDigest::update(const string& msg) {
   if(hashFn != NULL) {
-    EVP_DigestUpdate(&context, msg.c_str(), msg.size());
+    EVP_DigestUpdate(context, msg.c_str(), msg.size());
   }
 }
 
@@ -56,7 +56,7 @@ string MessageDigest::digest() {
   const unsigned maxLength = EVP_MD_size(hashFn);
   unsigned length = maxLength;
   vector<unsigned char> hash(maxLength);
-  EVP_DigestFinal_ex(&context, hash.data(), &length);
+  EVP_DigestFinal_ex(context, hash.data(), &length);
 
   // TODO: return bytes instead of hex
   // convert hash to hexadecimal

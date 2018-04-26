@@ -1,5 +1,11 @@
 # rdf-canonize ChangeLog
 
+### Fixed
+- Update for Node.js 10 / OpenSSL 1.1 API.
+
+### Changed
+- Update nan dependency for Node.js 10 support.
+
 ## 0.2.3 - 2017-12-05
 
 ### Fixed

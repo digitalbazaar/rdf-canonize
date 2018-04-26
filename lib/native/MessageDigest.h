@@ -11,7 +11,7 @@
 namespace RdfCanonize {
 
 struct MessageDigest {
-  EVP_MD_CTX context;
+  EVP_MD_CTX* context;
   const EVP_MD* hashFn;
 
   MessageDigest(const char* algorithm);
