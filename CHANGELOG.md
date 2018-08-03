@@ -37,7 +37,7 @@
 ## 0.1.5 - 2017-09-18
 
 ### Changed
-- *BREAKING*: Remove Node.js 4.x testing and native support. Use a transpiler
+- **BREAKING**: Remove Node.js 4.x testing and native support. Use a transpiler
   such as babel if you need further 4.x support.
 
 ## 0.1.4 - 2017-09-17
