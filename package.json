@@ -22,20 +22,18 @@
   "license": "BSD-3-Clause",
   "main": "index.js",
   "files": [
-    "binding.gyp",
     "dist/*.js",
     "dist/*.js.map",
     "dist/node6/**/*.js",
     "index.js",
-    "lib/*.js",
-    "lib/native/*.cc",
-    "lib/native/*.h"
+    "lib/*.js"
   ],
   "dependencies": {
-    "bindings": "^1.3.0",
-    "nan": "^2.10.0",
     "node-forge": "^0.7.1",
     "semver": "^5.4.1"
+  },
+  "optionalDependencies": {
+    "rdf-canonize-native": "digitalbazaar/rdf-canonize-native#dev"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -74,7 +72,6 @@
   },
   "browser": {
     "./index.js": "./lib/index.js",
-    "./lib/MessageDigest": "./lib/MessageDigest-browser.js",
-    "bindings": false
+    "./lib/MessageDigest": "./lib/MessageDigest-browser.js"
   }
 }

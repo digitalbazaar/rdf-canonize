@@ -6,6 +6,13 @@
 - Accept N-Quads upper case language tag.
 - Improve acceptable N-Quads blank node labels.
 
+### Changed
+- **BREAKING**: Move native support to optional rdf-canonize-native package. If
+  native support is **required** in your environment, depend on the
+  `rdf-canonize-native` package directly. This package only has an *optional*
+  dependency on the native packge to allow systems without build tools to use
+  the JavaScript implementation alone.
+
 ## 0.2.4 - 2018-04-25
 
 ### Fixed
