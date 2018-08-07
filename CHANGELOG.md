@@ -13,6 +13,9 @@
   dependency on the native packge to allow systems without build tools to use
   the JavaScript implementation alone.
 
+### Added
+- Istanbul coverage support.
+
 ## 0.2.4 - 2018-04-25
 
 ### Fixed
