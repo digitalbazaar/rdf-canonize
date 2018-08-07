@@ -46,6 +46,7 @@
     "core-js": "^2.5.1",
     "mocha": "^3.5.3",
     "mocha-phantomjs": "^4.1.0",
+    "nyc": "^12.0.2",
     "regenerator-runtime": "^0.11.0",
     "webpack": "^3.7.1",
     "webpack-merge": "^4.1.0"
@@ -68,7 +69,9 @@
     "build-node6": "babel --no-babelrc --out-dir dist/node6 --presets=node6-es6 lib/*.js",
     "fetch-test-suite": "if [ ! -e test-suites/normalization ]; then git clone --depth 1 https://github.com/json-ld/normalization.git test-suites/normalization; fi",
     "test": "mocha -R spec --check-leaks test/ conformance-test.js",
-    "benchmark": "node benchmark/benchmark.js"
+    "benchmark": "node benchmark/benchmark.js",
+    "coverage": "rm -rf coverage && nyc --reporter=lcov --reporter=text-summary npm test",
+    "coverage-report": "nyc report"
   },
   "browser": {
     "./index.js": "./lib/index.js",
