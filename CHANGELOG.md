@@ -2,6 +2,7 @@
 
 ### Fixed
 - Accept N-Quads upper case language tag.
+- Improve acceptable N-Quads blank node labels.
 
 ## 0.2.4 - 2018-04-25
 
