@@ -1,5 +1,8 @@
 # rdf-canonize ChangeLog
 
+### Fixed
+- Accept N-Quads upper case language tag.
+
 ## 0.2.4 - 2018-04-25
 
 ### Fixed
