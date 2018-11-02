@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 0.3.0 - 2018-11-01
+
 ### Changed
 - **BREAKING**: Move native support to optional `rdf-canonize-native` package.
   If native support is **required** in your environment then *also* add a
