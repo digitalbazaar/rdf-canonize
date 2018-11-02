@@ -23,6 +23,26 @@ npm install rdf-canonize
 const canonize = require('rdf-canonize');
 ```
 
+### node.js + npm + native bindings
+
+**NOTE**: This package has an *optional* dependency on [rdf-canonize-native][].
+If native build tools are not available then the native bindings will fail to
+build and only the JavaScript implementation will be used. If you wish to
+ensure you get the higher performance of the native code, and want to ensure
+build failures will not be ignored, then you should *also* add a dependency on
+`rdf-canonize-native` to your project.
+
+```
+npm install rdf-canonize
+npm install rdf-canonize-native
+```
+
+Note that the native code will automatically be used if available.
+
+```js
+const canonize = require('rdf-canonize');
+```
+
 ### Browser (AMD) + npm
 
 ```
@@ -106,3 +126,4 @@ Commercial support for this library is available upon request from
 [JSON-LD]: https://json-ld.org/
 [RDF Dataset Normalization Algorithm]: https://json-ld.github.io/normalization/
 [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
+[rdf-canonize-native]: https://github.com/digitalbazaar/rdf-canonize-native
