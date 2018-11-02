@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 0.2.5 - 2018-11-01
+
 ### Fixed
 - Accept N-Quads upper case language tag.
 - Improve acceptable N-Quads blank node labels.
