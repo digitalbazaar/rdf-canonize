@@ -1,20 +1,20 @@
 # rdf-canonize ChangeLog
 
+### Changed
+- **BREAKING**: Move native support to optional `rdf-canonize-native` package.
+  If native support is **required** in your environment then *also* add a
+  dependency on the `rdf-canonize-native` package directly. This package only
+  has an *optional* dependency on the native packge to allow systems without
+  native binding build tools to use the JavaScript implementation alone.
+
+### Added
+- Istanbul coverage support.
+
 ## 0.2.5 - 2018-11-01
 
 ### Fixed
 - Accept N-Quads upper case language tag.
 - Improve acceptable N-Quads blank node labels.
-
-### Changed
-- **BREAKING**: Move native support to optional rdf-canonize-native package. If
-  native support is **required** in your environment, depend on the
-  `rdf-canonize-native` package directly. This package only has an *optional*
-  dependency on the native packge to allow systems without build tools to use
-  the JavaScript implementation alone.
-
-### Added
-- Istanbul coverage support.
 
 ## 0.2.4 - 2018-04-25
 
