@@ -29,8 +29,8 @@
     "lib/*.js"
   ],
   "dependencies": {
-    "node-forge": "^0.7.1",
-    "semver": "^5.4.1"
+    "node-forge": "^0.7.6",
+    "semver": "^5.6.0"
   },
   "optionalDependencies": {
     "rdf-canonize-native": "digitalbazaar/rdf-canonize-native#dev"
@@ -41,13 +41,13 @@
     "babel-preset-env": "^1.6.0",
     "babel-preset-node6-es6": "^11.2.5",
     "benchmark": "^2.1.4",
-    "chai": "^4.1.2",
-    "commander": "^2.8.0",
+    "chai": "^4.2.0",
+    "commander": "^2.19.0",
     "core-js": "^2.5.1",
-    "mocha": "^3.5.3",
+    "mocha": "^5.2.0",
     "mocha-phantomjs": "^4.1.0",
     "nyc": "^12.0.2",
-    "regenerator-runtime": "^0.11.0",
+    "regenerator-runtime": "^0.12.1",
     "webpack": "^3.7.1",
     "webpack-merge": "^4.1.0"
   },
