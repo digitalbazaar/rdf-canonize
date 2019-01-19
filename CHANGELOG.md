@@ -9,7 +9,7 @@
   - Unescape literals.
   - Handle unicode escapes.
 - N-Quad serialization optimization.
-  - Varies based on input by rougly ~1-2x.
+  - Varies based on input by roughly ~1-2x.
 
 ## 0.3.0 - 2018-11-01
 
