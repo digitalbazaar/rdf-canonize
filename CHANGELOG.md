@@ -1,5 +1,16 @@
 # rdf-canonize ChangeLog
 
+### Fixed
+- **BREAKING**: N-Quad canonical serialized output.
+  - Only escape 4 chars.
+
+### Changed
+- Improve N-Quads parsing.
+  - Unescape literals.
+  - Handle unicode escapes.
+- N-Quad serialization optimization.
+  - Varies based on input by rougly ~1-2x.
+
 ## 0.3.0 - 2018-11-01
 
 ### Changed
