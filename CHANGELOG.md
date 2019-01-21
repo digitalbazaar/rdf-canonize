@@ -28,6 +28,7 @@
   overhead but can be useful in cases where you need to offload canonizing into
   the background. It is recommended to perform benchmarks to determine which
   method works best in your case.
+- Update webpack and babel.
 
 ## 0.3.0 - 2018-11-01
 
