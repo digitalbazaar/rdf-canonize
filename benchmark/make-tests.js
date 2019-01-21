@@ -45,7 +45,7 @@ async function bn(b, n) {
   //console.log('nq2', data);
 
   const nq = await jsonld.toRDF(data, {
-    format: 'application/nquads',
+    format: 'application/n-quads',
     documentLoader: loader
   });
   fs.writeFileSync(`./block-${n}-in.nq`, nq);
