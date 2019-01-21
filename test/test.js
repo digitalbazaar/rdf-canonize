@@ -62,9 +62,9 @@ if(_nodejs) {
   });
 }
 
-const canonize = require('.');
+const canonize = require('..');
 const EarlReport = require('./EarlReport');
-const NQuads = require('./lib/NQuads');
+const NQuads = require('../lib/NQuads');
 
 // try to load native bindings
 let rdfCanonizeNative;
