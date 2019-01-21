@@ -26,6 +26,26 @@ if(_nodejs) {
 const canonize = require('..');
 const NQuads = require('../lib/NQuads');
 
+// try to load native bindings
+let rdfCanonizeNative;
+// try regular load
+try {
+  rdfCanonizeNative = require('rdf-canonize-native');
+} catch(e) {
+  // try peer package
+  try {
+    rdfCanonizeNative = require('../../rdf-canonize-native');
+  } catch(e) {
+  }
+}
+// use native bindings
+if(rdfCanonizeNative) {
+  canonize._rdfCanonizeNative(rdfCanonizeNative);
+} else {
+  // skip native tests
+  console.warn('rdf-canonize-native not found');
+}
+
 const _TEST_SUITE_PATHS = [
   process.env.TEST_DIR,
   '../normalization/tests',
@@ -201,6 +221,7 @@ function addTest(manifest, test) {
       Promise.all(all).then(() => deferred.resolve());
     }
   });
+
   /*
   // run async js benchmark (callback)
   suite.add({
@@ -211,27 +232,30 @@ function addTest(manifest, test) {
     }
   });
   */
-  // run async native benchmark
-  suite.add({
-    name: namepath.concat([description, '(asynchronous native)']).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      canonize.canonize(...nativeParams).then(() => deferred.resolve());
-    }
-  });
-  // run async native benchmark x N
-  suite.add({
-    name: namepath.concat(
-      [description, `(asynchronous native x ${N})`]).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      const all = [];
-      for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonize(...nativeParams));
+
+  if(rdfCanonizeNative) {
+    // run async native benchmark
+    suite.add({
+      name: namepath.concat([description, '(asynchronous native)']).join(' / '),
+      defer: true,
+      fn: function(deferred) {
+        canonize.canonize(...nativeParams).then(() => deferred.resolve());
       }
-      Promise.all(all).then(() => deferred.resolve());
-    }
-  });
+    });
+    // run async native benchmark x N
+    suite.add({
+      name: namepath.concat(
+        [description, `(asynchronous native x ${N})`]).join(' / '),
+      defer: true,
+      fn: function(deferred) {
+        const all = [];
+        for(let i = 0; i < N; ++i) {
+          all.push(canonize.canonize(...nativeParams));
+        }
+        Promise.all(all).then(() => deferred.resolve());
+      }
+    });
+  }
 
   // run sync js benchmark
   suite.add({
@@ -255,28 +279,31 @@ function addTest(manifest, test) {
       Promise.all(all).then(() => deferred.resolve());
     }
   });
-  // run sync native benchmark
-  suite.add({
-    name: namepath.concat([description, '(synchronous native)']).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      canonize.canonizeSync(...nativeParams);
-      deferred.resolve();
-    }
-  });
-  // run sync native benchmark x N
-  suite.add({
-    name: namepath.concat(
-      [description, `(synchronous native x ${N})`]).join(' / '),
-    defer: true,
-    fn: function(deferred) {
-      const all = [];
-      for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonizeSync(...nativeParams));
+
+  if(rdfCanonizeNative) {
+    // run sync native benchmark
+    suite.add({
+      name: namepath.concat([description, '(synchronous native)']).join(' / '),
+      defer: true,
+      fn: function(deferred) {
+        canonize.canonizeSync(...nativeParams);
+        deferred.resolve();
       }
-      Promise.all(all).then(() => deferred.resolve());
-    }
-  });
+    });
+    // run sync native benchmark x N
+    suite.add({
+      name: namepath.concat(
+        [description, `(synchronous native x ${N})`]).join(' / '),
+      defer: true,
+      fn: function(deferred) {
+        const all = [];
+        for(let i = 0; i < N; ++i) {
+          all.push(canonize.canonizeSync(...nativeParams));
+        }
+        Promise.all(all).then(() => deferred.resolve());
+      }
+    });
+  }
 
   /*
   // run sync js benchmark (try/catch)

@@ -25,19 +25,24 @@ const canonize = require('rdf-canonize');
 
 ### node.js + npm + native bindings
 
-**NOTE**: This package has an *optional* dependency on [rdf-canonize-native][].
-If native build tools are not available then the native bindings will fail to
-build and only the JavaScript implementation will be used. If you wish to
-ensure you get the higher performance of the native code, and want to ensure
-build failures will not be ignored, then you should *also* add a dependency on
-`rdf-canonize-native` to your project.
+This package has support for [rdf-canonize-native][]. This package can be
+useful if your application requires doing many canonizing operations
+asyncronously in parallel or in the background. It is **highly recommended**
+that you understand your requirements and benchmark using JavaScript vs native
+bindings. The native bindings add overhead and the JavaScript implementation
+may be faster with modern runtimes.
+
+The native bindings are not installed by default and must be explicitly
+installed.
 
 ```
 npm install rdf-canonize
 npm install rdf-canonize-native
 ```
 
-Note that the native code will automatically be used if available.
+Note that the native code will automatically be used if available. If you have
+the native bindings installed and wish to use the JavaScript implementation a
+`usePureJavaScript` option is available.
 
 ```js
 const canonize = require('rdf-canonize');
@@ -63,8 +68,20 @@ const dataset = {
   // ...
 };
 
-// canonize a data set with a particular algorithm
+// canonize a data set with a particular algorithm with callback
 canonize.canonize(dataset, {algorithm: 'URDNA2015'}, function(err, canonical) {
+  // ...
+});
+
+// canonize a data set with a particular algorithm with async/await
+const canonical = await canonize.canonize(dataset, {algorithm: 'URDNA2015'});
+
+// canonize a data set with a particular algorithm with callback
+// force use of JavaScript implementation even if native bindings are available
+canonize.canonize(dataset, {
+    algorithm: 'URDNA2015',
+    usePureJavaScript: true
+  }, function(err, canonical) {
   // ...
 });
 ```

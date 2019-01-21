@@ -66,6 +66,26 @@ const canonize = require('.');
 const EarlReport = require('./EarlReport');
 const NQuads = require('./lib/NQuads');
 
+// try to load native bindings
+let rdfCanonizeNative;
+// try regular load
+try {
+  rdfCanonizeNative = require('rdf-canonize-native');
+} catch(e) {
+  // try peer package
+  try {
+    rdfCanonizeNative = require('../rdf-canonize-native');
+  } catch(e) {
+  }
+}
+// use native bindings
+if(rdfCanonizeNative) {
+  canonize._rdfCanonizeNative(rdfCanonizeNative);
+} else {
+  // skip native tests
+  console.warn('rdf-canonize-native not found');
+}
+
 const _TEST_SUITE_PATHS = [
   program['testDir'],
   '../normalization/tests',
@@ -220,7 +240,7 @@ function addTest(manifest, test) {
     promise.then(callback.bind(null, null), callback);
   });
 
-  if(params[1].algorithm === 'URDNA2015') {
+  if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
     // run async native test
     it(description + ' (asynchronous native)', function(done) {
       this.timeout(5000);
@@ -243,7 +263,7 @@ function addTest(manifest, test) {
     callback(null, result);
   });
 
-  if(params[1].algorithm === 'URDNA2015') {
+  if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
     // run sync test
     it(description + ' (synchronous native)', function(done) {
       this.timeout(5000);
