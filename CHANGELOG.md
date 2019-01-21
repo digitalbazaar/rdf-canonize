@@ -5,6 +5,8 @@
   canonical N-Quads output to differ from previous releases. Specifically, tabs
   in literals are no longer escaped. No backwards compatibility mode is
   provided at this time but if you belive it is needed, please file an issue.
+- If you wish to use the native bindings, you must now install
+  `rdf-canonize-native` yourself. It is no longer a dependency. See below.
 
 ### Fixed
 - **BREAKING**: N-Quad canonical serialized output.
@@ -17,6 +19,15 @@
   - Handle unicode escapes.
 - N-Quad serialization optimization.
   - Varies based on input by roughly ~1-2x.
+- **BREAKING**: Remove `rdf-canonize-native` as a dependency. The native
+  bindings will still be used if `rdf-canonize-native` can be loaded. This
+  means if you want the native bindings you *must* install them yourself. This
+  change was done due to various problems caused by having any type of
+  dependency involving the native code. With modern runtimes the JavaScript
+  implementation is in many cases *faster*. The native bindings do have
+  overhead but can be useful in cases where you need to offload canonizing into
+  the background. It is recommended to perform benchmarks to determine which
+  method works best in your case.
 
 ## 0.3.0 - 2018-11-01
 

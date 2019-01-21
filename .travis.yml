@@ -7,6 +7,8 @@ node_js:
 sudo: false
 install:
   - npm install
+  # install native module
+  - npm install --no-save rdf-canonize-native
   - npm run fetch-test-suite
 script:
   - if [ "x$BUNDLER" = "x" ]; then npm run test; fi
