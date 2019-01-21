@@ -1,8 +1,15 @@
 # rdf-canonize ChangeLog
 
+### Notes
+- **WARNING**: This release has a **BREAKING** change that could cause the
+  canonical N-Quads output to differ from previous releases. Specifically, tabs
+  in literals are no longer escaped. No backwards compatibility mode is
+  provided at this time but if you belive it is needed, please file an issue.
+
 ### Fixed
 - **BREAKING**: N-Quad canonical serialized output.
   - Only escape 4 chars.
+  - Now compatible with https://www.w3.org/TR/n-triples/#canonical-ntriples
 
 ### Changed
 - Improve N-Quads parsing.
