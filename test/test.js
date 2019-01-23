@@ -74,7 +74,7 @@ try {
 } catch(e) {
   // try peer package
   try {
-    rdfCanonizeNative = require('../rdf-canonize-native');
+    rdfCanonizeNative = require('../../rdf-canonize-native');
   } catch(e) {
   }
 }
