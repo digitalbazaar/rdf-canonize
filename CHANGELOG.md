@@ -4,7 +4,7 @@
 - **WARNING**: This release has a **BREAKING** change that could cause the
   canonical N-Quads output to differ from previous releases. Specifically, tabs
   in literals are no longer escaped. No backwards compatibility mode is
-  provided at this time but if you belive it is needed, please file an issue.
+  provided at this time but if you believe it is needed, please file an issue.
 - If you wish to use the native bindings, you must now install
   `rdf-canonize-native` yourself. It is no longer a dependency. See below.
 
@@ -29,10 +29,10 @@
   the background. It is recommended to perform benchmarks to determine which
   method works best in your case.
 - Update webpack and babel.
-- **BREAKING**: Remove `usePureJavaScript` option and make using JavaScript the
-  default for this module. Add explicit `useNative` option to force the use of
-  the native implemenation from `rdf-canonize-native`. An error will be thrown
-  if native bindings are not available.
+- **BREAKING**: Remove `usePureJavaScript` option and make the JavaScript
+  implementation the default. Add explicit `useNative` option to force the use
+  of the native implementation from `rdf-canonize-native`. An error will be
+  thrown if native bindings are not available.
 
 ## 0.3.0 - 2018-11-01
 
@@ -40,7 +40,7 @@
 - **BREAKING**: Move native support to optional `rdf-canonize-native` package.
   If native support is **required** in your environment then *also* add a
   dependency on the `rdf-canonize-native` package directly. This package only
-  has an *optional* dependency on the native packge to allow systems without
+  has an *optional* dependency on the native package to allow systems without
   native binding build tools to use the JavaScript implementation alone.
 
 ### Added
