@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 1.0.0 - 2019-01-23
+
 ### Notes
 - **WARNING**: This release has a **BREAKING** change that could cause the
   canonical N-Quads output to differ from previous releases. Specifically, tabs
