@@ -40,9 +40,8 @@ npm install rdf-canonize
 npm install rdf-canonize-native
 ```
 
-Note that the native code will automatically be used if available. If you have
-the native bindings installed and wish to use the JavaScript implementation a
-`usePureJavaScript` option is available.
+Note that the native code is not automatically used. To use the native bindings
+you must have them installed and set the `useNative` option to `true`.
 
 ```js
 const canonize = require('rdf-canonize');
@@ -77,10 +76,10 @@ canonize.canonize(dataset, {algorithm: 'URDNA2015'}, function(err, canonical) {
 const canonical = await canonize.canonize(dataset, {algorithm: 'URDNA2015'});
 
 // canonize a data set with a particular algorithm with callback
-// force use of JavaScript implementation even if native bindings are available
+// force use of the native implementation
 canonize.canonize(dataset, {
     algorithm: 'URDNA2015',
-    usePureJavaScript: true
+    useNative: true
   }, function(err, canonical) {
   // ...
 });

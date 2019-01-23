@@ -29,6 +29,10 @@
   the background. It is recommended to perform benchmarks to determine which
   method works best in your case.
 - Update webpack and babel.
+- **BREAKING**: Remove `usePureJavaScript` option and make using JavaScript the
+  default for this module. Add explicit `useNative` option to force the use of
+  the native implemenation from `rdf-canonize-native`. An error will be thrown
+  if native bindings are not available.
 
 ## 0.3.0 - 2018-11-01
 
