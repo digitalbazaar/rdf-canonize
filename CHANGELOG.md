@@ -1,5 +1,9 @@
 # rdf-canonize ChangeLog
 
+### Changed
+- Remove use of deprecated `util.isUndefined()`. Avoids unneeded `util`
+  polyfill in webpack build.
+
 ## 1.0.0 - 2019-01-23
 
 ### Notes
