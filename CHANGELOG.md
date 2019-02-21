@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 1.0.2 - 2019-xx-xx
+## 1.0.2 - 2019-02-21
 
 ### Fixed
 - Fix triple comparator in n-quads parser.
@@ -79,7 +79,7 @@
 ## 0.2.3 - 2017-12-05
 
 ### Fixed
-- Avoid variable length arrays.  Not supported by some C++ compilers.
+- Avoid variable length arrays. Not supported by some C++ compilers.
 
 ## 0.2.2 - 2017-12-04
 
