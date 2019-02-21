@@ -6,6 +6,7 @@
  *
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
+/* eslint-disable indent */
 (async () => {
 const fs = require('fs');
 const jsonld = require('../../jsonld.js');

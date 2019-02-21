@@ -5,6 +5,9 @@
 ### Fixed
 - Fix triple comparator in n-quads parser.
 
+### Added
+- Add eslint support.
+
 ## 1.0.1 - 2019-01-23
 
 ### Changed

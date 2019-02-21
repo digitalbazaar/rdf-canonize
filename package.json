@@ -44,6 +44,8 @@
     "chai": "^4.2.0",
     "commander": "^2.19.0",
     "core-js": "^2.6.3",
+    "eslint": "^5.14.1",
+    "eslint-config-digitalbazaar": "^1.6.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "webpack": "^4.29.0",
@@ -70,7 +72,8 @@
     "test": "mocha -R spec --check-leaks",
     "benchmark": "node benchmark/benchmark.js",
     "coverage": "rm -rf coverage && nyc --reporter=lcov --reporter=text-summary npm test",
-    "coverage-report": "nyc report"
+    "coverage-report": "nyc report",
+    "lint": "eslint '*.js' 'lib/*.js' 'test/*.js' 'benchmark/*.js'"
   },
   "browser": {
     "./index.js": "./lib/index.js",
