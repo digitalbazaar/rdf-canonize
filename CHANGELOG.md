@@ -2,6 +2,7 @@
 
 ### Changed
 - Test that input is not changed.
+- Optimize quad processing.
 
 ## 3.1.0 - 2022-08-30
 
