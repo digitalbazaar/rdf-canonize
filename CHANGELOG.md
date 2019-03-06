@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 1.0.3 - 2019-03-06
+
 ### Changed
 - Update node-forge dependency.
 
