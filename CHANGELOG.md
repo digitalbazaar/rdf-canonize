@@ -1,5 +1,8 @@
 # rdf-canonize ChangeLog
 
+### Changed
+- Test that input is not changed.
+
 ## 3.1.0 - 2022-08-30
 
 ### Added
