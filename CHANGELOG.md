@@ -1,6 +1,7 @@
 # rdf-canonize ChangeLog
 
 ### Changed
+- Optimize away length check on paths.
 - Update node-forge dependency.
 
 ## 1.0.3 - 2019-03-06
