@@ -183,6 +183,10 @@ function addManifest(manifest) {
   });
 }
 
+function _clone(json) {
+  return JSON.parse(JSON.stringify(json));
+}
+
 function addTest(manifest, test) {
   // skip unknown and explicitly skipped test types
   const testTypes = Object.keys(TEST_TYPES);
@@ -205,9 +209,13 @@ function addTest(manifest, test) {
   const params = testInfo.params.map(param => param(test));
   // custom params for js only async mode
   const jsParams = testInfo.params.map(param => param(test));
+  // copy used to check inputs do not change
+  const jsParamsOrig = _clone(jsParams);
   // custom params for native only async mode
   const nativeParams = testInfo.params.map(param => param(test));
   nativeParams[1].useNative = true;
+  // copy used to check inputs do not change
+  const nativeParamsOrig = _clone(nativeParams);
   const createCallback = done => (err, result) => {
     try {
       if(err) {
@@ -237,7 +245,13 @@ function addTest(manifest, test) {
     this.timeout(5000);
     const callback = createCallback(done);
     const promise = canonize.canonize.apply(null, jsParams);
-    promise.then(callback.bind(null, null), callback);
+    promise
+      .then(function(data) {
+        // check input not changed
+        assert.deepStrictEqual(jsParamsOrig, jsParams);
+        return data;
+      })
+      .then(callback.bind(null, null), callback);
   });
 
   if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
@@ -246,7 +260,13 @@ function addTest(manifest, test) {
       this.timeout(5000);
       const callback = createCallback(done);
       const promise = canonize.canonize.apply(null, nativeParams);
-      promise.then(callback.bind(null, null), callback);
+      promise
+        .then(function(data) {
+          // check input not changed
+          assert.deepStrictEqual(nativeParamsOrig, nativeParams);
+          return data;
+        })
+        .then(callback.bind(null, null), callback);
     });
   }
 
@@ -257,6 +277,8 @@ function addTest(manifest, test) {
     let result;
     try {
       result = canonize.canonizeSync.apply(null, jsParams);
+      // check input not changed
+      assert.deepStrictEqual(jsParamsOrig, jsParams);
     } catch(e) {
       return callback(e);
     }
@@ -271,6 +293,8 @@ function addTest(manifest, test) {
       let result;
       try {
         result = canonize.canonizeSync.apply(null, nativeParams);
+        // check input not changed
+        assert.deepStrictEqual(nativeParamsOrig, nativeParams);
       } catch(e) {
         return callback(e);
       }
@@ -341,7 +365,7 @@ function compareExpectedNQuads(test, result) {
   let expect;
   try {
     expect = readTestNQuads(_getExpectProperty(test))(test);
-    assert.equal(result, expect);
+    assert.strictEqual(result, expect);
   } catch(ex) {
     if(program.bail) {
       console.log('\nTEST FAILED\n');
