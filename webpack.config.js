@@ -19,9 +19,9 @@ const outputs = [
   {
     entry: [
       // 'babel-polyfill' is very large, list features explicitly
-      'core-js/fn/object/assign',
-      'core-js/fn/promise',
-      'core-js/fn/symbol',
+      'core-js/features/object/assign',
+      'core-js/features/promise',
+      'core-js/features/symbol',
       // main lib
       './index.js'
     ],

@@ -43,7 +43,7 @@
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
     "commander": "^2.19.0",
-    "core-js": "^2.6.3",
+    "core-js": "3.x",
     "eslint": "^5.14.1",
     "eslint-config-digitalbazaar": "^1.6.0",
     "mocha": "^5.2.0",
