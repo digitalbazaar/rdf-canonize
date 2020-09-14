@@ -29,7 +29,7 @@
     "lib/*.js"
   ],
   "dependencies": {
-    "node-forge": "^0.9.1",
+    "node-forge": "^0.10.0",
     "semver": "^6.3.0"
   },
   "devDependencies": {
