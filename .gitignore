@@ -9,6 +9,7 @@
 .nyc_output
 .project
 .settings
+.vscode
 TAGS
 build
 coverage
