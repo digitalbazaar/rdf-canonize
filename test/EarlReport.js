@@ -15,16 +15,16 @@ module.exports = class EarlReport {
       (today.getDate() < 10 ? '0' + today.getDate() : today.getDate());
     this.report = {
       '@context': {
-        'doap': 'http://usefulinc.com/ns/doap#',
-        'foaf': 'http://xmlns.com/foaf/0.1/',
-        'dc': 'http://purl.org/dc/terms/',
-        'earl': 'http://www.w3.org/ns/earl#',
-        'xsd': 'http://www.w3.org/2001/XMLSchema#',
+        doap: 'http://usefulinc.com/ns/doap#',
+        foaf: 'http://xmlns.com/foaf/0.1/',
+        dc: 'http://purl.org/dc/terms/',
+        earl: 'http://www.w3.org/ns/earl#',
+        xsd: 'http://www.w3.org/2001/XMLSchema#',
         'doap:homepage': {'@type': '@id'},
         'doap:license': {'@type': '@id'},
         'dc:creator': {'@type': '@id'},
         'foaf:homepage': {'@type': '@id'},
-        'subjectOf': {'@reverse': 'earl:subject'},
+        subjectOf: {'@reverse': 'earl:subject'},
         'earl:assertedBy': {'@type': '@id'},
         'earl:mode': {'@type': '@id'},
         'earl:test': {'@type': '@id'},
@@ -58,7 +58,7 @@ module.exports = class EarlReport {
         '@value': today,
         '@type': 'xsd:date'
       },
-      'subjectOf': []
+      subjectOf: []
     };
     this.report['@id'] += '#' + implementation;
     this.report['doap:name'] += ' ' + implementation;

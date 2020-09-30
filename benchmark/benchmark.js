@@ -143,8 +143,9 @@ function addManifest(manifest) {
 }
 
 // i null for random, i number for incremental hashes mode
+// eslint-disable-next-line no-unused-vars
 function _bench({description, params, minSamples}) {
-  let options = {
+  const options = {
     name: description,
     defer: true,
     fn: function(deferred) {
@@ -186,6 +187,7 @@ function addTest(manifest, test) {
   const description = test_id + ' ' + (test.purpose || test.name);
 
   const testInfo = TEST_TYPES[getTestType(test)];
+  // eslint-disable-next-line no-unused-vars
   const params = testInfo.params.map(param => param(test));
 
   // custom params for js only async mode
@@ -308,7 +310,8 @@ function addTest(manifest, test) {
   /*
   // run sync js benchmark (try/catch)
   suite.add({
-    name: namepath.concat([description, '(synchronous js / try/catch)']).join(' / '),
+    name: namepath.concat(
+      [description, '(synchronous js / try/catch)']).join(' / '),
     defer: true,
     fn: function(deferred) {
       try {
@@ -384,6 +387,7 @@ function createTestOptions(opts) {
 }
 
 // find the expected output property or throw error
+// eslint-disable-next-line no-unused-vars
 function _getExpectProperty(test) {
   if('expect' in test) {
     return 'expect';
