@@ -233,7 +233,7 @@ function addTest(manifest, test) {
   };
 
   // run async js test
-  it(description + ' (asynchronous js)', function(done) {
+  it.skip(description + ' (asynchronous js)', function(done) {
     this.timeout(5000);
     const callback = createCallback(done);
     const promise = canonize.canonize.apply(null, clone(jsParams));
