@@ -236,7 +236,7 @@ function addTest(manifest, test) {
   it(description + ' (asynchronous js)', function(done) {
     this.timeout(5000);
     const callback = createCallback(done);
-    const promise = canonize.canonize.apply(null, jsParams);
+    const promise = canonize.canonize.apply(null, clone(jsParams));
     promise.then(callback.bind(null, null), callback);
   });
 
@@ -245,7 +245,7 @@ function addTest(manifest, test) {
     it(description + ' (asynchronous native)', function(done) {
       this.timeout(5000);
       const callback = createCallback(done);
-      const promise = canonize.canonize.apply(null, nativeParams);
+      const promise = canonize.canonize.apply(null, clone(nativeParams));
       promise.then(callback.bind(null, null), callback);
     });
   }
@@ -256,7 +256,7 @@ function addTest(manifest, test) {
     const callback = createCallback(done);
     let result;
     try {
-      result = canonize.canonizeSync.apply(null, jsParams);
+      result = canonize.canonizeSync.apply(null, clone(jsParams));
     } catch(e) {
       return callback(e);
     }
@@ -270,7 +270,7 @@ function addTest(manifest, test) {
       const callback = createCallback(done);
       let result;
       try {
-        result = canonize.canonizeSync.apply(null, nativeParams);
+        result = canonize.canonizeSync.apply(null, clone(nativeParams));
       } catch(e) {
         return callback(e);
       }
@@ -424,6 +424,10 @@ function basename(filename) {
     return filename;
   }
   return filename.substr(idx + 1);
+}
+
+function clone(x) {
+  return JSON.parse(JSON.stringify(x));
 }
 
 })();
