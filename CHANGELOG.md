@@ -1,5 +1,17 @@
 # rdf-canonize ChangeLog
 
+## 2.0.0 - 2020-11-xx
+
+### Removed
+- **BREAKING**: Removed public API for `canonizeSync`. It is still available
+  for testing purposes but does not run in the browser.
+- **BREAKING**: Removed dependency on `forge` which means that this library
+  will only run in browsers that have support for the WebCrypto API (or
+  an external polyfill for it).
+
+### Changed
+- General optimizations and modernization of the library.
+
 ## 1.2.0 - 2020-09-30
 
 ### Changed

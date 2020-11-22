@@ -256,7 +256,7 @@ function addTest(manifest, test) {
     const callback = createCallback(done);
     let result;
     try {
-      result = canonize.canonizeSync.apply(null, clone(jsParams));
+      result = canonize._canonizeSync.apply(null, clone(jsParams));
     } catch(e) {
       return callback(e);
     }
@@ -270,7 +270,7 @@ function addTest(manifest, test) {
       const callback = createCallback(done);
       let result;
       try {
-        result = canonize.canonizeSync.apply(null, clone(nativeParams));
+        result = canonize._canonizeSync.apply(null, clone(nativeParams));
       } catch(e) {
         return callback(e);
       }
