@@ -8,9 +8,14 @@
 - **BREAKING**: Removed dependency on `forge` which means that this library
   will only run in browsers that have support for the WebCrypto API (or
   an external polyfill for it).
+- **BREAKING**: Do not expose `existing` on `IdentifierIssuer`. The old
+  IDs can be retrieved in order via `getOldIds`.
 
 ### Changed
 - General optimizations and modernization of the library.
+
+### Added
+- Add `getOldIds` function to `IdentifierIssuer`.
 
 ## 1.2.0 - 2020-09-30
 
