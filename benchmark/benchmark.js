@@ -1,10 +1,7 @@
 /**
  * Benchmark runner for rdf-canonize.
  *
- * @author Dave Longley
- * @author David I. Lehn
- *
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2020 Digital Bazaar, Inc. All rights reserved.
  */
 /* eslint-disable indent */
 (function() {
@@ -264,7 +261,7 @@ function addTest(manifest, test) {
     name: namepath.concat([description, '(synchronous js)']).join(' / '),
     defer: true,
     fn: function(deferred) {
-      canonize.canonizeSync(...jsParams);
+      canonize._canonizeSync(...jsParams);
       deferred.resolve();
     }
   });
@@ -276,7 +273,7 @@ function addTest(manifest, test) {
     fn: function(deferred) {
       const all = [];
       for(let i = 0; i < N; ++i) {
-        all.push(canonize.canonizeSync(...jsParams));
+        all.push(canonize._canonizeSync(...jsParams));
       }
       Promise.all(all).then(() => deferred.resolve());
     }
@@ -288,7 +285,7 @@ function addTest(manifest, test) {
       name: namepath.concat([description, '(synchronous native)']).join(' / '),
       defer: true,
       fn: function(deferred) {
-        canonize.canonizeSync(...nativeParams);
+        canonize._canonizeSync(...nativeParams);
         deferred.resolve();
       }
     });
@@ -300,7 +297,7 @@ function addTest(manifest, test) {
       fn: function(deferred) {
         const all = [];
         for(let i = 0; i < N; ++i) {
-          all.push(canonize.canonizeSync(...nativeParams));
+          all.push(canonize._canonizeSync(...nativeParams));
         }
         Promise.all(all).then(() => deferred.resolve());
       }
@@ -315,7 +312,7 @@ function addTest(manifest, test) {
     defer: true,
     fn: function(deferred) {
       try {
-        canonize.canonizeSync(...jsParams);
+        canonize._canonizeSync(...jsParams);
       } catch(e) {}
       deferred.resolve();
     }
@@ -324,7 +321,7 @@ function addTest(manifest, test) {
   suite.add({
     name: namepath.concat([description, '(synchronous js nd)']).join(' / '),
     fn: function() {
-      canonize.canonizeSync(...jsParams);
+      canonize._canonizeSync(...jsParams);
     }
   });
   // run sync js benchmark (non-deferred try/catch)
@@ -332,7 +329,7 @@ function addTest(manifest, test) {
     name: namepath.concat([description, '(synchronous js nd/tc)']).join(' / '),
     fn: function() {
       try {
-        canonize.canonizeSync(...jsParams);
+        canonize._canonizeSync(...jsParams);
       } catch(e) {}
     }
   });
