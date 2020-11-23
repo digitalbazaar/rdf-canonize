@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
  */
+'use strict';
+
 const canonize = require('./index')._canonizeSync;
 //const canonize = require('./index').canonize;
 const delay = require('delay');
