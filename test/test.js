@@ -18,6 +18,7 @@ const fs = require('fs');
 let program;
 let assert;
 let path;
+const rustCanonize = require('../../rust-bindgen-canonize/dist/index.node');
 
 if(_nodejs) {
   path = require('path');
@@ -262,6 +263,22 @@ function addTest(manifest, test) {
     }
     callback(null, result);
   });
+
+  if(params[1].algorithm === 'URDNA2015') {
+    it.only(description + ' (rust synchronous native)', function(done) {
+      this.timeout(5000);
+      const callback = createCallback(done);
+      let result;
+      try {
+        const j = clone(nativeParams);
+        result = rustCanonize.canonize.apply(null, j);
+        console.log('NNNNNNNNN22222222', JSON.stringify(result, null, 2));
+      } catch(e) {
+        return callback(e);
+      }
+      callback(null, result);
+    });
+  }
 
   if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
     // run sync test
