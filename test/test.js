@@ -18,7 +18,8 @@ const fs = require('fs');
 let program;
 let assert;
 let path;
-const rustCanonize = require('../../rust-bindgen-canonize/dist/index.node');
+const rustCanonize =
+  require('../../rust-node-bindgen-canonize/dist/index.node');
 
 if(_nodejs) {
   path = require('path');
