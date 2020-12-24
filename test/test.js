@@ -179,7 +179,9 @@ function addManifest(manifest) {
         addManifest(entry);
       } else {
         // assume entry is a test
-        addTest(manifest, entry);
+        if((entry['@id'] || entry['id']).includes('manifest-urdna2015#test054')) {
+          addTest(manifest, entry);
+        }
       }
     }
   });
