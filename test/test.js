@@ -181,6 +181,8 @@ function addManifest(manifest) {
         // assume entry is a test
         if((entry['@id'] || entry['id']).includes('manifest-urdna2015#test054')) {
           addTest(manifest, entry);
+        } else {
+          addTest(manifest, entry);
         }
       }
     }
@@ -275,7 +277,6 @@ function addTest(manifest, test) {
       try {
         const j = clone(nativeParams);
         result = rustCanonize.canonize.apply(null, j);
-        console.log('NNNNNNNNN22222222', JSON.stringify(result, null, 2));
       } catch(e) {
         return callback(e);
       }
