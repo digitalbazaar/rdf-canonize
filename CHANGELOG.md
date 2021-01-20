@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 2.0.0 - 2020-11-xx
+## 2.0.0 - 2020-01-20
 
 ### Removed
 - **BREAKING**: Removed public API for `canonizeSync`. It is still available
