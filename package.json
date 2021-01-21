@@ -29,7 +29,8 @@
     "lib/*.js"
   ],
   "dependencies": {
-    "semver": "^6.3.0"
+    "semver": "^6.3.0",
+    "setimmediate": "^1.0.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
