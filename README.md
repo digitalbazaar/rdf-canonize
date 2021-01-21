@@ -1,6 +1,7 @@
 # rdf-canonize
 
-[![Build status](https://img.shields.io/travis/digitalbazaar/rdf-canonize.svg)](https://travis-ci.org/digitalbazaar/rdf-canonize)
+[![Build status](https://img.shields.io/github/workflow/status/digitalbazaar/rdf-canonize/Node.js%20CI)](https://github.com/digitalbazaar/rdf-canonize/actions?query=workflow%3A%22Node.js+CI%22)
+[![Coverage status](https://img.shields.io/codecov/c/github/digitalbazaar/rdf-canonize)](https://codecov.io/gh/digitalbazaar/rdf-canonize)
 [![Dependency Status](https://img.shields.io/david/digitalbazaar/rdf-canonize.svg)](https://david-dm.org/digitalbazaar/rdf-canonize)
 
 An implementation of the [RDF Dataset Normalization Algorithm][] in JavaScript.
