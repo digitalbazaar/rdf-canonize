@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 2.0.1 - 2021-01-21
+
 ### Fixed
 - Use `setimmediate` package for `setImmediate` polyfill. The previous custom
   polyfill was removed. This should allow current projects using this package
