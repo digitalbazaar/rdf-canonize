@@ -1,5 +1,10 @@
 # rdf-canonize ChangeLog
 
+### Fixed
+- Use `setimmediate` package for `setImmediate` polyfill. The previous custom
+  polyfill was removed. This should allow current projects using this package
+  to stay the same and allow an easy future transition to webpack v5.
+
 ## 2.0.0 - 2021-01-20
 
 ### Removed
