@@ -29,7 +29,6 @@
     "lib/*.js"
   ],
   "dependencies": {
-    "mocha-lcov-reporter": "^1.3.0",
     "semver": "^6.3.0",
     "setimmediate": "^1.0.5"
   },
@@ -49,6 +48,7 @@
     "eslint": "^7.10.0",
     "eslint-config-digitalbazaar": "^2.6.1",
     "mocha": "^5.2.0",
+    "mocha-lcov-reporter": "^1.3.0",
     "nsolid": "0.0.0",
     "nyc": "^13.1.0",
     "webpack": "^4.29.0",
