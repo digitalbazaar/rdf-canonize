@@ -29,6 +29,7 @@
     "lib/*.js"
   ],
   "dependencies": {
+    "mocha-lcov-reporter": "^1.3.0",
     "semver": "^6.3.0",
     "setimmediate": "^1.0.5"
   },
@@ -73,7 +74,8 @@
     "fetch-test-suite": "if [ ! -e test-suites/normalization ]; then git clone --depth 1 https://github.com/json-ld/normalization.git test-suites/normalization; fi",
     "test": "mocha -R spec --check-leaks",
     "benchmark": "node benchmark/benchmark.js",
-    "coverage": "rm -rf coverage && nyc --reporter=lcov --reporter=text-summary npm test",
+    "coverage": "NODE_ENV=test nyc --reporter=lcov --reporter=text-summary npm test",
+    "coverage-ci": "NODE_ENV=test nyc --reporter=lcovonly npm run test",
     "coverage-report": "nyc report",
     "lint": "eslint '*.js' 'lib/*.js' 'test/*.js' 'benchmark/*.js'"
   },
