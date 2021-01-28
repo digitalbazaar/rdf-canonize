@@ -82,7 +82,7 @@
   },
   "browser": {
     "./index.js": "./lib/index.js",
-    "./lib/MessageDigest": "./lib/MessageDigest-browser.js",
+    "./lib/MessageDigest.js": "./lib/MessageDigest-browser.js",
     "rdf-canonize-native": false
   }
 }
