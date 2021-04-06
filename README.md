@@ -14,7 +14,7 @@ Introduction
 Installation
 ------------
 
-### node.js + npm
+### Node.js + npm
 
 ```
 npm install rdf-canonize
@@ -24,7 +24,7 @@ npm install rdf-canonize
 const canonize = require('rdf-canonize');
 ```
 
-### node.js + npm + native bindings
+### Node.js + npm + native bindings
 
 This package has support for [rdf-canonize-native][]. This package can be
 useful if your application requires doing many canonizing operations
@@ -48,17 +48,9 @@ you must have them installed and set the `useNative` option to `true`.
 const canonize = require('rdf-canonize');
 ```
 
-### Browser (AMD) + npm
+### Browser + npm
 
-```
-npm install rdf-canonize
-```
-
-Use your favorite technology to load `node_modules/dist/rdf-canonize.min.js`.
-
-### HTML
-
-Various NPM proxy CDN sites offer direct access to NPM files.
+Install in your project with npm and use your favorite browser bundler tool.
 
 Examples
 --------
@@ -113,6 +105,8 @@ To generate earl reports:
 
     # generate the earl report for node.js
     EARL=earl-node.jsonld npm test
+
+Browser testing with karma is done indirectly through [jsonld.js][].
 
 Benchmark
 ---------

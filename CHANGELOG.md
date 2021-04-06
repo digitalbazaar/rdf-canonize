@@ -1,5 +1,14 @@
 # rdf-canonize ChangeLog
 
+## 3.0.0 - 2021-xx-xx
+
+### Changed
+- **BREAKING**: Only support Node.js >= 12. Remove related tests, dependencies,
+  and generated `node6` output.
+- **BREAKING**: Remove browser bundles. Simplifies package and reduces install
+  size. If you have a use case that requires the bundles, please file an issue.
+- Fix browser override file path style.
+
 ## 2.0.1 - 2021-01-21
 
 ### Fixed
