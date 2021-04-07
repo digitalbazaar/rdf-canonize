@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 3.0.0 - 2021-xx-xx
+## 3.0.0 - 2021-04-07
 
 ### Changed
 - **BREAKING**: Only support Node.js >= 12. Remove related tests, dependencies,
