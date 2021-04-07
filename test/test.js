@@ -3,7 +3,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2016 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 /* eslint-disable indent */
 (function() {

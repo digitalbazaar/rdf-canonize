@@ -4,7 +4,7 @@
  * @author Dave Longley
  * @author David I. Lehn
  *
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2021 Digital Bazaar, Inc. All rights reserved.
  */
 /* eslint-disable indent */
 (async () => {
