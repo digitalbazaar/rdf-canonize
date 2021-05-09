@@ -177,7 +177,7 @@ function addTest(manifest, test) {
   }
 
   // expand @id and input base
-  const test_id = test['@id'] || test['id'];
+  const test_id = test['@id'] || test.id;
   test['@id'] = manifest.baseIri + basename(manifest.filename) + test_id;
   test.base = manifest.baseIri + test.input;
   test.manifest = manifest;

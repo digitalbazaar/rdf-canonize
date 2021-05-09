@@ -26,7 +26,8 @@
     "lib/*.js"
   ],
   "dependencies": {
-    "setimmediate": "^1.0.5"
+    "fast-text-encoding": "^1.0.3",
+    "isomorphic-webcrypto": "^2.3.8"
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
@@ -62,6 +63,14 @@
   },
   "browser": {
     "./lib/MessageDigest.js": "./lib/MessageDigest-browser.js",
+    "./lib/MessageDigest-reactnative.js": false,
+    "fast-text-encoding": false,
+    "isomorphic-webcrypto": false,
+    "rdf-canonize-native": false
+  },
+  "react-native": {
+    "./lib/MessageDigest.js": "./lib/MessageDigest-reactnative.js",
+    "./lib/MessageDigest-browser.js": false,
     "rdf-canonize-native": false
   }
 }
