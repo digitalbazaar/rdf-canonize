@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 3.1.0 - 2022-08-xx
+## 3.1.0 - 2022-08-30
 
 ### Added
 - Allow a maximum number of iterations of the N-Degree Hash Quads algorithm to
