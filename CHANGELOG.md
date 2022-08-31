@@ -1,5 +1,18 @@
 # rdf-canonize ChangeLog
 
+## 3.1.0 - 2022-08-30
+
+### Added
+- Allow a maximum number of iterations of the N-Degree Hash Quads algorithm to
+  be set, preventing unusual datasets (and likely meaningless or malicious) from
+  consuming unnecessary CPU cycles. If the set maximum is exceeded then an
+  error will be thrown, terminating the canonize process. This option has only
+  been added to URDNA2015. A future major breaking release is expected to set
+  the maximum number of iterations to a safe value by default; this release is
+  backwards compatible and therefore sets no default. A recommended value is
+  `1`, which will cause, at most, each blank node to have the N-degree algorithm
+  executed on it just once.
+
 ## 3.0.0 - 2021-04-07
 
 ### Changed
