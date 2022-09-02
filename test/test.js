@@ -89,8 +89,8 @@ if(rdfCanonizeNative) {
 
 const _TEST_SUITE_PATHS = [
   program.testDir,
-  '../normalization/tests',
-  './test-suites/normalization/tests',
+  '../rdf-dataset-canonicalization/tests',
+  './test-suites/rdf-dataset-canonicalization/tests',
 ];
 const TEST_SUITE = _TEST_SUITE_PATHS.find(pathExists);
 if(!TEST_SUITE) {
