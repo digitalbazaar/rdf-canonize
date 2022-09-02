@@ -1,5 +1,7 @@
 # rdf-canonize ChangeLog
 
+## 3.2.0 - 2022-09-02
+
 ### Changed
 - Test that input is not changed.
 - Optimize quad processing.
