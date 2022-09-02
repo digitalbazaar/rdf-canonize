@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 3.2.1 - 2022-09-xx
+## 3.2.1 - 2022-09-02
 
 ### Fixed
 - Fix typo in unsupported algorithm error.
