@@ -51,7 +51,7 @@
     "jsonld"
   ],
   "scripts": {
-    "fetch-test-suite": "if [ ! -e test-suites/normalization ]; then git clone --depth 1 https://github.com/json-ld/normalization.git test-suites/normalization; fi",
+    "fetch-test-suite": "if [ ! -e test-suites/rdf-dataset-canonicalization ]; then git clone --depth 1 https://github.com/json-ld/rdf-dataset-canonicalization.git test-suites/rdf-dataset-canonicalization; fi",
     "test": "npm run test-node",
     "test-node": "NODE_ENV=test mocha -R spec --check-leaks",
     "benchmark": "node benchmark/benchmark.js",

@@ -33,7 +33,7 @@
   "type": "mf:Manifest",
   "label": "RDF Dataset Normalization",
   "comment": "RDF Dataset Normalization benchmarks.",
-  "baseIri": "https://json-ld.github.io/normalization/tests/#",
+  "baseIri": "https://json-ld.github.io/rdf-dataset-canonicalization/tests/#",
   "entries": [
     {
       "skip": false,
