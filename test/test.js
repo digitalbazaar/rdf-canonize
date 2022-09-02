@@ -450,8 +450,4 @@ function basename(filename) {
   return filename.substr(idx + 1);
 }
 
-function clone(x) {
-  return JSON.parse(JSON.stringify(x));
-}
-
 })();
