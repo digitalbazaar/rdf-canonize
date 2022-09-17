@@ -1,5 +1,14 @@
 # rdf-canonize ChangeLog
 
+## 3.3.0 - 2022-09-xx
+
+### Added
+- Add optional `createMessageDigest` factory function for generating an
+  a `MessageDigest` interface. This allows different hash implementations or
+  even different hash algorithms, including HMACs to be used with URDNA2015.
+  Note that using a different hash algorithm from SHA-256 will change the
+  output.
+
 ## 3.2.1 - 2022-09-02
 
 ### Fixed
