@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 3.3.0 - 2022-09-xx
+## 3.3.0 - 2022-09-17
 
 ### Added
 - Add optional `createMessageDigest` factory function for generating an
