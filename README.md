@@ -27,7 +27,7 @@ const canonize = require('rdf-canonize');
 
 This package has support for [rdf-canonize-native][]. This package can be
 useful if your application requires doing many canonizing operations
-asyncronously in parallel or in the background. It is **highly recommended**
+asynchronously in parallel or in the background. It is **highly recommended**
 that you understand your requirements and benchmark using JavaScript vs native
 bindings. The native bindings add overhead and the JavaScript implementation
 may be faster with modern runtimes.
