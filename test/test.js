@@ -1,71 +1,16 @@
 /**
- * Test runner for rdf-canonize.
+ * Test and benchmark runner for rdf-canonize.
  *
  * @author Dave Longley
  *
- * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
  */
 /* eslint-disable indent */
-(function() {
-
-'use strict';
-
-// detect node.js (vs. phantomJS)
-const _nodejs = (typeof process !== 'undefined' &&
-  process.versions && process.versions.node);
-
-const fs = require('fs');
-let program;
-let assert;
-let path;
-
-if(_nodejs) {
-  path = require('path');
-  assert = require('assert');
-  /*
-  program = require('commander');
-  program
-    .option('--earl [filename]', 'Output an earl report')
-    .option('--bail', 'Bail when a test fails')
-    .option('--test-dir', 'Test directory')
-    .parse(process.argv);
-  */
-  program = {};
-  program.earl = process.env.EARL;
-  program.bail = process.env.BAIL === 'true';
-  program.testDir = process.env.TEST_DIR;
-} else {
-  const system = require('system');
-  require('./setImmediate');
-  window.Promise = require('es6-promise').Promise;
-  assert = require('chai').assert;
-  require('mocha/mocha');
-  require('mocha-phantomjs/lib/mocha-phantomjs/core_extensions');
-  program = {};
-  for(let i = 0; i < system.args.length; ++i) {
-    const arg = system.args[i];
-    if(arg.indexOf('--') === 0) {
-      const argname = arg.substr(2);
-      switch(argname) {
-      case 'earl':
-        program[argname] = system.args[i + 1];
-        ++i;
-        break;
-      default:
-        program[argname] = true;
-      }
-    }
-  }
-
-  mocha.setup({
-    reporter: 'spec',
-    ui: 'bdd'
-  });
-}
-
-const canonize = require('..');
-const EarlReport = require('./EarlReport');
+const EarlReport = require('./EarlReport.js');
 const NQuads = require('../lib/NQuads');
+const join = require('join-path-js');
+const canonize = require('..');
+const {klona} = require('klona');
 
 // try to load native bindings
 let rdfCanonizeNative;
@@ -87,16 +32,33 @@ if(rdfCanonizeNative) {
   console.warn('rdf-canonize-native not found');
 }
 
-const _TEST_SUITE_PATHS = [
-  program.testDir,
-  '../rdf-canon/tests',
-  './test-suites/rdf-canon/tests',
-];
-const TEST_SUITE = _TEST_SUITE_PATHS.find(pathExists);
-if(!TEST_SUITE) {
-  throw new Error('Test suite not found.');
-}
-const ROOT_MANIFEST_DIR = resolvePath(TEST_SUITE);
+module.exports = function(options) {
+
+'use strict';
+
+const assert = options.assert;
+const benchmark = options.benchmark;
+
+const manifest = options.manifest || {
+  '@context': {
+    xsd: 'http://www.w3.org/2001/XMLSchema#',
+    rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+    mf: 'http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#',
+    id: '@id',
+    type: '@type',
+    comment: 'rdfs:comment',
+    include: {'@id': 'mf:include', '@type': '@id', '@container': '@list'},
+    label: 'rdfs:label'
+    // FIXME: add missing terms and/or move to tests context file
+  },
+  id: '',
+  type: 'mf:Manifest',
+  description: 'Top level rdf-canonize manifest',
+  name: 'rdf-canonize',
+  sequence: options.entries || [],
+  filename: '/'
+};
+
 const TEST_TYPES = {
   'rdfc:Urdna2015EvalTest': {
     params: [
@@ -108,43 +70,97 @@ const TEST_TYPES = {
       })
     ],
     compare: compareExpectedNQuads
-  },
+  }
 };
 
 const SKIP_TESTS = [];
 
 // create earl report
-const earl = new EarlReport(_nodejs ? 'node.js' : 'browser');
-
-// run tests
-describe('rdf-canonize', function() {
-  const filename = joinPath(ROOT_MANIFEST_DIR, 'manifest.jsonld');
-  const rootManifest = readJson(filename);
-  rootManifest.filename = filename;
-  addManifest(rootManifest);
-
-  if(program.earl) {
-    const filename = resolvePath(program.earl);
-    describe('Writing EARL report to: ' + filename, function() {
-      it('should print the earl report', function(done) {
-        earl.write(filename);
-        done();
-      });
-    });
+if(options.earl && options.earl.filename) {
+  options.earl.report = new EarlReport({
+    env: options.testEnv
+  });
+  if(options.benchmarkOptions) {
+    options.earl.report.setupForBenchmarks({testEnv: options.testEnv});
   }
-});
-
-if(!_nodejs) {
-  mocha.run(() => phantom.exit());
 }
+
+return new Promise(resolve => {
+
+// async generated tests
+// _tests => [{suite}, ...]
+// suite => {
+//   title: ...,
+//   tests: [test, ...],
+//   suites: [suite, ...]
+// }
+const _tests = [];
+
+return addManifest(manifest, _tests)
+  .then(() => {
+    return _testsToMocha(_tests);
+  }).then(result => {
+    if(options.earl.report) {
+      describe('Writing EARL report to: ' + options.earl.filename, function() {
+        // print out EARL even if .only was used
+        const _it = result.hadOnly ? it.only : it;
+        _it('should print the earl report', function() {
+          return options.writeFile(
+            options.earl.filename, options.earl.report.reportJson());
+        });
+      });
+    }
+  }).then(() => resolve());
+
+// build mocha tests from local test structure
+function _testsToMocha(tests) {
+  let hadOnly = false;
+  tests.forEach(suite => {
+    if(suite.skip) {
+      describe.skip(suite.title);
+      return;
+    }
+    describe(suite.title, () => {
+      suite.tests.forEach(test => {
+        if(test.only) {
+          hadOnly = true;
+          it.only(test.title, test.f);
+          return;
+        }
+        it(test.title, test.f);
+      });
+      const {hadOnly: _hadOnly} = _testsToMocha(suite.suites);
+      hadOnly = hadOnly || _hadOnly;
+    });
+    suite.imports.forEach(f => {
+      options.import(f);
+    });
+  });
+  return {
+    hadOnly
+  };
+}
+
+});
 
 /**
  * Adds the tests for all entries in the given manifest.
  *
- * @param manifest the manifest.
+ * @param manifest {Object} the manifest.
+ * @param parent {Object} the parent test structure
+ * @return {Promise}
  */
-function addManifest(manifest) {
-  describe(manifest.name || manifest.label, function() {
+function addManifest(manifest, parent) {
+  return new Promise((resolve, reject) => {
+    // create test structure
+    const suite = {
+      title: manifest.name || manifest.label,
+      tests: [],
+      suites: [],
+      imports: []
+    };
+    parent.push(suite);
+
     // get entries and sequence (alias for entries)
     const entries = [].concat(
       getJsonLdValues(manifest, 'entries'),
@@ -157,142 +173,415 @@ function addManifest(manifest) {
       entries.push(includes[i] + '.jsonld');
     }
 
-    // process entries
-    for(let i = 0; i < entries.length; ++i) {
-      const entry = readManifestEntry(manifest, entries[i]);
-
-      if(isJsonLdType(entry, 'mf:Manifest')) {
-        // entry is another manifest
-        addManifest(entry);
-      } else {
-        // assume entry is a test
-        addTest(manifest, entry);
-      }
-    }
+    // resolve all entry promises and process
+    Promise.all(entries).then(entries => {
+      let p = Promise.resolve();
+      entries.forEach(entry => {
+        if(typeof entry === 'string' && entry.endsWith('js')) {
+          // process later as a plain JavaScript file
+          suite.imports.push(entry);
+          return;
+        } else if(typeof entry === 'function') {
+          // process as a function that returns a promise
+          p = p.then(() => {
+            return entry(options);
+          }).then(childSuite => {
+            if(suite) {
+              suite.suites.push(childSuite);
+            }
+          });
+          return;
+        }
+        p = p.then(() => {
+          return readManifestEntry(manifest, entry);
+        }).then(entry => {
+          if(isJsonLdType(entry, '__SKIP__')) {
+            // special local skip logic
+            suite.tests.push(entry);
+          } else if(isJsonLdType(entry, 'mf:Manifest')) {
+            // entry is another manifest
+            return addManifest(entry, suite.suites);
+          } else {
+            // assume entry is a test
+            return addTest(manifest, entry, suite.tests);
+          }
+        });
+      });
+      return p;
+    }).then(() => {
+      resolve();
+    }).catch(err => {
+      console.error(err);
+      reject(err);
+    });
   });
 }
 
-function _clone(json) {
-  return JSON.parse(JSON.stringify(json));
-}
-
-function addTest(manifest, test) {
-  // skip unknown and explicitly skipped test types
-  const testTypes = Object.keys(TEST_TYPES);
-  if(!isJsonLdType(test, testTypes) || isJsonLdType(test, SKIP_TESTS)) {
-    const type = [].concat(
-      getJsonLdValues(test, '@type'),
-      getJsonLdValues(test, 'type')
-    );
-    console.log('Skipping test "' + test.name + '" of type: ' + type);
-  }
-
+/**
+ * Adds a test.
+ *
+ * @param manifest {Object} the manifest.
+ * @param test {Object} the test.
+ * @param tests {Array} the list of tests to add to.
+ * @return {Promise}
+ */
+async function addTest(manifest, test, tests) {
   // expand @id and input base
   const test_id = test['@id'] || test.id;
-  test['@id'] = manifest.baseIri + basename(manifest.filename) + test_id;
+  test['@id'] =
+    (manifest.baseIri || '') +
+    basename(manifest.filename).replace('.jsonld', '') +
+    test_id;
   test.base = manifest.baseIri + test.input;
   test.manifest = manifest;
   const description = test_id + ' ' + (test.purpose || test.name);
 
-  const testInfo = TEST_TYPES[getTestType(test)];
+  // build test options for omit checks
+  const testInfo = TEST_TYPES[getJsonLdTestType(test)];
   const params = testInfo.params.map(param => param(test));
-  // custom params for js only async mode
-  const jsParams = testInfo.params.map(param => param(test));
-  // copy used to check inputs do not change
-  const jsParamsOrig = _clone(jsParams);
-  // custom params for native only async mode
-  const nativeParams = testInfo.params.map(param => param(test));
-  nativeParams[1].useNative = true;
-  // copy used to check inputs do not change
-  const nativeParamsOrig = _clone(nativeParams);
-  const createCallback = done => (err, result) => {
-    try {
-      if(err) {
-        throw err;
+  const testOptions = params[1];
+
+  // number of parallel operations for benchmarks
+  const N = 10;
+
+  // async js
+  const _aj_test = {
+    title: description + ' (asynchronous js)',
+    f: makeFn({
+      test,
+      run: ({/*test, testInfo,*/ params}) => {
+        return canonize.canonize(...params);
       }
-      testInfo.compare(test, result);
-      earl.addAssertion(test, true);
-      return done();
-    } catch(ex) {
-      if(program.bail) {
-        if(ex.name !== 'AssertionError') {
-          console.log('\nError: ', JSON.stringify(ex, null, 2));
-        }
-        if(_nodejs) {
-          process.exit();
-        } else {
-          phantom.exit();
-        }
-      }
-      earl.addAssertion(test, false);
-      return done(ex);
-    }
+    })
   };
+  // 'only' based on test manifest
+  // 'skip' handled via skip()
+  if('only' in test) {
+    _aj_test.only = test.only;
+  }
+  tests.push(_aj_test);
 
-  // run async js test
-  it(description + ' (asynchronous js)', function(done) {
-    this.timeout(5000);
-    const callback = createCallback(done);
-    const promise = canonize.canonize.apply(null, jsParams);
-    promise
-      .then(function(data) {
-        // check input not changed
-        assert.deepStrictEqual(jsParamsOrig, jsParams);
-        return data;
+  if(options.benchmarkOptions) {
+    // async js x N
+    const _ajN_test = {
+      title: description + ` (asynchronous js x ${N})`,
+      f: makeFn({
+        test,
+        run: ({/*test, testInfo,*/ params}) => {
+          const all = [];
+          for(let i = 0; i < N; i++) {
+            all.push(canonize.canonize(...params));
+          }
+          return Promise.all(all);
+        },
+        ignoreResult: true
       })
-      .then(callback.bind(null, null), callback);
-  });
-
-  if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
-    // run async native test
-    it(description + ' (asynchronous native)', function(done) {
-      this.timeout(5000);
-      const callback = createCallback(done);
-      const promise = canonize.canonize.apply(null, nativeParams);
-      promise
-        .then(function(data) {
-          // check input not changed
-          assert.deepStrictEqual(nativeParamsOrig, nativeParams);
-          return data;
-        })
-        .then(callback.bind(null, null), callback);
-    });
-  }
-
-  // run sync test
-  it(description + ' (synchronous js)', function(done) {
-    this.timeout(5000);
-    const callback = createCallback(done);
-    let result;
-    try {
-      result = canonize._canonizeSync.apply(null, jsParams);
-      // check input not changed
-      assert.deepStrictEqual(jsParamsOrig, jsParams);
-    } catch(e) {
-      return callback(e);
+    };
+    // 'only' based on test manifest
+    // 'skip' handled via skip()
+    if('only' in test) {
+      _ajN_test.only = test.only;
     }
-    callback(null, result);
-  });
-
-  if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
-    // run sync test
-    it(description + ' (synchronous native)', function(done) {
-      this.timeout(5000);
-      const callback = createCallback(done);
-      let result;
-      try {
-        result = canonize._canonizeSync.apply(null, nativeParams);
-        // check input not changed
-        assert.deepStrictEqual(nativeParamsOrig, nativeParams);
-      } catch(e) {
-        return callback(e);
-      }
-      callback(null, result);
-    });
+    tests.push(_ajN_test);
   }
+
+  // async native
+  if(rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
+    const _an_test = {
+      title: description + ' (asynchronous native)',
+      f: makeFn({
+        test,
+        adjustParams: ({params}) => {
+          params[1].useNative = true;
+        },
+        run: ({/*test, testInfo,*/ params}) => {
+          return rdfCanonizeNative.canonize(...params);
+        }
+      })
+    };
+    // 'only' based on test manifest
+    // 'skip' handled via skip()
+    if('only' in test) {
+      _an_test.only = test.only;
+    }
+    tests.push(_an_test);
+  }
+
+  // TODO: add benchmark async native x N
+
+  // sync js
+  const _sj_test = {
+    title: description + ' (synchronous js)',
+    f: makeFn({
+      test,
+      run: async ({/*test, testInfo,*/ params}) => {
+        return canonize._canonizeSync(...params);
+      }
+    })
+  };
+  // 'only' based on test manifest
+  // 'skip' handled via skip()
+  if('only' in test) {
+    _sj_test.only = test.only;
+  }
+  tests.push(_sj_test);
+
+  if(options.benchmarkOptions) {
+    // sync js x N
+    const _sjN_test = {
+      title: description + ` (synchronous js x ${N})`,
+      f: makeFn({
+        test,
+        run: ({/*test, testInfo,*/ params}) => {
+          const all = [];
+          for(let i = 0; i < N; i++) {
+            all.push(canonize._canonizeSync(...params));
+          }
+          return Promise.all(all);
+        },
+        ignoreResult: true
+      })
+    };
+    // 'only' based on test manifest
+    // 'skip' handled via skip()
+    if('only' in test) {
+      _sjN_test.only = test.only;
+    }
+    tests.push(_sjN_test);
+  }
+
+  // sync native
+  if(rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
+    const _sn_test = {
+      title: description + ' (synchronous native)',
+      f: makeFn({
+        test,
+        adjustParams: ({params}) => {
+          params[1].useNative = true;
+        },
+        run: async ({/*test, testInfo,*/ params}) => {
+          return rdfCanonizeNative.canonizeSync(...params);
+        }
+      })
+    };
+    // 'only' based on test manifest
+    // 'skip' handled via skip()
+    if('only' in test) {
+      _sn_test.only = test.only;
+    }
+    tests.push(_sn_test);
+  }
+
+  // TODO: add benchmark sync native x N
 }
 
-function getTestType(test) {
+function makeFn({
+  test,
+  adjustParams = p => p,
+  run,
+  ignoreResult = false
+}) {
+  return async function() {
+    const self = this;
+    self.timeout(5000);
+    const testInfo = TEST_TYPES[getJsonLdTestType(test)];
+
+    // skip based on test manifest
+    if('skip' in test && test.skip) {
+      if(options.verboseSkip) {
+        console.log('Skipping test due to manifest:',
+          {id: test['@id'], name: test.name});
+      }
+      self.skip();
+    }
+
+    // skip based on unknown test type
+    const testTypes = Object.keys(TEST_TYPES);
+    if(!isJsonLdType(test, testTypes)) {
+      if(options.verboseSkip) {
+        const type = [].concat(
+          getJsonLdValues(test, '@type'),
+          getJsonLdValues(test, 'type')
+        );
+        console.log('Skipping test due to unknown type:',
+          {id: test['@id'], name: test.name, type});
+      }
+      self.skip();
+    }
+
+    // skip based on test type
+    if(isJsonLdType(test, SKIP_TESTS)) {
+      if(options.verboseSkip) {
+        const type = [].concat(
+          getJsonLdValues(test, '@type'),
+          getJsonLdValues(test, 'type')
+        );
+        console.log('Skipping test due to test type:',
+          {id: test['@id'], name: test.name, type});
+      }
+      self.skip();
+    }
+
+    // skip based on type info
+    if(testInfo.skip && testInfo.skip.type) {
+      if(options.verboseSkip) {
+        console.log('Skipping test due to type info:',
+          {id: test['@id'], name: test.name});
+      }
+      self.skip();
+    }
+
+    // skip based on id regex
+    if(testInfo.skip && testInfo.skip.idRegex) {
+      testInfo.skip.idRegex.forEach(function(re) {
+        if(re.test(test['@id'])) {
+          if(options.verboseSkip) {
+            console.log('Skipping test due to id:',
+              {id: test['@id']});
+          }
+          self.skip();
+        }
+      });
+    }
+
+    // skip based on description regex
+    // fuzzy use of test.title which is created from description
+    if(testInfo.skip && testInfo.skip.descriptionRegex) {
+      testInfo.skip.descriptionRegex.forEach(function(re) {
+        if(re.test(test.description)) {
+          if(options.verboseSkip) {
+            console.log('Skipping test due to description:', {
+              id: test['@id'],
+              name: test.name,
+              description: test.description
+            });
+          }
+          self.skip();
+        }
+      });
+    }
+
+    const params = adjustParams(testInfo.params.map(param => param(test)));
+    // resolve test data
+    const values = await Promise.all(params);
+    // copy used to check inputs do not change
+    const valuesOrig = klona(values);
+    let err;
+    let result;
+    // run and capture errors and results
+    try {
+      result = await run({test, testInfo, params: values});
+      // check input not changed
+      assert.deepStrictEqual(valuesOrig, values);
+    } catch(e) {
+      err = e;
+    }
+
+    try {
+      if(isJsonLdType(test, 'XXX:NegativeEvaluationTest')) {
+        if(!ignoreResult) {
+          // FIXME add if needed
+          //await compareExpectedError(test, err);
+        }
+      } else if(isJsonLdType(test, 'XXX:PositiveEvaluationTest') ||
+        isJsonLdType(test, 'rdfc:Urgna2012EvalTest') ||
+        isJsonLdType(test, 'rdfc:Urdna2015EvalTest')) {
+        if(err) {
+          throw err;
+        }
+        if(!ignoreResult) {
+          await testInfo.compare(test, result);
+        }
+      } else if(isJsonLdType(test, 'XXX:PositiveSyntaxTest')) {
+        // no checks
+      } else {
+        throw Error('Unknown test type: ' + test.type);
+      }
+
+      let benchmarkResult = null;
+      if(options.benchmarkOptions) {
+        const result = await runBenchmark({
+          test,
+          testInfo,
+          run,
+          params: testInfo.params.map(param => param(test, {
+            // pre-load params to avoid doc loader and parser timing
+            load: true
+          })),
+          mochaTest: self
+        });
+        benchmarkResult = {
+          // FIXME use generic prefix
+          '@type': 'jldb:BenchmarkResult',
+          'jldb:hz': result.target.hz,
+          'jldb:rme': result.target.stats.rme
+        };
+      }
+
+      if(options.earl.report) {
+        options.earl.report.addAssertion(test, true, {
+          benchmarkResult
+        });
+      }
+    } catch(err) {
+      // FIXME: improve handling of non-normative errors
+      // FIXME: for now, explicitly disabling tests.
+      //if(!normativeTest) {
+      //  // failure ok
+      //  if(options.verboseSkip) {
+      //    console.log('Skipping non-normative test due to failure:',
+      //      {id: test['@id'], name: test.name});
+      //  }
+      //  self.skip();
+      //}
+      if(options.bailOnError) {
+        if(err.name !== 'AssertionError') {
+          console.error('\nError: ', JSON.stringify(err, null, 2));
+        }
+        options.exit();
+      }
+      if(options.earl.report) {
+        options.earl.report.addAssertion(test, false);
+      }
+      console.error('Error: ', JSON.stringify(err, null, 2));
+      throw err;
+    }
+  };
+}
+
+async function runBenchmark({test, testInfo, params, run, mochaTest}) {
+  const values = await Promise.all(params);
+
+  return new Promise((resolve, reject) => {
+    const suite = new benchmark.Suite();
+    suite.add({
+      name: test.name,
+      defer: true,
+      fn: deferred => {
+        run({test, testInfo, params: values}).then(() => {
+          deferred.resolve();
+        });
+      }
+    });
+    suite
+      .on('start', e => {
+        // set timeout to a bit more than max benchmark time
+        mochaTest.timeout((e.target.maxTime + 10) * 1000);
+      })
+      .on('cycle', e => {
+        console.log(String(e.target));
+      })
+      .on('error', err => {
+        reject(new Error(err));
+      })
+      .on('complete', e => {
+        resolve(e);
+      })
+      .run({async: true});
+  });
+}
+
+function getJsonLdTestType(test) {
   const types = Object.keys(TEST_TYPES);
   for(let i = 0; i < types.length; ++i) {
     if(isJsonLdType(test, types[i])) {
@@ -303,32 +592,64 @@ function getTestType(test) {
 }
 
 function readManifestEntry(manifest, entry) {
-  const dir = dirname(manifest.filename);
+  let p = Promise.resolve();
+  let _entry = entry;
   if(typeof entry === 'string') {
-    const filename = joinPath(dir, entry);
-    entry = readJson(filename);
-    entry.filename = filename;
+    let _filename;
+    p = p.then(() => {
+      if(entry.endsWith('json') || entry.endsWith('jsonld')) {
+        // load as file
+        return entry;
+      }
+      // load as dir with manifest.jsonld
+      return joinPath(entry, 'manifest.jsonld');
+    }).then(entry => {
+      const dir = dirname(manifest.filename);
+      return joinPath(dir, entry);
+    }).then(filename => {
+      _filename = filename;
+      return readJson(filename);
+    }).then(entry => {
+      _entry = entry;
+      _entry.filename = _filename;
+      return _entry;
+    }).catch(err => {
+      if(err.code === 'ENOENT') {
+        //console.log('File does not exist, skipping: ' + _filename);
+        // return a "skip" entry
+        _entry = {
+          type: '__SKIP__',
+          title: 'Not found, skipping: ' + _filename,
+          filename: _filename,
+          skip: true
+        };
+        return;
+      }
+      throw err;
+    });
   }
-  entry.dirname = dirname(entry.filename || manifest.filename);
-  return entry;
+  return p.then(() => {
+    _entry.dirname = dirname(_entry.filename || manifest.filename);
+    return _entry;
+  });
 }
 
 function readTestNQuads(property) {
-  return test => {
+  return async function(test) {
     if(!test[property]) {
       return null;
     }
-    const filename = joinPath(test.dirname, test[property]);
+    const filename = await joinPath(test.dirname, test[property]);
     return readFile(filename);
   };
 }
 
 function parseNQuads(fn) {
-  return test => NQuads.parse(fn(test));
+  return async test => NQuads.parse(await fn(test));
 }
 
 function createTestOptions(opts) {
-  return test => {
+  return function(test) {
     const testOptions = test.option || {};
     const options = Object.assign({}, testOptions);
     if(opts) {
@@ -341,7 +662,9 @@ function createTestOptions(opts) {
 
 // find the expected output property or throw error
 function _getExpectProperty(test) {
-  if('expect' in test) {
+  if('expectErrorCode' in test) {
+    return 'expectErrorCode';
+  } else if('expect' in test) {
     return 'expect';
   } else if('result' in test) {
     return 'result';
@@ -350,13 +673,13 @@ function _getExpectProperty(test) {
   }
 }
 
-function compareExpectedNQuads(test, result) {
+async function compareExpectedNQuads(test, result) {
   let expect;
   try {
-    expect = readTestNQuads(_getExpectProperty(test))(test);
+    expect = await readTestNQuads(_getExpectProperty(test))(test);
     assert.strictEqual(result, expect);
   } catch(ex) {
-    if(program.bail) {
+    if(options.bailOnError) {
       console.log('\nTEST FAILED\n');
       console.log('EXPECTED:\n' + expect);
       console.log('ACTUAL:\n' + result);
@@ -387,41 +710,24 @@ function getJsonLdValues(node, property) {
   return rval;
 }
 
-function readJson(filename) {
-  return JSON.parse(readFile(filename));
+async function readJson(filename) {
+  const data = await readFile(filename);
+  return JSON.parse(data);
 }
 
-function pathExists(filename) {
-  if(_nodejs) {
-    return fs.existsSync(filename);
-  }
-  return fs.exists(filename);
+async function readFile(filename) {
+  return options.readFile(filename);
 }
 
-function readFile(filename) {
-  if(_nodejs) {
-    return fs.readFileSync(filename, 'utf8');
-  }
-  return fs.read(filename);
-}
-
-function resolvePath(to) {
-  if(_nodejs) {
-    return path.resolve(to);
-  }
-  return fs.absolute(to);
-}
-
-function joinPath() {
-  return (_nodejs ? path : fs).join.apply(
-    null, Array.prototype.slice.call(arguments));
+async function joinPath() {
+  return join.apply(null, Array.prototype.slice.call(arguments));
 }
 
 function dirname(filename) {
-  if(_nodejs) {
-    return path.dirname(filename);
+  if(options.nodejs) {
+    return options.nodejs.path.dirname(filename);
   }
-  const idx = filename.lastIndexOf(fs.separator);
+  const idx = filename.lastIndexOf('/');
   if(idx === -1) {
     return filename;
   }
@@ -429,14 +735,14 @@ function dirname(filename) {
 }
 
 function basename(filename) {
-  if(_nodejs) {
-    return path.basename(filename);
+  if(options.nodejs) {
+    return options.nodejs.path.basename(filename);
   }
-  const idx = filename.lastIndexOf(fs.separator);
+  const idx = filename.lastIndexOf('/');
   if(idx === -1) {
     return filename;
   }
   return filename.substr(idx + 1);
 }
 
-})();
+};
