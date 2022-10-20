@@ -5,11 +5,16 @@
 ### Changed
 - Update for latest [rdf-canon][] changes: test suite location, README,
   links, and identifiers.
+- More closly align test code with the version in [jsonld.js][].
+  - Use combined test/benchmark system.
+  - Update with special x10 benchmarks.
 
 ### Removed
 - **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
   has a test suite for URGNA2012. URDNA2015 has been the preferred algorithm
   for many years.
+- Remove `benchmark/benchmark.js` tool in favor of combined test system and
+  benchmarking control via environment vars.
 
 ## 3.3.0 - 2022-09-17
 
