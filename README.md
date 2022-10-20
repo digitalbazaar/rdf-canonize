@@ -49,7 +49,7 @@ const canonize = require('rdf-canonize');
 
 ### Browser + npm
 
-Install in your project with npm and use your favorite browser bundler tool.
+Install in your project with `npm` and use your favorite browser bundler tool.
 
 Examples
 --------
