@@ -4,7 +4,7 @@
 [![Coverage status](https://img.shields.io/codecov/c/github/digitalbazaar/rdf-canonize)](https://codecov.io/gh/digitalbazaar/rdf-canonize)
 [![Dependency Status](https://img.shields.io/david/digitalbazaar/rdf-canonize.svg)](https://david-dm.org/digitalbazaar/rdf-canonize)
 
-An implementation of the [RDF Dataset Normalization Algorithm][] in JavaScript.
+An implementation of the [RDF Dataset Canonicalization Algorithm][] in JavaScript.
 
 Introduction
 ------------
@@ -84,7 +84,7 @@ that changes to the processor maintain the correct output.
 
 The test suite is included in an external repository:
 
-    https://github.com/json-ld/normalization
+    https://github.com/json-ld/rdf-dataset-canonicalization
 
 This should be a sibling directory of the rdf-canonize directory or in a
 `test-suites` dir. To clone shallow copies into the `test-suites` dir you can
@@ -128,6 +128,6 @@ Commercial support for this library is available upon request from
 
 [Digital Bazaar]: https://digitalbazaar.com/
 [JSON-LD]: https://json-ld.org/
-[RDF Dataset Normalization Algorithm]: https://json-ld.github.io/normalization/
+[RDF Dataset Canonicalization Algorithm]: https://json-ld.github.io/rdf-dataset-canonicalization/
 [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
 [rdf-canonize-native]: https://github.com/digitalbazaar/rdf-canonize-native

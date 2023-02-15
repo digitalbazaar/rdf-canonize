@@ -88,9 +88,9 @@ if(rdfCanonizeNative) {
 }
 
 const _TEST_SUITE_PATHS = [
-  program['testDir'],
-  '../normalization/tests',
-  './test-suites/normalization/tests',
+  program.testDir,
+  '../rdf-dataset-canonicalization/tests',
+  './test-suites/rdf-dataset-canonicalization/tests',
 ];
 const TEST_SUITE = _TEST_SUITE_PATHS.find(pathExists);
 if(!TEST_SUITE) {
@@ -183,6 +183,10 @@ function addManifest(manifest) {
   });
 }
 
+function _clone(json) {
+  return JSON.parse(JSON.stringify(json));
+}
+
 function addTest(manifest, test) {
   // skip unknown and explicitly skipped test types
   const testTypes = Object.keys(TEST_TYPES);
@@ -195,7 +199,7 @@ function addTest(manifest, test) {
   }
 
   // expand @id and input base
-  const test_id = test['@id'] || test['id'];
+  const test_id = test['@id'] || test.id;
   test['@id'] = manifest.baseIri + basename(manifest.filename) + test_id;
   test.base = manifest.baseIri + test.input;
   test.manifest = manifest;
@@ -205,9 +209,13 @@ function addTest(manifest, test) {
   const params = testInfo.params.map(param => param(test));
   // custom params for js only async mode
   const jsParams = testInfo.params.map(param => param(test));
+  // copy used to check inputs do not change
+  const jsParamsOrig = _clone(jsParams);
   // custom params for native only async mode
   const nativeParams = testInfo.params.map(param => param(test));
   nativeParams[1].useNative = true;
+  // copy used to check inputs do not change
+  const nativeParamsOrig = _clone(nativeParams);
   const createCallback = done => (err, result) => {
     try {
       if(err) {
@@ -236,8 +244,14 @@ function addTest(manifest, test) {
   it(description + ' (asynchronous js)', function(done) {
     this.timeout(5000);
     const callback = createCallback(done);
-    const promise = canonize.canonize.apply(null, clone(jsParams));
-    promise.then(callback.bind(null, null), callback);
+    const promise = canonize.canonize.apply(null, jsParams);
+    promise
+      .then(function(data) {
+        // check input not changed
+        assert.deepStrictEqual(jsParamsOrig, jsParams);
+        return data;
+      })
+      .then(callback.bind(null, null), callback);
   });
 
   if(rdfCanonizeNative && params[1].algorithm === 'URDNA2015') {
@@ -245,8 +259,14 @@ function addTest(manifest, test) {
     it(description + ' (asynchronous native)', function(done) {
       this.timeout(5000);
       const callback = createCallback(done);
-      const promise = canonize.canonize.apply(null, clone(nativeParams));
-      promise.then(callback.bind(null, null), callback);
+      const promise = canonize.canonize.apply(null, nativeParams);
+      promise
+        .then(function(data) {
+          // check input not changed
+          assert.deepStrictEqual(nativeParamsOrig, nativeParams);
+          return data;
+        })
+        .then(callback.bind(null, null), callback);
     });
   }
 
@@ -256,7 +276,9 @@ function addTest(manifest, test) {
     const callback = createCallback(done);
     let result;
     try {
-      result = canonize._canonizeSync.apply(null, clone(jsParams));
+      result = canonize._canonizeSync.apply(null, jsParams);
+      // check input not changed
+      assert.deepStrictEqual(jsParamsOrig, jsParams);
     } catch(e) {
       return callback(e);
     }
@@ -270,7 +292,9 @@ function addTest(manifest, test) {
       const callback = createCallback(done);
       let result;
       try {
-        result = canonize._canonizeSync.apply(null, clone(nativeParams));
+        result = canonize._canonizeSync.apply(null, nativeParams);
+        // check input not changed
+        assert.deepStrictEqual(nativeParamsOrig, nativeParams);
       } catch(e) {
         return callback(e);
       }
@@ -341,7 +365,7 @@ function compareExpectedNQuads(test, result) {
   let expect;
   try {
     expect = readTestNQuads(_getExpectProperty(test))(test);
-    assert.equal(result, expect);
+    assert.strictEqual(result, expect);
   } catch(ex) {
     if(program.bail) {
       console.log('\nTEST FAILED\n');
@@ -424,10 +448,6 @@ function basename(filename) {
     return filename;
   }
   return filename.substr(idx + 1);
-}
-
-function clone(x) {
-  return JSON.parse(JSON.stringify(x));
 }
 
 })();

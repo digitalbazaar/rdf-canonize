@@ -1,6 +1,6 @@
 {
   "name": "rdf-canonize",
-  "version": "3.0.1-0",
+  "version": "3.3.1-0",
   "description": "An implementation of the RDF Dataset Normalization Algorithm in JavaScript",
   "homepage": "https://github.com/digitalbazaar/rdf-canonize",
   "author": {
@@ -51,7 +51,7 @@
     "jsonld"
   ],
   "scripts": {
-    "fetch-test-suite": "if [ ! -e test-suites/normalization ]; then git clone --depth 1 https://github.com/json-ld/normalization.git test-suites/normalization; fi",
+    "fetch-test-suite": "if [ ! -e test-suites/rdf-dataset-canonicalization ]; then git clone --depth 1 https://github.com/w3c-ccg/rdf-dataset-canonicalization.git test-suites/rdf-dataset-canonicalization; fi",
     "test": "npm run test-node",
     "test-node": "NODE_ENV=test mocha -R spec --check-leaks",
     "benchmark": "node benchmark/benchmark.js",
