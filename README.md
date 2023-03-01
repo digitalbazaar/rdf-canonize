@@ -84,7 +84,7 @@ that changes to the processor maintain the correct output.
 
 The test suite is included in an external repository:
 
-    https://github.com/json-ld/rdf-dataset-canonicalization
+    https://github.com/w3c/rdf-canon
 
 This should be a sibling directory of the rdf-canonize directory or in a
 `test-suites` dir. To clone shallow copies into the `test-suites` dir you can
@@ -128,6 +128,6 @@ Commercial support for this library is available upon request from
 
 [Digital Bazaar]: https://digitalbazaar.com/
 [JSON-LD]: https://json-ld.org/
-[RDF Dataset Canonicalization Algorithm]: https://json-ld.github.io/rdf-dataset-canonicalization/
+[RDF Dataset Canonicalization Algorithm]: https://w3c.github.io/rdf-canon/spec/
 [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
 [rdf-canonize-native]: https://github.com/digitalbazaar/rdf-canonize-native
