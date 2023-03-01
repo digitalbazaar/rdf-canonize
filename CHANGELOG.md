@@ -45,6 +45,8 @@
   webcrypto calls and produces invalid results. It is an error that this
   doesn't fail, but sync code is currently only for testing.
 - Fix various testing and benchmark bugs.
+- Escape and unescape all data.
+- Support 8 hex char unicode values.
 
 ### Removed
 - **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
