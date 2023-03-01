@@ -46,8 +46,8 @@ if(rdfCanonizeNative) {
 
 const _TEST_SUITE_PATHS = [
   process.env.TEST_DIR,
-  '../rdf-dataset-canonicalization/tests',
-  './test-suites/rdf-dataset-canonicalization/tests',
+  '../rdf-canon/tests',
+  './test-suites/rdf-canon/tests',
 ];
 const TEST_SUITE = _TEST_SUITE_PATHS.find(pathExists);
 if(!TEST_SUITE) {
@@ -55,7 +55,7 @@ if(!TEST_SUITE) {
 }
 const ROOT_MANIFEST_DIR = resolvePath(TEST_SUITE);
 const TEST_TYPES = {
-  'rdfn:Urgna2012EvalTest': {
+  'rdfc:Urgna2012EvalTest': {
     params: [
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
@@ -65,7 +65,7 @@ const TEST_TYPES = {
       })
     ]
   },
-  'rdfn:Urdna2015EvalTest': {
+  'rdfc:Urdna2015EvalTest': {
     params: [
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
