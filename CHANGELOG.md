@@ -3,7 +3,7 @@
 ## 3.3.1 - 2023-03-xx
 
 ### Changed
-- Update for latest [`rdf-canon`][] changes: test suite location, README,
+- Update for latest [rdf-canon][] changes: test suite location, README,
   links, and identifiers.
 
 ## 3.3.0 - 2022-09-17
