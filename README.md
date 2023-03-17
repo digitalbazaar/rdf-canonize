@@ -1,6 +1,6 @@
 # rdf-canonize
 
-[![Build status](https://img.shields.io/github/workflow/status/digitalbazaar/rdf-canonize/Node.js%20CI)](https://github.com/digitalbazaar/rdf-canonize/actions?query=workflow%3A%22Node.js+CI%22)
+[![Build status](https://img.shields.io/github/actions/workflow/status/digitalbazaar/rdf-canonize/main.yml)](https://github.com/digitalbazaar/rdf-canonize/actions/workflows/main.yml)
 [![Coverage status](https://img.shields.io/codecov/c/github/digitalbazaar/rdf-canonize)](https://codecov.io/gh/digitalbazaar/rdf-canonize)
 
 An implementation of the [RDF Dataset Canonicalization Algorithm][] in JavaScript.
