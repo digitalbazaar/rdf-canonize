@@ -4,29 +4,24 @@
  * @author Dave Longley
  * @author David I. Lehn
  *
- * Copyright (c) 2017-2021 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2023 Digital Bazaar, Inc. All rights reserved.
  */
-/* eslint-disable indent */
-(async () => {
-const fs = require('fs');
+const fs = require('fs/promises');
 const jsonld = require('../../jsonld.js');
 
-const b1json = fs.readFileSync('./block-1.json');
-const b1 = JSON.parse(b1json);
-
-const loader = (url, callback) => {
+async function documentLoader(url) {
   if(url === 'https://w3id.org/test/v1') {
-    callback(null, {
-      document: JSON.parse(fs.readFileSync('./test-v1.jsonld'))
-    });
+    return {
+      document: JSON.parse(await fs.readFile('./test-v1.jsonld'))
+    };
   }
   if(url === 'https://w3id.org/webledger/v1') {
-    return callback(null, {
-      document: JSON.parse(fs.readFileSync('./webledger-v1.jsonld'))
-    });
+    return {
+      document: JSON.parse(await fs.readFile('./webledger-v1.jsonld'))
+    };
   }
-  return jsonld.loadDocument(url, callback);
-};
+  return jsonld.loadDocument(url);
+}
 
 async function bn(b, n) {
   console.log(`Make block-${n}-{in,out}.nq`);
@@ -47,21 +42,28 @@ async function bn(b, n) {
 
   const nq = await jsonld.toRDF(data, {
     format: 'application/n-quads',
-    documentLoader: loader
+    documentLoader
   });
-  fs.writeFileSync(`./block-${n}-in.nq`, nq);
+  await fs.writeFile(`./block-${n}-in.nq`, nq);
   const can = await jsonld.canonize(data, {
-    documentLoader: loader
+    documentLoader
   });
-  fs.writeFileSync(`./block-${n}-out.nq`, can);
+  await fs.writeFile(`./block-${n}-out.nq`, can);
 }
 
-Promise.all([
-  bn(b1, 1),
-  bn(b1, 2),
-  bn(b1, 10),
-  bn(b1, 100),
-  bn(b1, 1000)
-]).catch(e => console.error(e));
+async function main() {
+  const b1json = await fs.readFile('./block-1.json');
+  const b1 = JSON.parse(b1json);
 
+  return Promise.all([
+    bn(b1, 1),
+    bn(b1, 2),
+    bn(b1, 10),
+    bn(b1, 100),
+    bn(b1, 1000)
+  ]).catch(e => console.error(e));
+}
+
+(async () => {
+  await main();
 })();
