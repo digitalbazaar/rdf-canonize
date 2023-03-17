@@ -1,10 +1,15 @@
 # rdf-canonize ChangeLog
 
-## 3.3.1 - 2023-03-xx
+## 4.0.0 - 2023-03-xx
 
 ### Changed
 - Update for latest [rdf-canon][] changes: test suite location, README,
   links, and identifiers.
+
+### Removed
+- **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
+  has a test suite for URGNA2012. URDNA2015 has been the preferred algorithm
+  for many years.
 
 ## 3.3.0 - 2022-09-17
 

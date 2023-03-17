@@ -55,16 +55,6 @@ if(!TEST_SUITE) {
 }
 const ROOT_MANIFEST_DIR = resolvePath(TEST_SUITE);
 const TEST_TYPES = {
-  'rdfc:Urgna2012EvalTest': {
-    params: [
-      parseNQuads(readTestNQuads('action')),
-      createTestOptions({
-        algorithm: 'URGNA2012',
-        inputFormat: 'application/n-quads',
-        format: 'application/n-quads'
-      })
-    ]
-  },
   'rdfc:Urdna2015EvalTest': {
     params: [
       parseNQuads(readTestNQuads('action')),
