@@ -1,43 +1,74 @@
 /**
  * Test and benchmark runner for rdf-canonize.
  *
- * @author Dave Longley
+ * Use environment vars to control:
  *
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
+ * General:
+ *    Boolean options enabled with 1, T, True, true, yes, etc
+ * Set dirs, manifests, or js to run:
+ *   TESTS="r1 r2 ..."
+ * Output an EARL report:
+ *   EARL=filename
+ * Test environment details for EARL report:
+ *   This is useful for benchmark comparison.
+ *   By default no details are added for privacy reasons.
+ *   Automatic details can be added for all fields with '1', 'true', or 'auto':
+ *   TEST_ENV=1
+ *   To include only certain fields, set them, or use 'auto':
+ *   TEST_ENV=cpu='Intel i7-4790K @ 4.00GHz',runtime='Node.js',...
+ *   TEST_ENV=cpu=auto # only cpu
+ *   TEST_ENV=cpu,runtime # only cpu and runtime
+ *   TEST_ENV=auto,comment='special test' # all auto with override
+ *   Available fields:
+ *   - label - ex: 'Setup 1' (short label for reports)
+ *   - arch - ex: 'x64'
+ *   - cpu - ex: 'Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz'
+ *   - cpuCount - ex: 8
+ *   - platform - ex: 'linux'
+ *   - runtime - ex: 'Node.js'
+ *   - runtimeVersion - ex: 'v14.19.0'
+ *   - comment: any text
+ *   - version: rdf-canonize version
+ * Bail with tests fail:
+ *   BAIL=true
+ * Verbose skip reasons:
+ *   VERBOSE_SKIP=true
+ * Benchmark mode:
+ *   Basic:
+ *   BENCHMARK=1
+ *   With options:
+ *   BENCHMARK=key1=value1,key2=value2,...
+ * Benchmark options:
+ *   async=<boolean> (default: true)
+ *   sync=<boolean> (default: false)
+ *   jobs=N1[+N2[...]] (default: 1)
+ *     Run each test with jobs size of N1, N2, ...
+ *     Recommend 1+10 to get simple and parallel data.
+ *     Note the N>1 tests use custom reporter to show time per job.
+ *
+ * @author Dave Longley
+ * @author David I. Lehn
+ *
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
  */
 /* eslint-disable indent */
 const EarlReport = require('./EarlReport.js');
 const NQuads = require('../lib/NQuads');
-const join = require('join-path-js');
-const canonize = require('..');
 const {klona} = require('klona');
+const join = require('join-path-js');
+const rdfCanonize = require('..');
 
-// try to load native bindings
-let rdfCanonizeNative;
-// try regular load
-try {
-  rdfCanonizeNative = require('rdf-canonize-native');
-} catch(e) {
-  // try peer package
-  try {
-    rdfCanonizeNative = require('../../rdf-canonize-native');
-  } catch(e) {
-  }
-}
-// use native bindings
-if(rdfCanonizeNative) {
-  canonize._rdfCanonizeNative(rdfCanonizeNative);
-} else {
-  // skip native tests
-  console.warn('rdf-canonize-native not found');
-}
-
-module.exports = function(options) {
+module.exports = async function(options) {
 
 'use strict';
 
 const assert = options.assert;
 const benchmark = options.benchmark;
+
+// use native bindings if available
+if(options.rdfCanonizeNative) {
+  rdfCanonize._rdfCanonizeNative(options.rdfCanonizeNative);
+}
 
 const manifest = options.manifest || {
   '@context': {
@@ -55,7 +86,9 @@ const manifest = options.manifest || {
   type: 'mf:Manifest',
   description: 'Top level rdf-canonize manifest',
   name: 'rdf-canonize',
-  sequence: options.entries || [],
+  // allow for async generated entries
+  // used for karma tests to allow async server exist check
+  sequence: (await Promise.all(options.entries || [])).flat().filter(e => e),
   filename: '/'
 };
 
@@ -74,6 +107,9 @@ const TEST_TYPES = {
 };
 
 const SKIP_TESTS = [];
+
+// build test env from defaults
+//let testEnv = null;
 
 // create earl report
 if(options.earl && options.earl.filename) {
@@ -241,8 +277,8 @@ async function addTest(manifest, test, tests) {
   const params = testInfo.params.map(param => param(test));
   const testOptions = params[1];
 
-  // number of parallel operations for benchmarks
-  const N = 10;
+  // number of parallel jobs for benchmarks
+  const JOBS = 10;
 
   // async js
   const _aj_test = {
@@ -250,7 +286,7 @@ async function addTest(manifest, test, tests) {
     f: makeFn({
       test,
       run: ({/*test, testInfo,*/ params}) => {
-        return canonize.canonize(...params);
+        return rdfCanonize.canonize(...params);
       }
     })
   };
@@ -264,13 +300,13 @@ async function addTest(manifest, test, tests) {
   if(options.benchmarkOptions) {
     // async js x N
     const _ajN_test = {
-      title: description + ` (asynchronous js x ${N})`,
+      title: description + ` (asynchronous js x ${JOBS})`,
       f: makeFn({
         test,
         run: ({/*test, testInfo,*/ params}) => {
           const all = [];
-          for(let i = 0; i < N; i++) {
-            all.push(canonize.canonize(...params));
+          for(let j = 0; j < JOBS; j++) {
+            all.push(rdfCanonize.canonize(...params));
           }
           return Promise.all(all);
         },
@@ -286,7 +322,7 @@ async function addTest(manifest, test, tests) {
   }
 
   // async native
-  if(rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
+  if(options.rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
     const _an_test = {
       title: description + ' (asynchronous native)',
       f: makeFn({
@@ -295,7 +331,7 @@ async function addTest(manifest, test, tests) {
           params[1].useNative = true;
         },
         run: ({/*test, testInfo,*/ params}) => {
-          return rdfCanonizeNative.canonize(...params);
+          return options.rdfCanonizeNative.canonize(...params);
         }
       })
     };
@@ -315,8 +351,9 @@ async function addTest(manifest, test, tests) {
     f: makeFn({
       test,
       run: async ({/*test, testInfo,*/ params}) => {
-        return canonize._canonizeSync(...params);
-      }
+        return rdfCanonize._canonizeSync(...params);
+      },
+      unsupportedInBrowser: !options.nodejs
     })
   };
   // 'only' based on test manifest
@@ -329,17 +366,18 @@ async function addTest(manifest, test, tests) {
   if(options.benchmarkOptions) {
     // sync js x N
     const _sjN_test = {
-      title: description + ` (synchronous js x ${N})`,
+      title: description + ` (synchronous js x ${JOBS})`,
       f: makeFn({
         test,
         run: ({/*test, testInfo,*/ params}) => {
           const all = [];
-          for(let i = 0; i < N; i++) {
-            all.push(canonize._canonizeSync(...params));
+          for(let j = 0; j < JOBS; j++) {
+            all.push(rdfCanonize._canonizeSync(...params));
           }
           return Promise.all(all);
         },
-        ignoreResult: true
+        ignoreResult: true,
+        unsupportedInBrowser: !options.nodejs
       })
     };
     // 'only' based on test manifest
@@ -351,7 +389,7 @@ async function addTest(manifest, test, tests) {
   }
 
   // sync native
-  if(rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
+  if(options.rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
     const _sn_test = {
       title: description + ' (synchronous native)',
       f: makeFn({
@@ -360,7 +398,7 @@ async function addTest(manifest, test, tests) {
           params[1].useNative = true;
         },
         run: async ({/*test, testInfo,*/ params}) => {
-          return rdfCanonizeNative.canonizeSync(...params);
+          return options.rdfCanonizeNative.canonizeSync(...params);
         }
       })
     };
@@ -379,12 +417,22 @@ function makeFn({
   test,
   adjustParams = p => p,
   run,
-  ignoreResult = false
+  ignoreResult = false,
+  unsupportedInBrowser = false
 }) {
   return async function() {
     const self = this;
     self.timeout(5000);
     const testInfo = TEST_TYPES[getJsonLdTestType(test)];
+
+    // skip if unsupported in browser
+    if(unsupportedInBrowser) {
+      if(options.verboseSkip) {
+        console.log('Skipping test due no browser support:',
+          {id: test['@id'], name: test.name});
+      }
+      self.skip();
+    }
 
     // skip based on test manifest
     if('skip' in test && test.skip) {

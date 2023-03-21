@@ -1,5 +1,5 @@
 /**
- * Node.js test runner for rdf-canonize.
+ * Karma test runner for rdf-canonize.
  *
  * See ./test.js for environment vars options.
  *
@@ -8,50 +8,48 @@
  *
  * Copyright (c) 2011-2023 Digital Bazaar, Inc. All rights reserved.
  */
+/* global serverRequire */
+// FIXME: hack to ensure delay is set first
+mocha.setup({delay: true, ui: 'bdd'});
+
 const assert = require('chai').assert;
 const benchmark = require('benchmark');
 const common = require('./test.js');
-const fs = require('fs-extra');
-const os = require('os');
-const path = require('path');
+const server = require('karma-server-side');
+const join = require('join-path-js');
 
-// try to load native bindings
-let rdfCanonizeNative;
-// try regular load
-try {
-  rdfCanonizeNative = require('rdf-canonize-native');
-} catch(e) {
-  // try peer package
-  try {
-    rdfCanonizeNative = require('../../rdf-canonize-native');
-  } catch(e) {
-  }
-}
-// use native bindings
-if(!rdfCanonizeNative) {
-  // skip native tests
-  console.warn('rdf-canonize-native not found');
-}
+// special benchmark setup
+const _ = require('lodash');
+//const _process = require('process');
+//const Benchmark = benchmark.runInContext({_, _process});
+const Benchmark = benchmark.runInContext({_});
+window.Benchmark = Benchmark;
 
 const entries = [];
 
 if(process.env.TESTS) {
   entries.push(...process.env.TESTS.split(' '));
 } else {
-  const _top = path.resolve(__dirname, '..');
+  const _top = process.env.TEST_ROOT_DIR;
+  // TODO: support just adding certain entries in EARL mode?
 
   // W3C RDF Dataset Canonicalization "rdf-canon" test suite
-  const testPath = path.resolve(
-    _top, 'test-suites/rdf-canon/tests');
-  if(fs.existsSync(testPath)) {
-    entries.push(testPath);
-  } else {
-    // default to sibling dir
-    entries.push(path.resolve(_top, '../rdf-canon/tests'));
-  }
+  entries.push((async () => {
+    const testPath = join(_top, 'test-suites/rdf-canon/tests');
+    const siblingPath = join(_top, '../rdf-canon/tests');
+    return server.run(testPath, siblingPath, function(testPath, siblingPath) {
+      const fs = serverRequire('fs-extra');
+      // use local tests if setup
+      if(fs.existsSync(testPath)) {
+        return testPath;
+      }
+      // default to sibling dir
+      return siblingPath;
+    });
+  })());
 
   // other tests
-  //entries.push(path.resolve(_top, 'test/misc.js'));
+  //entries.push(join(_top, 'tests/misc.js'));
 }
 
 // test environment
@@ -87,22 +85,22 @@ if(process.env.TEST_ENV) {
       testEnv.label = '';
     }
     if(testEnv.arch === 'auto') {
-      testEnv.arch = process.arch;
+      testEnv.arch = process.env._TEST_ENV_ARCH;
     }
     if(testEnv.cpu === 'auto') {
-      testEnv.cpu = os.cpus()[0].model;
+      testEnv.cpu = process.env._TEST_ENV_CPU;
     }
     if(testEnv.cpuCount === 'auto') {
-      testEnv.cpuCount = os.cpus().length;
+      testEnv.cpuCount = process.env._TEST_ENV_CPU_COUNT;
     }
     if(testEnv.platform === 'auto') {
-      testEnv.platform = process.platform;
+      testEnv.platform = process.env._TEST_ENV_PLATFORM;
     }
     if(testEnv.runtime === 'auto') {
-      testEnv.runtime = 'Node.js';
+      testEnv.runtime = 'browser';
     }
     if(testEnv.runtimeVersion === 'auto') {
-      testEnv.runtimeVersion = process.version;
+      testEnv.runtimeVersion = '(unknown)';
     }
     if(testEnv.comment === 'auto') {
       testEnv.comment = '';
@@ -127,13 +125,15 @@ if(process.env.BENCHMARK) {
 }
 
 const options = {
-  nodejs: {
-    path
-  },
+  nodejs: false,
   assert,
   benchmark,
-  rdfCanonizeNative,
-  exit: code => process.exit(code),
+  rdfCanonizeNative: null,
+  /* eslint-disable-next-line no-unused-vars */
+  exit: code => {
+    console.error('exit not implemented');
+    throw new Error('exit not implemented');
+  },
   earl: {
     filename: process.env.EARL
   },
@@ -143,12 +143,23 @@ const options = {
   testEnv,
   benchmarkOptions,
   readFile: filename => {
-    return fs.readFile(filename, 'utf8');
+    return server.run(filename, function(filename) {
+      const fs = serverRequire('fs-extra');
+      return fs.readFile(filename, 'utf8').then(data => {
+        return data;
+      });
+    });
   },
   writeFile: (filename, data) => {
-    return fs.outputFile(filename, data);
+    return server.run(filename, data, function(filename, data) {
+      const fs = serverRequire('fs-extra');
+      return fs.outputFile(filename, data);
+    });
   },
-  import: f => require(f)
+  /* eslint-disable-next-line no-unused-vars */
+  import: f => {
+    console.error('import not implemented');
+  }
 };
 
 // wait for setup of all tests then run mocha
@@ -156,8 +167,4 @@ common(options).then(() => {
   run();
 }).catch(err => {
   console.error(err);
-});
-
-process.on('unhandledRejection', (reason, p) => {
-  console.error('Unhandled Rejection at:', p, 'reason:', reason);
 });

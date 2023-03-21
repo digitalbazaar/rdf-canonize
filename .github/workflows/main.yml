@@ -3,12 +3,27 @@ name: Node.js CI
 on: [push]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    - name: Run eslint
+      run: npm run lint
   test-node:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -21,44 +36,34 @@ jobs:
       run: npm run fetch-test-suite
     - name: Run test with Node.js ${{ matrix.node-version }}
       run: npm run test-node
-#  test-karma:
-#    runs-on: ubuntu-latest
-#    timeout-minutes: 10
-#    strategy:
-#      matrix:
-#        node-version: [14.x]
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Use Node.js ${{ matrix.node-version }}
-#      uses: actions/setup-node@v1
-#      with:
-#        node-version: ${{ matrix.node-version }}
-#    - run: npm install
-#    - name: Run karma tests
-#      run: npm run test-karma
-  lint:
+  test-karma:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
+        bundler: [webpack, browserify]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - name: Run eslint
-      run: npm run lint
+    - name: Install
+      run: npm install
+    - name: Fetch test suite
+      run: npm run fetch-test-suite
+    - name: Run karma tests
+      run: npm run test-karma
+      env:
+        BUNDLER: ${{ matrix.bundler }}
   coverage:
-#    needs: [test-node, test-karma]
-    needs: [test-node]
+    needs: [test-node, test-karma]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
