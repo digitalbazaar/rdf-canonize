@@ -3,18 +3,32 @@
 ## 4.0.0 - 2023-03-xx
 
 ### Changed
-- Update for latest [rdf-canon][] changes: test suite location, README,
-  links, and identifiers.
+- Update for latest [rdf-canon][] changes: test suite location, README, links,
+  and identifiers.
 - More closly align test code with the version in [jsonld.js][].
   - Use combined test/benchmark system.
   - Update with special x10 benchmarks.
+- Update tooling.
 
 ### Removed
 - **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
   has a test suite for URGNA2012. URDNA2015 has been the preferred algorithm
   for many years.
+- **BREAKING**: Remove support for Node.js 12.x and 14.x. This is done to allow
+  updates to tooling that no longer support older Node.js versions. The library
+  code has not yet changed to be incompatibile with older Node.js versions but
+  it will no longer be tested and may become incompatibile at any time.
 - Remove `benchmark/benchmark.js` tool in favor of combined test system and
   benchmarking control via environment vars.
+
+### Fixed
+- Disable native lib use when testing in a browser.
+- Disable sync tests in a browser. The sync code attempts to use the async
+  webcrypto calls and produces invalid results. It is an error that this
+  doesn't fail, but sync code is currently only for testing.
+
+### Added
+- Test with karma.
 
 ## 3.3.0 - 2022-09-17
 
