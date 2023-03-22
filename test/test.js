@@ -387,6 +387,7 @@ async function addTest(manifest, test, tests) {
             }
             return Promise.all(all);
           },
+          jobs,
           isBenchmark: benchmarkOptions.enabled
         })
       };
@@ -421,6 +422,7 @@ async function addTest(manifest, test, tests) {
             }
             return Promise.all(all);
           },
+          jobs,
           isBenchmark: benchmarkOptions.enabled
         })
       };
@@ -451,6 +453,7 @@ async function addTest(manifest, test, tests) {
             }
             return Promise.all(all);
           },
+          jobs,
           isBenchmark: benchmarkOptions.enabled,
           unsupportedInBrowser: !options.nodejs
         })
@@ -486,6 +489,7 @@ async function addTest(manifest, test, tests) {
             }
             return Promise.all(all);
           },
+          jobs,
           isBenchmark: benchmarkOptions.enabled
         })
       };
@@ -503,6 +507,7 @@ function makeFn({
   test,
   adjustParams = p => p,
   run,
+  jobs,
   isBenchmark = false,
   unsupportedInBrowser = false
 }) {
@@ -637,6 +642,7 @@ function makeFn({
         const result = await runBenchmark({
           test,
           testInfo,
+          jobs,
           run,
           params: testInfo.params.map(param => param(test, {
             // pre-load params to avoid doc loader and parser timing
@@ -647,7 +653,10 @@ function makeFn({
         benchmarkResult = {
           // FIXME use generic prefix
           '@type': 'jldb:BenchmarkResult',
-          'jldb:hz': result.target.hz,
+          // normalize to jobs/sec from overall ops/sec
+          'jldb:hz': result.target.hz * jobs,
+          // parallel job count
+          'jldb:jobs': jobs,
           'jldb:rme': result.target.stats.rme
         };
       }
@@ -683,7 +692,7 @@ function makeFn({
   };
 }
 
-async function runBenchmark({test, testInfo, params, run, mochaTest}) {
+async function runBenchmark({test, testInfo, jobs, params, run, mochaTest}) {
   const values = await Promise.all(params);
 
   return new Promise((resolve, reject) => {
@@ -703,7 +712,10 @@ async function runBenchmark({test, testInfo, params, run, mochaTest}) {
         mochaTest.timeout((e.target.maxTime + 10) * 1000);
       })
       .on('cycle', e => {
-        console.log(String(e.target));
+        const jobsHz = e.target.hz * jobs;
+        const jobsPerSec = jobsHz.toFixed(jobsHz < 100 ? 2 : 0);
+        const msg = `${String(e.target)} (${jobsPerSec} jobs/sec)`;
+        console.log(msg);
       })
       .on('error', err => {
         reject(new Error(err));
