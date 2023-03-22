@@ -4,7 +4,8 @@
  * Use environment vars to control:
  *
  * General:
- *    Boolean options enabled with 1, T, True, true, yes, etc
+ *   Boolean env options enabled with case insensitve values:
+ *     'true', 't', 'yes', 'y', 'on', '1', similar for false
  * Set dirs, manifests, or js to run:
  *   TESTS="r1 r2 ..."
  * Output an EARL report:
@@ -58,6 +59,19 @@ const {klona} = require('klona');
 const join = require('join-path-js');
 const rdfCanonize = require('..');
 
+// helper functions, inspired by 'boolean' package
+function isTrue(value) {
+  return value && [
+    'true', 't', 'yes', 'y', 'on', '1'
+  ].includes(value.trim().toLowerCase());
+}
+
+function isFalse(value) {
+  return !value || [
+    'false', 'f', 'no', 'n', 'off', '0'
+  ].includes(value.trim().toLowerCase());
+}
+
 module.exports = async function(options) {
 
 'use strict';
@@ -68,6 +82,40 @@ const benchmark = options.benchmark;
 // use native bindings if available
 if(options.rdfCanonizeNative) {
   rdfCanonize._rdfCanonizeNative(options.rdfCanonizeNative);
+}
+
+const bailOnError = isTrue(options.env.BAIL);
+const verboseSkip = isTrue(options.env.VERBOSE_SKIP);
+
+const benchmarkOptions = {
+  enabled: false,
+  async: true,
+  sync: true,
+  jobs: [1]
+};
+
+if(options.env.BENCHMARK) {
+  if(!isFalse(options.env.BENCHMARK)) {
+    benchmarkOptions.enabled = true;
+    if(!isTrue(options.env.BENCHMARK)) {
+      options.env.BENCHMARK.split(',').forEach(pair => {
+        const kv = pair.split('=');
+        switch(kv[0]) {
+          case 'async':
+            benchmarkOptions.async = isTrue(kv[1]);
+            break;
+          case 'sync':
+            benchmarkOptions.sync = isTrue(kv[1]);
+            break;
+          case 'jobs':
+            benchmarkOptions.jobs = kv[1].split('+').map(n => parseInt(n, 10));
+            break;
+          default:
+            throw new Error(`Unknown benchmark option: "${pair}"`);
+        }
+      });
+    }
+  }
 }
 
 const manifest = options.manifest || {
@@ -109,14 +157,44 @@ const TEST_TYPES = {
 const SKIP_TESTS = [];
 
 // build test env from defaults
-//let testEnv = null;
+const testEnvFields = [
+  'label', 'arch', 'cpu', 'cpuCount', 'platform', 'runtime', 'runtimeVersion',
+  'comment', 'version'
+];
+let testEnv = null;
+if(options.env.TEST_ENV) {
+  let _test_env = options.env.TEST_ENV;
+  if(!isFalse(_test_env)) {
+    testEnv = {};
+    if(isTrue(_test_env)) {
+      _test_env = 'auto';
+    }
+    _test_env.split(',').forEach(pair => {
+      if(pair === 'auto') {
+        testEnvFields.forEach(f => testEnv[f] = 'auto');
+      } else {
+        const kv = pair.split('=');
+        if(kv.length === 1) {
+          testEnv[kv[0]] = 'auto';
+        } else {
+          testEnv[kv[0]] = kv.slice(1).join('=');
+        }
+      }
+    });
+    testEnvFields.forEach(f => {
+      if(testEnv[f] === 'auto') {
+        testEnv[f] = options.testEnvDefaults[f];
+      }
+    });
+  }
+}
 
 // create earl report
 if(options.earl && options.earl.filename) {
   options.earl.report = new EarlReport({
     env: options.testEnv
   });
-  if(options.benchmarkOptions) {
+  if(benchmarkOptions.enabled) {
     options.earl.report.setupForBenchmarks({testEnv: options.testEnv});
   }
 }
@@ -297,7 +375,7 @@ async function addTest(manifest, test, tests) {
   }
   tests.push(_aj_test);
 
-  if(options.benchmarkOptions) {
+  if(benchmarkOptions.enabled) {
     // async js x N
     const _ajN_test = {
       title: description + ` (asynchronous js x ${JOBS})`,
@@ -363,7 +441,7 @@ async function addTest(manifest, test, tests) {
   }
   tests.push(_sj_test);
 
-  if(options.benchmarkOptions) {
+  if(benchmarkOptions.enabled) {
     // sync js x N
     const _sjN_test = {
       title: description + ` (synchronous js x ${JOBS})`,
@@ -427,7 +505,7 @@ function makeFn({
 
     // skip if unsupported in browser
     if(unsupportedInBrowser) {
-      if(options.verboseSkip) {
+      if(verboseSkip) {
         console.log('Skipping test due no browser support:',
           {id: test['@id'], name: test.name});
       }
@@ -436,7 +514,7 @@ function makeFn({
 
     // skip based on test manifest
     if('skip' in test && test.skip) {
-      if(options.verboseSkip) {
+      if(verboseSkip) {
         console.log('Skipping test due to manifest:',
           {id: test['@id'], name: test.name});
       }
@@ -446,7 +524,7 @@ function makeFn({
     // skip based on unknown test type
     const testTypes = Object.keys(TEST_TYPES);
     if(!isJsonLdType(test, testTypes)) {
-      if(options.verboseSkip) {
+      if(verboseSkip) {
         const type = [].concat(
           getJsonLdValues(test, '@type'),
           getJsonLdValues(test, 'type')
@@ -459,7 +537,7 @@ function makeFn({
 
     // skip based on test type
     if(isJsonLdType(test, SKIP_TESTS)) {
-      if(options.verboseSkip) {
+      if(verboseSkip) {
         const type = [].concat(
           getJsonLdValues(test, '@type'),
           getJsonLdValues(test, 'type')
@@ -472,7 +550,7 @@ function makeFn({
 
     // skip based on type info
     if(testInfo.skip && testInfo.skip.type) {
-      if(options.verboseSkip) {
+      if(verboseSkip) {
         console.log('Skipping test due to type info:',
           {id: test['@id'], name: test.name});
       }
@@ -483,7 +561,7 @@ function makeFn({
     if(testInfo.skip && testInfo.skip.idRegex) {
       testInfo.skip.idRegex.forEach(function(re) {
         if(re.test(test['@id'])) {
-          if(options.verboseSkip) {
+          if(verboseSkip) {
             console.log('Skipping test due to id:',
               {id: test['@id']});
           }
@@ -497,7 +575,7 @@ function makeFn({
     if(testInfo.skip && testInfo.skip.descriptionRegex) {
       testInfo.skip.descriptionRegex.forEach(function(re) {
         if(re.test(test.description)) {
-          if(options.verboseSkip) {
+          if(verboseSkip) {
             console.log('Skipping test due to description:', {
               id: test['@id'],
               name: test.name,
@@ -547,7 +625,7 @@ function makeFn({
       }
 
       let benchmarkResult = null;
-      if(options.benchmarkOptions) {
+      if(benchmarkOptions.enabled) {
         const result = await runBenchmark({
           test,
           testInfo,
@@ -576,13 +654,13 @@ function makeFn({
       // FIXME: for now, explicitly disabling tests.
       //if(!normativeTest) {
       //  // failure ok
-      //  if(options.verboseSkip) {
+      //  if(verboseSkip) {
       //    console.log('Skipping non-normative test due to failure:',
       //      {id: test['@id'], name: test.name});
       //  }
       //  self.skip();
       //}
-      if(options.bailOnError) {
+      if(bailOnError) {
         if(err.name !== 'AssertionError') {
           console.error('\nError: ', JSON.stringify(err, null, 2));
         }
@@ -727,7 +805,7 @@ async function compareExpectedNQuads(test, result) {
     expect = await readTestNQuads(_getExpectProperty(test))(test);
     assert.strictEqual(result, expect);
   } catch(ex) {
-    if(options.bailOnError) {
+    if(bailOnError) {
       console.log('\nTEST FAILED\n');
       console.log('EXPECTED:\n' + expect);
       console.log('ACTUAL:\n' + result);
