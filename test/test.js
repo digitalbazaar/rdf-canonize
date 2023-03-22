@@ -41,11 +41,15 @@
  *   BENCHMARK=key1=value1,key2=value2,...
  * Benchmark options:
  *   async=<boolean> (default: true)
+ *     Run async tests.
  *   sync=<boolean> (default: false)
+ *     Run sync tests.
  *   jobs=N1[+N2[...]] (default: 1)
  *     Run each test with jobs size of N1, N2, ...
  *     Recommend 1+10 to get simple and parallel data.
  *     Note the N>1 tests use custom reporter to show time per job.
+ *   fast1=<boolean> (default: false)
+ *     Run single job faster by omitting Promise.all wrapper.
  *
  * @author Dave Longley
  * @author David I. Lehn
@@ -91,7 +95,8 @@ const benchmarkOptions = {
   enabled: false,
   async: true,
   sync: true,
-  jobs: [1]
+  jobs: [1],
+  fast1: false
 };
 
 if(options.env.BENCHMARK) {
@@ -109,6 +114,9 @@ if(options.env.BENCHMARK) {
             break;
           case 'jobs':
             benchmarkOptions.jobs = kv[1].split('+').map(n => parseInt(n, 10));
+            break;
+          case 'fast1':
+            benchmarkOptions.fast1 = isTrue(kv[1]);
             break;
           default:
             throw new Error(`Unknown benchmark option: "${pair}"`);
@@ -356,146 +364,146 @@ async function addTest(manifest, test, tests) {
   const testOptions = params[1];
 
   // number of parallel jobs for benchmarks
-  const JOBS = 10;
+  const jobTests = benchmarkOptions.enabled ? benchmarkOptions.jobs : [1];
+  const fast1 = benchmarkOptions.enabled ? benchmarkOptions.fast1 : true;
+  const doAsync = benchmarkOptions.enabled ? benchmarkOptions.async : true;
+  const doSync = benchmarkOptions.enabled ? benchmarkOptions.sync : true;
 
   // async js
-  const _aj_test = {
-    title: description + ' (asynchronous js)',
-    f: makeFn({
-      test,
-      run: ({/*test, testInfo,*/ params}) => {
-        return rdfCanonize.canonize(...params);
+  if(doAsync) {
+    jobTests.forEach(jobs => {
+      const _aj_test = {
+        title: description + ` (asynchronous js x ${jobs})`,
+        f: makeFn({
+          test,
+          run: ({/*test, testInfo,*/ params}) => {
+            // skip Promise.all
+            if(jobs === 1 && fast1) {
+              return rdfCanonize.canonize(...params);
+            }
+            const all = [];
+            for(let j = 0; j < jobs; j++) {
+              all.push(rdfCanonize.canonize(...params));
+            }
+            return Promise.all(all);
+          },
+          isBenchmark: benchmarkOptions.enabled
+        })
+      };
+      // 'only' based on test manifest
+      // 'skip' handled via skip()
+      if('only' in test) {
+        _aj_test.only = test.only;
       }
-    })
-  };
-  // 'only' based on test manifest
-  // 'skip' handled via skip()
-  if('only' in test) {
-    _aj_test.only = test.only;
-  }
-  tests.push(_aj_test);
-
-  if(benchmarkOptions.enabled) {
-    // async js x N
-    const _ajN_test = {
-      title: description + ` (asynchronous js x ${JOBS})`,
-      f: makeFn({
-        test,
-        run: ({/*test, testInfo,*/ params}) => {
-          const all = [];
-          for(let j = 0; j < JOBS; j++) {
-            all.push(rdfCanonize.canonize(...params));
-          }
-          return Promise.all(all);
-        },
-        ignoreResult: true
-      })
-    };
-    // 'only' based on test manifest
-    // 'skip' handled via skip()
-    if('only' in test) {
-      _ajN_test.only = test.only;
-    }
-    tests.push(_ajN_test);
+      tests.push(_aj_test);
+    });
   }
 
   // async native
-  if(options.rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
-    const _an_test = {
-      title: description + ' (asynchronous native)',
-      f: makeFn({
-        test,
-        adjustParams: ({params}) => {
-          params[1].useNative = true;
-        },
-        run: ({/*test, testInfo,*/ params}) => {
-          return options.rdfCanonizeNative.canonize(...params);
-        }
-      })
-    };
-    // 'only' based on test manifest
-    // 'skip' handled via skip()
-    if('only' in test) {
-      _an_test.only = test.only;
-    }
-    tests.push(_an_test);
+  if(doAsync && options.rdfCanonizeNative &&
+    testOptions.algorithm === 'URDNA2015') {
+    jobTests.forEach(jobs => {
+      const _an_test = {
+        title: description + ` (asynchronous native x ${jobs})`,
+        f: makeFn({
+          test,
+          adjustParams: ({params}) => {
+            params[1].useNative = true;
+          },
+          run: ({/*test, testInfo,*/ params}) => {
+            // skip Promise.all
+            if(jobs === 1 && fast1) {
+              return options.rdfCanonizeNative.canonize(...params);
+            }
+            const all = [];
+            for(let j = 0; j < jobs; j++) {
+              all.push(options.rdfCanonizeNative.canonize(...params));
+            }
+            return Promise.all(all);
+          },
+          isBenchmark: benchmarkOptions.enabled
+        })
+      };
+      // 'only' based on test manifest
+      // 'skip' handled via skip()
+      if('only' in test) {
+        _an_test.only = test.only;
+      }
+      tests.push(_an_test);
+    });
   }
-
-  // TODO: add benchmark async native x N
 
   // sync js
-  const _sj_test = {
-    title: description + ' (synchronous js)',
-    f: makeFn({
-      test,
-      run: async ({/*test, testInfo,*/ params}) => {
-        return rdfCanonize._canonizeSync(...params);
-      },
-      unsupportedInBrowser: !options.nodejs
-    })
-  };
-  // 'only' based on test manifest
-  // 'skip' handled via skip()
-  if('only' in test) {
-    _sj_test.only = test.only;
-  }
-  tests.push(_sj_test);
-
-  if(benchmarkOptions.enabled) {
-    // sync js x N
-    const _sjN_test = {
-      title: description + ` (synchronous js x ${JOBS})`,
-      f: makeFn({
-        test,
-        run: ({/*test, testInfo,*/ params}) => {
-          const all = [];
-          for(let j = 0; j < JOBS; j++) {
-            all.push(rdfCanonize._canonizeSync(...params));
-          }
-          return Promise.all(all);
-        },
-        ignoreResult: true,
-        unsupportedInBrowser: !options.nodejs
-      })
-    };
-    // 'only' based on test manifest
-    // 'skip' handled via skip()
-    if('only' in test) {
-      _sjN_test.only = test.only;
-    }
-    tests.push(_sjN_test);
+  if(doSync) {
+    jobTests.forEach(jobs => {
+      const _sj_test = {
+        title: description + ` (synchronous js x ${jobs})`,
+        f: makeFn({
+          test,
+          run: ({/*test, testInfo,*/ params}) => {
+            // skip Promise.all
+            if(jobs === 1 && fast1) {
+              return rdfCanonize.canonize(...params);
+            }
+            const all = [];
+            for(let j = 0; j < jobs; j++) {
+              all.push(rdfCanonize._canonizeSync(...params));
+            }
+            return Promise.all(all);
+          },
+          isBenchmark: benchmarkOptions.enabled,
+          unsupportedInBrowser: !options.nodejs
+        })
+      };
+      // 'only' based on test manifest
+      // 'skip' handled via skip()
+      if('only' in test) {
+        _sj_test.only = test.only;
+      }
+      tests.push(_sj_test);
+    });
   }
 
   // sync native
-  if(options.rdfCanonizeNative && testOptions.algorithm === 'URDNA2015') {
-    const _sn_test = {
-      title: description + ' (synchronous native)',
-      f: makeFn({
-        test,
-        adjustParams: ({params}) => {
-          params[1].useNative = true;
-        },
-        run: async ({/*test, testInfo,*/ params}) => {
-          return options.rdfCanonizeNative.canonizeSync(...params);
-        }
-      })
-    };
-    // 'only' based on test manifest
-    // 'skip' handled via skip()
-    if('only' in test) {
-      _sn_test.only = test.only;
-    }
-    tests.push(_sn_test);
+  if(doSync && options.rdfCanonizeNative &&
+    testOptions.algorithm === 'URDNA2015') {
+    jobTests.forEach(jobs => {
+      const _sn_test = {
+        title: description + ` (synchronous native x ${jobs})`,
+        f: makeFn({
+          test,
+          adjustParams: ({params}) => {
+            params[1].useNative = true;
+          },
+          run: async ({/*test, testInfo,*/ params}) => {
+            // skip Promise.all
+            if(jobs === 1 && fast1) {
+              return options.rdfCanonizeNative.canonizeSync(...params);
+            }
+            const all = [];
+            for(let j = 0; j < jobs; j++) {
+              all.push(options.rdfCanonizeNative.canonizeSync(...params));
+            }
+            return Promise.all(all);
+          },
+          isBenchmark: benchmarkOptions.enabled
+        })
+      };
+      // 'only' based on test manifest
+      // 'skip' handled via skip()
+      if('only' in test) {
+        _sn_test.only = test.only;
+      }
+      tests.push(_sn_test);
+    });
   }
-
-  // TODO: add benchmark sync native x N
 }
 
 function makeFn({
   test,
   adjustParams = p => p,
   run,
-  ignoreResult = false,
+  isBenchmark = false,
   unsupportedInBrowser = false
 }) {
   return async function() {
@@ -605,7 +613,7 @@ function makeFn({
 
     try {
       if(isJsonLdType(test, 'XXX:NegativeEvaluationTest')) {
-        if(!ignoreResult) {
+        if(!isBenchmark) {
           // FIXME add if needed
           //await compareExpectedError(test, err);
         }
@@ -615,7 +623,7 @@ function makeFn({
         if(err) {
           throw err;
         }
-        if(!ignoreResult) {
+        if(!isBenchmark) {
           await testInfo.compare(test, result);
         }
       } else if(isJsonLdType(test, 'XXX:PositiveSyntaxTest')) {
