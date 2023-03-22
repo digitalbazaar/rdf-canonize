@@ -54,79 +54,28 @@ if(process.env.TESTS) {
   //entries.push(path.resolve(_top, 'test/misc.js'));
 }
 
-// test environment
-let testEnv = null;
-if(process.env.TEST_ENV) {
-  let _test_env = process.env.TEST_ENV;
-  if(!(['0', 'false'].includes(_test_env))) {
-    testEnv = {};
-    if(['1', 'true', 'auto'].includes(_test_env)) {
-      _test_env = 'auto';
-    }
-    _test_env.split(',').forEach(pair => {
-      if(pair === 'auto') {
-        testEnv.name = 'auto';
-        testEnv.arch = 'auto';
-        testEnv.cpu = 'auto';
-        testEnv.cpuCount = 'auto';
-        testEnv.platform = 'auto';
-        testEnv.runtime = 'auto';
-        testEnv.runtimeVersion = 'auto';
-        testEnv.comment = 'auto';
-        testEnv.version = 'auto';
-      } else {
-        const kv = pair.split('=');
-        if(kv.length === 1) {
-          testEnv[kv[0]] = 'auto';
-        } else {
-          testEnv[kv[0]] = kv.slice(1).join('=');
-        }
-      }
-    });
-    if(testEnv.label === 'auto') {
-      testEnv.label = '';
-    }
-    if(testEnv.arch === 'auto') {
-      testEnv.arch = process.arch;
-    }
-    if(testEnv.cpu === 'auto') {
-      testEnv.cpu = os.cpus()[0].model;
-    }
-    if(testEnv.cpuCount === 'auto') {
-      testEnv.cpuCount = os.cpus().length;
-    }
-    if(testEnv.platform === 'auto') {
-      testEnv.platform = process.platform;
-    }
-    if(testEnv.runtime === 'auto') {
-      testEnv.runtime = 'Node.js';
-    }
-    if(testEnv.runtimeVersion === 'auto') {
-      testEnv.runtimeVersion = process.version;
-    }
-    if(testEnv.comment === 'auto') {
-      testEnv.comment = '';
-    }
-    if(testEnv.version === 'auto') {
-      testEnv.version = require('../package.json').version;
-    }
-  }
-}
+// test environment defaults
+const testEnvDefaults = {
+  label: '',
+  arch: process.arch,
+  cpu: os.cpus()[0].model,
+  cpuCount: os.cpus().length,
+  platform: process.platform,
+  runtime: 'Node.js',
+  runtimeVersion: process.version,
+  comment: '',
+  version: require('../package.json').version
+};
 
-let benchmarkOptions = null;
-if(process.env.BENCHMARK) {
-  if(!(['0', 'false'].includes(process.env.BENCHMARK))) {
-    benchmarkOptions = {};
-    if(!(['1', 'true'].includes(process.env.BENCHMARK))) {
-      process.env.BENCHMARK.split(',').forEach(pair => {
-        const kv = pair.split('=');
-        benchmarkOptions[kv[0]] = kv[1];
-      });
-    }
-  }
-}
+const env = {
+  BAIL: process.env.BAIL,
+  BENCHMARK: process.env.BENCHMARK,
+  TEST_ENV: process.env.TEST_ENV,
+  VERBOSE_SKIP: process.env.VERBOSE_SKIP
+};
 
 const options = {
+  env,
   nodejs: {
     path
   },
@@ -137,11 +86,8 @@ const options = {
   earl: {
     filename: process.env.EARL
   },
-  verboseSkip: process.env.VERBOSE_SKIP === 'true',
-  bailOnError: process.env.BAIL === 'true',
   entries,
-  testEnv,
-  benchmarkOptions,
+  testEnvDefaults,
   readFile: filename => {
     return fs.readFile(filename, 'utf8');
   },
