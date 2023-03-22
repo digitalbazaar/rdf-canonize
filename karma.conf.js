@@ -1,5 +1,5 @@
 /**
- * Karam configuration for rdf-canonize.
+ * Karma configuration for rdf-canonize.
  *
  * See ./test/test.js for env options.
  *
