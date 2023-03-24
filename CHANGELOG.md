@@ -12,6 +12,11 @@
   - Use combined test/benchmark system.
   - Update with special x10 benchmarks.
 - Update tooling.
+- Refactor `MessageDigest-browser.js` to `MessageDigest-webcrypto.js` so it can
+  also be optionally used with Node.js.
+- Move platform specific support into `platform.js` and `platform-browser.js`.
+- **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
+  if your environment doesn't support `globalThis`.
 
 ### Fixed
 - Disable native lib use when testing in a browser.
