@@ -205,10 +205,10 @@ if(options.env.TEST_ENV) {
 // create earl report
 if(options.earl && options.earl.filename) {
   options.earl.report = new EarlReport({
-    env: options.testEnv
+    env: testEnv
   });
   if(benchmarkOptions.enabled) {
-    options.earl.report.setupForBenchmarks({testEnv: options.testEnv});
+    options.earl.report.setupForBenchmarks({testEnv});
   }
 }
 
