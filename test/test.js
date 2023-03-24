@@ -694,8 +694,6 @@ function makeFn({
           '@type': 'jldb:BenchmarkResult',
           // normalize to jobs/sec from overall ops/sec
           'jldb:hz': result.target.hz * jobs,
-          // parallel job count
-          'jldb:jobs': jobs,
           'jldb:rme': result.target.stats.rme
         };
       }
