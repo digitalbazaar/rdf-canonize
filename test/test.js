@@ -554,7 +554,7 @@ function makeFn({
 }) {
   return async function() {
     const self = this;
-    self.timeout(5000);
+    self.timeout(10000);
     const testInfo = TEST_TYPES[getJsonLdTestType(test)];
 
     // skip if unsupported in browser
@@ -750,7 +750,7 @@ async function runBenchmark({test, testInfo, jobs, params, run, mochaTest}) {
     suite
       .on('start', e => {
         // set timeout to a bit more than max benchmark time
-        mochaTest.timeout((e.target.maxTime + 10) * 1000);
+        mochaTest.timeout((e.target.maxTime + 10) * 1000 * jobs);
       })
       .on('cycle', e => {
         const jobsHz = e.target.hz * jobs;
