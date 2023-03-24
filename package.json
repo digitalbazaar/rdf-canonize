@@ -80,7 +80,8 @@
     "lint": "eslint ."
   },
   "browser": {
-    "./lib/MessageDigest.js": "./lib/MessageDigest-browser.js",
+    "./lib/MessageDigest.js": "./lib/MessageDigest-webcrypto.js",
+    "./lib/platform.js": "./lib/platform-browser.js",
     "rdf-canonize-native": false
   },
   "nyc": {
