@@ -31,19 +31,21 @@
  *   - comment: any text
  *   - version: rdf-canonize version
  * Bail with tests fail:
- *   BAIL=true
+ *   BAIL=<boolean> (default: false)
  * Verbose skip reasons:
- *   VERBOSE_SKIP=true
+ *   VERBOSE_SKIP=<boolean> (default: false)
+ * Enable async tests:
+ *   ASYNC=<boolean> (default: true)
+ * Enable sync tests:
+ *   SYNC=<boolean> (default: true)
+ * Enable node webcrypto tests:
+ *   WEBCRYPTO=<boolean> (default: true)
  * Benchmark mode:
  *   Basic:
  *   BENCHMARK=1
  *   With options:
  *   BENCHMARK=key1=value1,key2=value2,...
  * Benchmark options:
- *   async=<boolean> (default: true)
- *     Run async tests.
- *   sync=<boolean> (default: false)
- *     Run sync tests.
  *   jobs=N1[+N2[...]] (default: 1)
  *     Run each test with jobs size of N1, N2, ...
  *     Recommend 1+10 to get simple and parallel data.
@@ -59,6 +61,7 @@
 /* eslint-disable indent */
 const EarlReport = require('./EarlReport.js');
 const NQuads = require('../lib/NQuads');
+const WebCryptoMessageDigest = require('../lib/MessageDigest-webcrypto');
 const {klona} = require('klona');
 const join = require('join-path-js');
 const rdfCanonize = require('..');
@@ -88,13 +91,15 @@ if(options.rdfCanonizeNative) {
   rdfCanonize._rdfCanonizeNative(options.rdfCanonizeNative);
 }
 
-const bailOnError = isTrue(options.env.BAIL);
-const verboseSkip = isTrue(options.env.VERBOSE_SKIP);
+const bailOnError = isTrue(options.env.BAIL || 'false');
+const verboseSkip = isTrue(options.env.VERBOSE_SKIP || 'false');
+
+const doAsync = isTrue(options.env.ASYNC || 'true');
+const doSync = isTrue(options.env.SYNC || 'true');
+const doWebCrypto = isTrue(options.env.WEBCRYPTO || 'true') && options.nodejs;
 
 const benchmarkOptions = {
   enabled: false,
-  async: true,
-  sync: true,
   jobs: [1],
   fast1: false
 };
@@ -106,12 +111,6 @@ if(options.env.BENCHMARK) {
       options.env.BENCHMARK.split(',').forEach(pair => {
         const kv = pair.split('=');
         switch(kv[0]) {
-          case 'async':
-            benchmarkOptions.async = isTrue(kv[1]);
-            break;
-          case 'sync':
-            benchmarkOptions.sync = isTrue(kv[1]);
-            break;
           case 'jobs':
             benchmarkOptions.jobs = kv[1].split('+').map(n => parseInt(n, 10));
             break;
@@ -366,16 +365,50 @@ async function addTest(manifest, test, tests) {
   // number of parallel jobs for benchmarks
   const jobTests = benchmarkOptions.enabled ? benchmarkOptions.jobs : [1];
   const fast1 = benchmarkOptions.enabled ? benchmarkOptions.fast1 : true;
-  const doAsync = benchmarkOptions.enabled ? benchmarkOptions.async : true;
-  const doSync = benchmarkOptions.enabled ? benchmarkOptions.sync : true;
 
   // async js
   if(doAsync) {
     jobTests.forEach(jobs => {
       const _aj_test = {
-        title: description + ` (asynchronous js x ${jobs})`,
+        title: description + ` (asynchronous, js, jobs=${jobs})`,
         f: makeFn({
           test,
+          run: ({/*test, testInfo,*/ params}) => {
+            // skip Promise.all
+            if(jobs === 1 && fast1) {
+              return rdfCanonize.canonize(...params);
+            }
+            const all = [];
+            for(let j = 0; j < jobs; j++) {
+              all.push(rdfCanonize.canonize(...params));
+            }
+            return Promise.all(all);
+          },
+          jobs,
+          isBenchmark: benchmarkOptions.enabled
+        })
+      };
+      // 'only' based on test manifest
+      // 'skip' handled via skip()
+      if('only' in test) {
+        _aj_test.only = test.only;
+      }
+      tests.push(_aj_test);
+    });
+  }
+
+  // async js using webcrypto
+  if(doWebCrypto) {
+    jobTests.forEach(jobs => {
+      const _aj_test = {
+        title: description + ` (asynchronous, js, webcrypto, jobs=${jobs})`,
+        f: makeFn({
+          test,
+          adjustParams: params => {
+            params[1].createMessageDigest =
+              () => new WebCryptoMessageDigest('sha256');
+            return params;
+          },
           run: ({/*test, testInfo,*/ params}) => {
             // skip Promise.all
             if(jobs === 1 && fast1) {
@@ -405,7 +438,7 @@ async function addTest(manifest, test, tests) {
     testOptions.algorithm === 'URDNA2015') {
     jobTests.forEach(jobs => {
       const _an_test = {
-        title: description + ` (asynchronous native x ${jobs})`,
+        title: description + ` (asynchronous, native, jobs=${jobs})`,
         f: makeFn({
           test,
           adjustParams: params => {
@@ -440,7 +473,7 @@ async function addTest(manifest, test, tests) {
   if(doSync) {
     jobTests.forEach(jobs => {
       const _sj_test = {
-        title: description + ` (synchronous js x ${jobs})`,
+        title: description + ` (synchronous, js, jobs=${jobs})`,
         f: makeFn({
           test,
           run: ({/*test, testInfo,*/ params}) => {
@@ -473,7 +506,7 @@ async function addTest(manifest, test, tests) {
     testOptions.algorithm === 'URDNA2015') {
     jobTests.forEach(jobs => {
       const _sn_test = {
-        title: description + ` (synchronous native x ${jobs})`,
+        title: description + ` (synchronous, native, jobs=${jobs})`,
         f: makeFn({
           test,
           adjustParams: params => {

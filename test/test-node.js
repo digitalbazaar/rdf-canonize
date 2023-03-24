@@ -68,10 +68,13 @@ const testEnvDefaults = {
 };
 
 const env = {
+  ASYNC: process.env.ASYNC,
   BAIL: process.env.BAIL,
   BENCHMARK: process.env.BENCHMARK,
+  SYNC: process.env.SYNC,
   TEST_ENV: process.env.TEST_ENV,
-  VERBOSE_SKIP: process.env.VERBOSE_SKIP
+  VERBOSE_SKIP: process.env.VERBOSE_SKIP,
+  WEBCRYPTO: process.env.WEBCRYPTO
 };
 
 const options = {
