@@ -408,8 +408,9 @@ async function addTest(manifest, test, tests) {
         title: description + ` (asynchronous native x ${jobs})`,
         f: makeFn({
           test,
-          adjustParams: ({params}) => {
+          adjustParams: params => {
             params[1].useNative = true;
+            return params;
           },
           run: ({/*test, testInfo,*/ params}) => {
             // skip Promise.all
@@ -475,8 +476,9 @@ async function addTest(manifest, test, tests) {
         title: description + ` (synchronous native x ${jobs})`,
         f: makeFn({
           test,
-          adjustParams: ({params}) => {
+          adjustParams: params => {
             params[1].useNative = true;
+            return params;
           },
           run: async ({/*test, testInfo,*/ params}) => {
             // skip Promise.all
@@ -639,15 +641,19 @@ function makeFn({
 
       let benchmarkResult = null;
       if(benchmarkOptions.enabled) {
+        const bparams = adjustParams(testInfo.params.map(param => param(test, {
+          // pre-load params to avoid doc loader and parser timing
+          load: true
+        })));
+        // resolve test data
+        const bvalues = await Promise.all(bparams);
+
         const result = await runBenchmark({
           test,
           testInfo,
           jobs,
           run,
-          params: testInfo.params.map(param => param(test, {
-            // pre-load params to avoid doc loader and parser timing
-            load: true
-          })),
+          params: bvalues,
           mochaTest: self
         });
         benchmarkResult = {
@@ -693,15 +699,13 @@ function makeFn({
 }
 
 async function runBenchmark({test, testInfo, jobs, params, run, mochaTest}) {
-  const values = await Promise.all(params);
-
   return new Promise((resolve, reject) => {
     const suite = new benchmark.Suite();
     suite.add({
       name: test.name,
       defer: true,
       fn: deferred => {
-        run({test, testInfo, params: values}).then(() => {
+        run({test, testInfo, params}).then(() => {
           deferred.resolve();
         });
       }
