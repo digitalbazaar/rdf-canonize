@@ -6,23 +6,24 @@
 - Test with karma.
 
 ### Changed
+- **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
+  if your environment doesn't support `globalThis`.
+- Update tooling.
 - Update for latest [rdf-canon][] changes: test suite location, README, links,
   and identifiers.
 - More closly align test code with the version in [jsonld.js][].
   - Use combined test/benchmark system.
-  - Update with special x10 benchmarks.
-- Update tooling.
+  - Support running multiple test jobs in parallel.
 - Refactor `MessageDigest-browser.js` to `MessageDigest-webcrypto.js` so it can
   also be optionally used with Node.js.
 - Move platform specific support into `platform.js` and `platform-browser.js`.
-- **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
-  if your environment doesn't support `globalThis`.
 
 ### Fixed
-- Disable native lib use when testing in a browser.
+- Disable native lib tests in a browser.
 - Disable sync tests in a browser. The sync code attempts to use the async
   webcrypto calls and produces invalid results. It is an error that this
   doesn't fail, but sync code is currently only for testing.
+- Fix various testing and benchmark bugs.
 
 ### Removed
 - **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
