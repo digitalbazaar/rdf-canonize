@@ -18,13 +18,6 @@ const common = require('./test.js');
 const server = require('karma-server-side');
 const join = require('join-path-js');
 
-// special benchmark setup
-const _ = require('lodash');
-//const _process = require('process');
-//const Benchmark = benchmark.runInContext({_, _process});
-const Benchmark = benchmark.runInContext({_});
-window.Benchmark = Benchmark;
-
 const entries = [];
 
 if(process.env.TESTS) {
