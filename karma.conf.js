@@ -61,13 +61,16 @@ module.exports = function(config) {
       devtool: 'inline-source-map',
       plugins: [
         new webpack.DefinePlugin({
+          'process.env.ASYNC': JSON.stringify(process.env.ASYNC),
           'process.env.BAIL': JSON.stringify(process.env.BAIL),
           'process.env.BENCHMARK': JSON.stringify(process.env.BENCHMARK),
           'process.env.EARL': JSON.stringify(process.env.EARL),
+          'process.env.SYNC': JSON.stringify(process.env.SYNC),
           'process.env.TESTS': JSON.stringify(process.env.TESTS),
           'process.env.TEST_ENV': JSON.stringify(process.env.TEST_ENV),
           'process.env.TEST_ROOT_DIR': JSON.stringify(__dirname),
           'process.env.VERBOSE_SKIP': JSON.stringify(process.env.VERBOSE_SKIP),
+          'process.env.WEBCRYPTO': JSON.stringify(process.env.WEBCRYPTO),
           // for 'auto' test env
           'process.env._TEST_ENV_ARCH': JSON.stringify(process.arch),
           'process.env._TEST_ENV_CPU': JSON.stringify(os.cpus()[0].model),
@@ -90,13 +93,16 @@ module.exports = function(config) {
       transform: [
         [
           'envify', {
+            ASYNC: process.env.ASYNC,
             BAIL: process.env.BAIL,
             BENCHMARK: process.env.BENCHMARK,
             EARL: process.env.EARL,
+            SYNC: process.env.SYNC,
             TESTS: process.env.TESTS,
             TEST_ENV: process.env.TEST_ENV,
             TEST_ROOT_DIR: __dirname,
             VERBOSE_SKIP: process.env.VERBOSE_SKIP,
+            WEBCRYPTO: process.env.WEBCRYPTO,
             // for 'auto' test env
             _TEST_ENV_ARCH: process.arch,
             _TEST_ENV_CPU: os.cpus()[0].model,
