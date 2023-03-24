@@ -125,6 +125,12 @@ if(options.env.BENCHMARK) {
   }
 }
 
+// Only support one job size for EARL output to simplify reporting and avoid
+// multi-variable issues. Can compare multiple runs with different job sizes.
+if(options.earl.filename && benchmarkOptions.jobs.length > 1) {
+  throw new Error('Only one job size allowed when outputting EARL.');
+}
+
 const manifest = options.manifest || {
   '@context': {
     xsd: 'http://www.w3.org/2001/XMLSchema#',
