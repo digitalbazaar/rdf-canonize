@@ -47,7 +47,6 @@ const _benchmarkContext = {
   // per BenchmarkResult
   'jldb:environment': {'@type': '@id'},
   'jldb:hz': {'@type': 'xsd:float'},
-  'jldb:jobs': {'@type': 'xsd:integer'},
   'jldb:rme': {'@type': 'xsd:float'}
 };
 /* eslint-enable quote-props */
