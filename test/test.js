@@ -485,7 +485,7 @@ async function addTest(manifest, test, tests) {
           run: ({/*test, testInfo,*/ params}) => {
             // skip Promise.all
             if(jobs === 1 && fast1) {
-              return rdfCanonize.canonize(...params);
+              return rdfCanonize._canonizeSync(...params);
             }
             const all = [];
             for(let j = 0; j < jobs; j++) {
