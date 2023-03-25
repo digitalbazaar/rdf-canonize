@@ -17,6 +17,10 @@
 - Refactor `MessageDigest-browser.js` to `MessageDigest-webcrypto.js` so it can
   also be optionally used with Node.js.
 - Move platform specific support into `platform.js` and `platform-browser.js`.
+- Optimize WebCrypto bytes to hex conversion:
+  - Improvement depends on number of digests performed.
+  - Node.js using the improved browser algorithm can be ~4-9% faster overall.
+  - Node.js native `Buffer` conversion can be ~5-12% faster overall.
 
 ### Fixed
 - Disable native lib tests in a browser.
