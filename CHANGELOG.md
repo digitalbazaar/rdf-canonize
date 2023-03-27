@@ -21,6 +21,7 @@
   - Improvement depends on number of digests performed.
   - Node.js using the improved browser algorithm can be ~4-9% faster overall.
   - Node.js native `Buffer` conversion can be ~5-12% faster overall.
+- Optimize a N-Quads serialization call.
 
 ### Fixed
 - Disable native lib tests in a browser.
