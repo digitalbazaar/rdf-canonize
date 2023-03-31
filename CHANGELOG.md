@@ -22,6 +22,10 @@
   - Node.js using the improved browser algorithm can be ~4-9% faster overall.
   - Node.js native `Buffer` conversion can be ~5-12% faster overall.
 - Optimize a N-Quads serialization call.
+- Optimize N-Quads escape/unescape:
+  - Run regex test before doing a replace call.
+  - Performance difference depends on data and how often escape/unescape would
+    need to be called. A benchmark test data showed ~3-5% overall improvement.
 
 ### Fixed
 - Disable native lib tests in a browser.
