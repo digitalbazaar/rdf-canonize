@@ -22,6 +22,11 @@
   - Node.js using the improved browser algorithm can be ~4-9% faster overall.
   - Node.js native `Buffer` conversion can be ~5-12% faster overall.
 - Optimize a N-Quads serialization call.
+- Optimize the `IdentifierIssuer` `existing` `Map`:
+  - Change clones from always-copy to copy-on-write.
+  - Depending on shape of data, this can reduce `Map` copies by ~90%. However,
+    in some data patterns, these will have very few entries, so overall
+    performance may not be noticeably effected.
 
 ### Fixed
 - Disable native lib tests in a browser.
