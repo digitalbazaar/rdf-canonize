@@ -36,19 +36,18 @@
   for many years.
 - **BREAKING**: Remove support for Node.js 12.x and 14.x. This is done to allow
   updates to tooling that no longer support older Node.js versions. The library
-  code has not yet changed to be incompatibile with older Node.js versions but
-  it will no longer be tested and may become incompatibile at any time.
+  code has not yet changed to be incompatible with older Node.js versions but
+  it will no longer be tested and may become incompatible at any time.
 - Remove `benchmark/benchmark.js` tool in favor of combined test system and
   benchmarking control via environment vars.
 
 ## 3.3.0 - 2022-09-17
 
 ### Added
-- Add optional `createMessageDigest` factory function for generating an
-  a `MessageDigest` interface. This allows different hash implementations or
-  even different hash algorithms, including HMACs to be used with URDNA2015.
-  Note that using a different hash algorithm from SHA-256 will change the
-  output.
+- Add optional `createMessageDigest` factory function for generating a
+  `MessageDigest` interface. This allows different hash implementations or even
+  different hash algorithms, including HMACs to be used with URDNA2015.  Note
+  that using a different hash algorithm from SHA-256 will change the output.
 
 ## 3.2.1 - 2022-09-02
 
