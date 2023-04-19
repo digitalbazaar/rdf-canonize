@@ -6,6 +6,10 @@
 - Test with karma.
 
 ### Changed
+- **BREAKING**: Use latest [rdf-canon][] N-Quads canonical form. This can
+  change the canonical output! There is an expanded set of control characters
+  that are escaped as an `ECHAR` or `UCHAR` instead of using a native
+  representation.
 - **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
   if your environment doesn't support `globalThis`.
 - Update tooling.
