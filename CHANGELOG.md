@@ -18,6 +18,10 @@
   "URDNA2015" support. A global `RDF_CANONIZE_TRACE_URDNA2015` is available to
   developers to trace calls that use "URDNA2015". See the README for important
   compatibility notes and API details.
+- **BREAKING**: Use latest [rdf-canon][] N-Quads canonical form. This can
+  change the canonical output! There is an expanded set of control characters
+  that are escaped as an `ECHAR` or `UCHAR` instead of using a native
+  representation.
 - **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
   if your environment doesn't support `globalThis`.
 - Update tooling.
