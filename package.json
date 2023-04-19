@@ -51,7 +51,7 @@
     "klona": "^2.0.6",
     "mocha": "^10.2.0",
     "mocha-lcov-reporter": "^1.3.0",
-    "nsolid": "1.0.0",
+    "nsolid": "0.0.0",
     "nyc": "^15.1.0",
     "webpack": "^5.76.3"
   },
