@@ -4,6 +4,7 @@
 
 ### Added
 - Test with karma.
+- Test with Node.js 20.x.
 
 ### Changed
 - **BREAKING**: Use latest [rdf-canon][] N-Quads canonical form. This can
