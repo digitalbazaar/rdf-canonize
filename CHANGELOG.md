@@ -19,9 +19,17 @@
   developers to trace calls that use "URDNA2015". See the README for important
   compatibility notes and API details.
 - **BREAKING**: Use latest [rdf-canon][] N-Quads canonical form. This can
-  change the canonical output! There is an expanded set of control characters
-  that are escaped as an `ECHAR` or `UCHAR` instead of using a native
-  representation.
+  change the canonical output! There is an expanded set of literal string
+  control characters that are escaped as an `ECHAR` or `UCHAR` instead of using
+  a native representation.
+  - Previously: the canonical N-Quads form used here was encoding `\u000A`
+    (`\n`), `\u000D` (`\r`), `\u0022` (`"`), and `\u005C` (`\`) as `ECHARs`:
+    `\n`, `\r`, `\"`, and `\\`, All other characters were represented as native
+    Unicode.
+  - Now: the output also encodes `\u0008` (`\b`), `\u0009` (`\t`), `\u000C`
+    (`\f`) as `ECHARs` `\b`, `\t`, and `\f`, and encodes the "control"
+    characters in the range of `\u0000-\u001F` and `\u007F` as `UCHARs`
+    `\u00xx`. All other characters are represented as native Unicode.
 - **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
   if your environment doesn't support `globalThis`.
 - Update tooling.
