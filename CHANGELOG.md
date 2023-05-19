@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 3.4.0 - 2023-03-xx
+## 3.4.0 - 2023-05-19
 
 ### Added
 - Allow `canonicalIdMap` to be passed to `canonize` which will be populated by
