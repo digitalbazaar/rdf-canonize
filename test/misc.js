@@ -6,7 +6,7 @@
 const rdfCanonize = require('..');
 const assert = require('assert');
 
-describe.only('API tests', () => {
+describe('API tests', () => {
   it('should reject invalid inputFormat', async () => {
     let error;
     try {
