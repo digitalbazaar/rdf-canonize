@@ -159,7 +159,6 @@ const TEST_TYPES = {
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
         algorithm: 'URDNA2015',
-        inputFormat: 'application/n-quads',
         format: 'application/n-quads'
       })
     ],
