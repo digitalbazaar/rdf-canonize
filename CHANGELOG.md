@@ -45,7 +45,7 @@
 - Remove `benchmark/benchmark.js` tool in favor of combined test system and
   benchmarking control via environment vars.
 
-## 3.4.0 - 2023-03-xx
+## 3.4.0 - 2023-05-19
 
 ### Added
 - Allow `canonicalIdMap` to be passed to `canonize` which will be populated by
