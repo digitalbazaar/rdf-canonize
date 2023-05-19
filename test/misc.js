@@ -49,7 +49,7 @@ describe.only('API tests', () => {
     assert(error);
   });
 
-  it('should return maps', async () => {
+  it('should set canonicalIdMap data', async () => {
     const input = `\
 _:b0 <urn:p0> _:b1 .
 _:b1 <urn:p1> "v1" .
