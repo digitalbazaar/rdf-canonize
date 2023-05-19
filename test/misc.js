@@ -59,8 +59,8 @@ _:c14n0 <urn:p0> _:c14n1 .
 _:c14n1 <urn:p1> "v1" .
 `;
     const expectIdMap = new Map(Object.entries({
-      "_:b0": "_:c14n0",
-      "_:b1": "_:c14n1"
+      '_:b0': '_:c14n0',
+      '_:b1': '_:c14n1'
     }));
 
     const canonicalIdMap = new Map();
