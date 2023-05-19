@@ -8,9 +8,6 @@
   by the canonicalization algorithm. This feature is particularly useful when
   the resulting bnode labels need to be changed for use cases such as selective
   disclosure.
-- Add `inputFormat` option. Use "application/n-quads" for a N-Quads string that
-  will be parsed. Omit option for a JSON dataset or legacy dataset. This can
-  simplify a common case of using the internal parser to generate a dataset.
 
 ### Changed
 - Update for latest [rdf-canon][] changes: test suite location, README, links,
