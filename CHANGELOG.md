@@ -35,7 +35,7 @@
 - Update tooling.
 - Update for latest [rdf-canon][] changes: test suite location, README, links,
   and identifiers.
-- More closly align test code with the version in [jsonld.js][].
+- More closely align test code with the version in [jsonld.js][].
   - Use combined test/benchmark system.
   - Support running multiple test jobs in parallel.
 - Refactor `MessageDigest-browser.js` to `MessageDigest-webcrypto.js` so it can
@@ -62,7 +62,7 @@
   doesn't fail, but sync code is currently only for testing.
 - Fix various testing and benchmark bugs.
 - Escape and unescape all data.
-- Support 8 hex char unicode values.
+- Support 8 hex char Unicode values.
 
 ### Removed
 - **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
@@ -198,7 +198,7 @@
 ### Changed
 - Improve N-Quads parsing.
   - Unescape literals.
-  - Handle unicode escapes.
+  - Handle Unicode escapes.
 - N-Quad serialization optimization.
   - Varies based on input by roughly ~1-2x.
 - **BREAKING**: Remove `rdf-canonize-native` as a dependency. The native
