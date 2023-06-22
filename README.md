@@ -60,12 +60,12 @@ const dataset = {
 };
 
 // canonize a data set with a particular algorithm with async/await
-const canonical = await canonize.canonize(dataset, {algorithm: 'URDNA2015'});
+const canonical = await canonize.canonize(dataset, {algorithm: 'RDFC-1.0'});
 
 // canonize a data set with a particular algorithm and force use of the
 // native implementation
 const canonical = await canonize.canonize(dataset, {
-  algorithm: 'URDNA2015',
+  algorithm: 'RDFC-1.0',
   useNative: true
 });
 ```

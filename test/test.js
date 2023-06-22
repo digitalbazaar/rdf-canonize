@@ -154,11 +154,11 @@ const manifest = options.manifest || {
 };
 
 const TEST_TYPES = {
-  'rdfc:Urdna2015EvalTest': {
+  'rdfc:RDFC10EvalTest': {
     params: [
       parseNQuads(readTestNQuads('action')),
       createTestOptions({
-        algorithm: 'URDNA2015',
+        algorithm: 'RDFC-1.0',
         format: 'application/n-quads'
       })
     ],
@@ -423,7 +423,7 @@ async function addTest(manifest, test, tests) {
 
   // async native
   if(doAsync && options.rdfCanonizeNative &&
-    testOptions.algorithm === 'URDNA2015') {
+    testOptions.algorithm === 'RDFC-1.0') {
     jobTests.forEach(jobs => {
       const _an_test = {
         title: description + ` (asynchronous, native, jobs=${jobs})`,
@@ -491,7 +491,7 @@ async function addTest(manifest, test, tests) {
 
   // sync native
   if(doSync && options.rdfCanonizeNative &&
-    testOptions.algorithm === 'URDNA2015') {
+    testOptions.algorithm === 'RDFC-1.0') {
     jobTests.forEach(jobs => {
       const _sn_test = {
         title: description + ` (synchronous, native, jobs=${jobs})`,
@@ -647,7 +647,8 @@ function makeFn({
         }
       } else if(isJsonLdType(test, 'XXX:PositiveEvaluationTest') ||
         isJsonLdType(test, 'rdfc:Urgna2012EvalTest') ||
-        isJsonLdType(test, 'rdfc:Urdna2015EvalTest')) {
+        isJsonLdType(test, 'rdfc:Urdna2015EvalTest') ||
+        isJsonLdType(test, 'rdfc:RDFC10EvalTest')) {
         if(err) {
           throw err;
         }
