@@ -75,7 +75,7 @@ const KEYS = ['subject', 'predicate', 'object', 'graph'];
     //const count = 1000000; // ~30 secs
     for(let i = 0; i < count; ++i) {
       /*const result = */await canonize(quads, {
-        algorithm: 'URDNA2015',
+        algorithm: 'RDFC-1.0',
         usePureJavaScript: true
       });
       //console.log(result);
