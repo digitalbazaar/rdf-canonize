@@ -42,7 +42,7 @@ if(process.env.TESTS) {
   })());
 
   // other tests
-  //entries.push(join(_top, 'tests/misc.js'));
+  entries.push(join(_top, 'tests/misc.js'));
 }
 
 // test environment defaults
