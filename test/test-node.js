@@ -51,7 +51,7 @@ if(process.env.TESTS) {
   }
 
   // other tests
-  //entries.push(path.resolve(_top, 'test/misc.js'));
+  entries.push(path.resolve(_top, 'test/misc.js'));
 }
 
 // test environment defaults
