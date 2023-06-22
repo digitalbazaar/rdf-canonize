@@ -5,6 +5,11 @@
 ### Added
 - Test with karma.
 - Test with Node.js 20.x.
+- Add `inputFormat` option. Use "application/n-quads" for a N-Quads string that
+  will be parsed. Omit option for a JSON dataset or legacy dataset. This can
+  simplify a common case of using the internal parser to generate a dataset.
+  - **NOTE**: The `inputFormat` option was previously ignored and is now used.
+    Any calling code that was passing in an incorrect value needs to be fixed.
 
 ### Changed
 - **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
@@ -54,9 +59,6 @@
   by the canonicalization algorithm. This feature is particularly useful when
   the resulting bnode labels need to be changed for use cases such as selective
   disclosure.
-- Add `inputFormat` option. Use "application/n-quads" for a N-Quads string that
-  will be parsed. Omit option for a JSON dataset or legacy dataset. This can
-  simplify a common case of using the internal parser to generate a dataset.
 
 ## 3.3.0 - 2022-09-17
 
