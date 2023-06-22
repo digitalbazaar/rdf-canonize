@@ -6,9 +6,49 @@
 const rdfCanonize = require('..');
 const assert = require('assert');
 
-const {NQuads} = rdfCanonize;
-
 describe('API tests', () => {
+  it('should reject invalid inputFormat', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize('', {
+        algorithm: 'URDNA2015',
+        inputFormat: 'application/bogus',
+        format: 'application/n-quads'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
+  });
+
+  it('should fail to parse empty dataset as N-Quads', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize([], {
+        algorithm: 'URDNA2015',
+        inputFormat: 'application/bogus',
+        format: 'application/n-quads'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
+  });
+
+  it('should fail to parse empty legacy dataset as N-Quads', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize({}, {
+        algorithm: 'URDNA2015',
+        inputFormat: 'application/bogus',
+        format: 'application/n-quads'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
+  });
+
   it('should set canonicalIdMap data', async () => {
     const input = `\
 _:b0 <urn:p0> _:b1 .
@@ -24,9 +64,9 @@ _:c14n1 <urn:p1> "v1" .
     }));
 
     const canonicalIdMap = new Map();
-    const dataset = NQuads.parse(input);
-    const output = await rdfCanonize.canonize(dataset, {
+    const output = await rdfCanonize.canonize(input, {
       algorithm: 'URDNA2015',
+      inputFormat: 'application/n-quads',
       format: 'application/n-quads',
       canonicalIdMap
     });
