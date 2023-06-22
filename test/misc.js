@@ -11,7 +11,7 @@ describe('API tests', () => {
     let error;
     try {
       await rdfCanonize.canonize('', {
-        algorithm: 'URDNA2015',
+        algorithm: 'RDFC-1.0',
         inputFormat: 'application/bogus',
         format: 'application/n-quads'
       });
@@ -25,7 +25,7 @@ describe('API tests', () => {
     let error;
     try {
       await rdfCanonize.canonize([], {
-        algorithm: 'URDNA2015',
+        algorithm: 'RDFC-1.0',
         inputFormat: 'application/bogus',
         format: 'application/n-quads'
       });
@@ -39,7 +39,7 @@ describe('API tests', () => {
     let error;
     try {
       await rdfCanonize.canonize({}, {
-        algorithm: 'URDNA2015',
+        algorithm: 'RDFC-1.0',
         inputFormat: 'application/bogus',
         format: 'application/n-quads'
       });
@@ -65,12 +65,19 @@ _:c14n1 <urn:p1> "v1" .
 
     const canonicalIdMap = new Map();
     const output = await rdfCanonize.canonize(input, {
-      algorithm: 'URDNA2015',
+      algorithm: 'RDFC-1.0',
       inputFormat: 'application/n-quads',
       format: 'application/n-quads',
       canonicalIdMap
     });
     assert.deepStrictEqual(output, expected);
     assert.deepStrictEqual(canonicalIdMap, expectIdMap);
+  });
+
+  it('should warn when using URDNA2015', async () => {
+    await rdfCanonize.canonize({}, {
+      algorithm: 'URDNA2015',
+      format: 'application/n-quads'
+    });
   });
 });
