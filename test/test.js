@@ -267,9 +267,9 @@ function _testsToMocha(tests) {
 /**
  * Adds the tests for all entries in the given manifest.
  *
- * @param manifest {Object} the manifest.
- * @param parent {Object} the parent test structure
- * @return {Promise}
+ * @param {object} manifest - The manifest.
+ * @param {object} parent - The parent test structure.
+ * @returns {Promise} - A promise with no value.
  */
 async function addManifest(manifest, parent) {
   // create test structure
@@ -324,10 +324,10 @@ async function addManifest(manifest, parent) {
 /**
  * Adds a test.
  *
- * @param manifest {Object} the manifest.
- * @param test {Object} the test.
- * @param tests {Array} the list of tests to add to.
- * @return {Promise}
+ * @param {object} manifest - The manifest.
+ * @param {object} test - The test.
+ * @param {Array} tests - The list of tests to add to.
+ * @returns {Promise} - A promise with no value.
  */
 async function addTest(manifest, test, tests) {
   // expand @id and input base
