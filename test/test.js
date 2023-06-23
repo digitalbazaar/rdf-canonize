@@ -211,8 +211,6 @@ if(options.earl && options.earl.filename) {
   }
 }
 
-return new Promise(resolve => {
-
 // async generated tests
 // _tests => [{suite}, ...]
 // suite => {
@@ -222,21 +220,20 @@ return new Promise(resolve => {
 // }
 const _tests = [];
 
-return addManifest(manifest, _tests)
-  .then(() => {
-    return _testsToMocha(_tests);
-  }).then(result => {
-    if(options.earl.report) {
-      describe('Writing EARL report to: ' + options.earl.filename, function() {
-        // print out EARL even if .only was used
-        const _it = result.hadOnly ? it.only : it;
-        _it('should print the earl report', function() {
-          return options.writeFile(
-            options.earl.filename, options.earl.report.reportJson());
-        });
-      });
-    }
-  }).then(() => resolve());
+await addManifest(manifest, _tests);
+const result = _testsToMocha(_tests);
+if(options.earl.report) {
+  describe('Writing EARL report to: ' + options.earl.filename, function() {
+    // print out EARL even if .only was used
+    const _it = result.hadOnly ? it.only : it;
+    _it('should print the earl report', function() {
+      return options.writeFile(
+        options.earl.filename, options.earl.report.reportJson());
+    });
+  });
+}
+
+return;
 
 // build mocha tests from local test structure
 function _testsToMocha(tests) {
@@ -267,8 +264,6 @@ function _testsToMocha(tests) {
   };
 }
 
-});
-
 /**
  * Adds the tests for all entries in the given manifest.
  *
@@ -276,71 +271,54 @@ function _testsToMocha(tests) {
  * @param parent {Object} the parent test structure
  * @return {Promise}
  */
-function addManifest(manifest, parent) {
-  return new Promise((resolve, reject) => {
-    // create test structure
-    const suite = {
-      title: manifest.name || manifest.label,
-      tests: [],
-      suites: [],
-      imports: []
-    };
-    parent.push(suite);
+async function addManifest(manifest, parent) {
+  // create test structure
+  const suite = {
+    title: manifest.name || manifest.label,
+    tests: [],
+    suites: [],
+    imports: []
+  };
+  parent.push(suite);
 
-    // get entries and sequence (alias for entries)
-    const entries = [].concat(
-      getJsonLdValues(manifest, 'entries'),
-      getJsonLdValues(manifest, 'sequence')
-    );
+  // get entries and sequence (alias for entries)
+  const entries = [].concat(
+    getJsonLdValues(manifest, 'entries'),
+    getJsonLdValues(manifest, 'sequence')
+  );
 
-    const includes = getJsonLdValues(manifest, 'include');
-    // add includes to sequence as jsonld files
-    for(let i = 0; i < includes.length; ++i) {
-      entries.push(includes[i] + '.jsonld');
+  const includes = getJsonLdValues(manifest, 'include');
+  // add includes to sequence as jsonld files
+  for(let i = 0; i < includes.length; ++i) {
+    entries.push(includes[i] + '.jsonld');
+  }
+
+  // resolve all entry promises and process
+  for await (const entry of await Promise.all(entries)) {
+    if(typeof entry === 'string' && entry.endsWith('js')) {
+      // process later as a plain JavaScript file
+      suite.imports.push(entry);
+      continue;
+    } else if(typeof entry === 'function') {
+      // process as a function that returns a promise
+      const childSuite = await entry(options);
+      if(suite) {
+        suite.suites.push(childSuite);
+      }
+      continue;
     }
-
-    // resolve all entry promises and process
-    Promise.all(entries).then(entries => {
-      let p = Promise.resolve();
-      entries.forEach(entry => {
-        if(typeof entry === 'string' && entry.endsWith('js')) {
-          // process later as a plain JavaScript file
-          suite.imports.push(entry);
-          return;
-        } else if(typeof entry === 'function') {
-          // process as a function that returns a promise
-          p = p.then(() => {
-            return entry(options);
-          }).then(childSuite => {
-            if(suite) {
-              suite.suites.push(childSuite);
-            }
-          });
-          return;
-        }
-        p = p.then(() => {
-          return readManifestEntry(manifest, entry);
-        }).then(entry => {
-          if(isJsonLdType(entry, '__SKIP__')) {
-            // special local skip logic
-            suite.tests.push(entry);
-          } else if(isJsonLdType(entry, 'mf:Manifest')) {
-            // entry is another manifest
-            return addManifest(entry, suite.suites);
-          } else {
-            // assume entry is a test
-            return addTest(manifest, entry, suite.tests);
-          }
-        });
-      });
-      return p;
-    }).then(() => {
-      resolve();
-    }).catch(err => {
-      console.error(err);
-      reject(err);
-    });
-  });
+    const manifestEntry = await readManifestEntry(manifest, entry);
+    if(isJsonLdType(manifestEntry, '__SKIP__')) {
+      // special local skip logic
+      suite.tests.push(manifestEntry);
+    } else if(isJsonLdType(manifestEntry, 'mf:Manifest')) {
+      // entry is another manifest
+      await addManifest(manifestEntry, suite.suites);
+    } else {
+      // assume entry is a test
+      await addTest(manifest, manifestEntry, suite.tests);
+    }
+  }
 }
 
 /**
