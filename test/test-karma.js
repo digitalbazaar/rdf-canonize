@@ -109,4 +109,7 @@ common(options).then(() => {
   run();
 }).catch(err => {
   console.error(err);
+  server.run(function() {
+    process.exit(1);
+  });
 });

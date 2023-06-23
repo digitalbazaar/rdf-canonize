@@ -105,6 +105,7 @@ common(options).then(() => {
   run();
 }).catch(err => {
   console.error(err);
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, p) => {
