@@ -341,7 +341,12 @@ async function addTest(manifest, test, tests) {
   const description = test_id + ' ' + (test.purpose || test.name);
 
   // build test options for omit checks
-  const testInfo = TEST_TYPES[getJsonLdTestType(test)];
+  const testType = getJsonLdTestType(test);
+  const testInfo = TEST_TYPES[testType];
+  if(!testInfo) {
+    const types = getJsonLdType(test);
+    throw new Error(`Unknown test type: "${JSON.stringify(types)}"`);
+  }
   const params = testInfo.params.map(param => param(test));
   const testOptions = params[1];
 
@@ -853,10 +858,7 @@ async function compareExpectedNQuads(test, result) {
 }
 
 function isJsonLdType(node, type) {
-  const nodeType = [].concat(
-    getJsonLdValues(node, '@type'),
-    getJsonLdValues(node, 'type')
-  );
+  const nodeType = getJsonLdType(node);
   type = Array.isArray(type) ? type : [type];
   for(let i = 0; i < type.length; ++i) {
     if(nodeType.indexOf(type[i]) !== -1) {
@@ -864,6 +866,13 @@ function isJsonLdType(node, type) {
     }
   }
   return false;
+}
+
+function getJsonLdType(node) {
+  return [].concat(
+    getJsonLdValues(node, '@type'),
+    getJsonLdValues(node, 'type')
+  );
 }
 
 function getJsonLdValues(node, property) {
