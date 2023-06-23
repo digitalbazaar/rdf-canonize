@@ -99,9 +99,9 @@ URDNA2015 Migration
   considered an edge case that will not be an issue in practice. See above for
   details.
 * Two tools are currently provided to help transition to "RDFC-1.0":
-  * If the "undocumented" API option `rejectURDNA2015` is truthy, it will cause
-    an error to be thrown if "URDNA2015" is used.
-  * If the global "RDF\_CANONIZE\_TRACE\_URDNA2015" is truthy, it will cause
+  * If the API option `rejectURDNA2015` is truthy, it will cause an error to be
+    thrown if "URDNA2015" is used.
+  * If the global `RDF_CANONIZE_TRACE_URDNA2015` is truthy, it will cause
     `console.trace()` to be called when "URDNA2015" is used. This is designed
     for *development use only* to find where "URDNA2015" is being used. It
     could be *very* verbose.
