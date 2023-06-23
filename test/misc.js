@@ -74,10 +74,24 @@ _:c14n1 <urn:p1> "v1" .
     assert.deepStrictEqual(canonicalIdMap, expectIdMap);
   });
 
-  it('should warn when using URDNA2015', async () => {
+  it('should allow URDNA2015 by default', async () => {
     await rdfCanonize.canonize({}, {
       algorithm: 'URDNA2015',
       format: 'application/n-quads'
     });
+  });
+
+  it('should handle undocumented rejectURDNA2015 option', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize({}, {
+        algorithm: 'URDNA2015',
+        format: 'application/n-quads',
+        rejectURDNA2015: true
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
   });
 });

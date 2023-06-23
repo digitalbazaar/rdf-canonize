@@ -3,12 +3,14 @@
 [![Build status](https://img.shields.io/github/actions/workflow/status/digitalbazaar/rdf-canonize/main.yml)](https://github.com/digitalbazaar/rdf-canonize/actions/workflows/main.yml)
 [![Coverage status](https://img.shields.io/codecov/c/github/digitalbazaar/rdf-canonize)](https://codecov.io/gh/digitalbazaar/rdf-canonize)
 
-An implementation of the [RDF Dataset Canonicalization Algorithm][] in JavaScript.
+An implementation of the [RDF Dataset Canonicalization][] specification in
+JavaScript.
 
 Introduction
 ------------
 
-...
+See the [RDF Dataset Canonicalization][] specification for details on the
+specification and algorithm this library implements.
 
 Installation
 ------------
@@ -70,6 +72,40 @@ const canonical = await canonize.canonize(dataset, {
 });
 ```
 
+Algorithm Support
+-----------------
+
+* "[RDFC-1.0][]": Supported.
+  * Primary algorithm in the [RDF Dataset Canonicalization][] specification.
+* "[URDNA2015][]": Deprecated and supported as an alias for "RDFC-1.0".
+  * Former algorithm name that evolved into "RDFC-1.0".
+  * **NOTE**: There are minor differences in the [canonical N-Quads
+    form](https://w3c.github.io/rdf-canon/spec/#canonical-quads) that *could*
+    cause canonical output differences in some cases. See the 4.0.0 changelog
+    or code for details. If strict "URDNA2015" support is required, use a 3.x
+    version of this library.
+  * See the migration section below if you have code that uses the "URDNA2015"
+    algorithm name.
+* "[URGNA2012][]": No longer supported.
+  * Older algorithm with significant differences from newer algorithms.
+  * Use older versions versions of this library if support is needed.
+
+URDNA2015 Migration
+-------------------
+
+* The deprecated "URDNA2015" algorithm name is currently supported as an alias
+  for "RDFC-1.0".
+* There is a minor difference that could cause compatibilty issues. It is
+  considered an edge case that will not be an issue in practice. See above for
+  details.
+* Two tools are currently provided to help transition to "RDFC-1.0":
+  * If the "undocumented" API option `rejectURDNA2015` is truthy, it will cause
+    an error to be thrown if "URDNA2015" is used.
+  * If the global "RDF\_CANONIZE\_TRACE\_URDNA2015" is truthy, it will cause
+    `console.trace()` to be called when "URDNA2015" is used. This is designed
+    for *development use only* to find where "URDNA2015" is being used. It
+    could be *very* verbose.
+
 Related Modules
 ---------------
 
@@ -127,6 +163,9 @@ Commercial support for this library is available upon request from
 
 [Digital Bazaar]: https://digitalbazaar.com/
 [JSON-LD]: https://json-ld.org/
-[RDF Dataset Canonicalization Algorithm]: https://w3c.github.io/rdf-canon/spec/
+[RDF Dataset Canonicalization]: https://w3c.github.io/rdf-canon/spec/
+[RDFC-1.0]: https://w3c.github.io/rdf-canon/spec/
+[URDNA2015]: https://w3c.github.io/rdf-canon/spec/#urdna2015
+[URGNA2012]: https://w3c.github.io/rdf-canon/spec/#urgna2012
 [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
 [rdf-canonize-native]: https://github.com/digitalbazaar/rdf-canonize-native
