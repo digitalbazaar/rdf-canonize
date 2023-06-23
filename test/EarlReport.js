@@ -1,5 +1,5 @@
 /**
- * EARL Report
+ * EARL Report.
  *
  * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
  */
@@ -52,14 +52,14 @@ const _benchmarkContext = {
 /* eslint-enable quote-props */
 
 /**
- * EARL Reporter
+ * EARL Reporter.
  */
 class EarlReport {
   /**
    * Create an EARL Reporter.
    *
-   * @param options {Object} reporter options
-   *          env: {Object} environment description
+   * @param {object} options - Reporter options.
+   *   {object} env - Environment description.
    */
   constructor(options) {
     let today = new Date();

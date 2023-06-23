@@ -36,6 +36,7 @@
     "envify": "^4.1.0",
     "eslint": "^8.43.0",
     "eslint-config-digitalbazaar": "^5.0.1",
+    "eslint-plugin-jsdoc": "^46.2.6",
     "esmify": "^2.1.1",
     "fs-extra": "^11.1.1",
     "join-path-js": "^0.0.0",

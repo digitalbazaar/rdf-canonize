@@ -6,8 +6,12 @@ module.exports = {
     node: true
   },
   extends: [
-    'digitalbazaar'
+    'digitalbazaar',
+    'digitalbazaar/jsdoc'
   ],
+  rules: {
+    'jsdoc/require-description-complete-sentence': 'off'
+  },
   ignorePatterns: [
     'test-suites'
   ]
