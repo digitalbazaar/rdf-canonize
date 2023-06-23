@@ -12,9 +12,12 @@
     Any calling code that was passing in an incorrect value needs to be fixed.
 
 ### Changed
-- **BREAKING**: Change "URDNA2015" to "RDFC-1.0" to match spec changes. Use of
-  "URDNA2015" as a named algorithm option is now deprecated and will cause a
-  warning.
+- **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
+  spec changes. Use of "URDNA2015" is now deprecated and an alias for
+  "RDFC-1.0". An API option `rejectURDNA2015` is available to disable
+  "URDNA2015" support. A global `RDF_CANONIZE_TRACE_URDNA2015` is available to
+  developers to trace calls that use "URDNA2015". See the README for important
+  compatibility notes and API details.
 - **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
   if your environment doesn't support `globalThis`.
 - Update tooling.
