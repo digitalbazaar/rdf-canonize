@@ -652,7 +652,7 @@ function makeFn({
       } else if(isJsonLdType(test, 'XXX:PositiveSyntaxTest')) {
         // no checks
       } else {
-        throw Error('Unknown test type: ' + test.type);
+        throw new Error('Unknown test type: ' + test.type);
       }
 
       let benchmarkResult = null;
@@ -833,7 +833,7 @@ function _getExpectProperty(test) {
   } else if('result' in test) {
     return 'result';
   } else {
-    throw Error('No expected output property found');
+    throw new Error('No expected output property found');
   }
 }
 
