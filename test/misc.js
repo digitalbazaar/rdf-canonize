@@ -81,7 +81,7 @@ _:c14n1 <urn:p1> "v1" .
     });
   });
 
-  it('should handle undocumented rejectURDNA2015 option', async () => {
+  it('should handle rejectURDNA2015 option', async () => {
     let error;
     try {
       await rdfCanonize.canonize({}, {
