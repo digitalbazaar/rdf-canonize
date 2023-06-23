@@ -26,7 +26,7 @@ module.exports = function(config) {
     preprocessors.push(bundler);
     preprocessors.push('sourcemap');
   } else {
-    throw Error('Unknown bundler');
+    throw new Error('Unknown bundler');
   }
 
   config.set({
