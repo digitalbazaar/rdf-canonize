@@ -88,7 +88,7 @@ Algorithm Support
     algorithm name.
 * "[URGNA2012][]": No longer supported.
   * Older algorithm with significant differences from newer algorithms.
-  * Use older versions versions of this library if support is needed.
+  * Use older versions of this library if support is needed.
 
 URDNA2015 Migration
 -------------------
@@ -110,6 +110,17 @@ Related Modules
 ---------------
 
 * [jsonld.js][]: An implementation of the [JSON-LD][] specification.
+
+### Using with React Native
+
+Using this library with React Native requires the
+[`data-integrity-rn`](https://github.com/digitalcredentials/data-integrity-rn)
+polyfill to be imported before this library:
+
+```js
+import '@digitalcredentials/data-integrity-rn'
+import * as canonize from 'rdf-canonize'
+```
 
 Tests
 -----

@@ -85,6 +85,11 @@
     "./lib/platform.js": "./lib/platform-browser.js",
     "rdf-canonize-native": false
   },
+  "react-native": {
+    "./lib/MessageDigest.js": "./lib/MessageDigest-webcrypto.js",
+    "./lib/platform.js": "./lib/platform-browser.js",
+    "rdf-canonize-native": false
+  },
   "nyc": {
     "reporter": [
       "lcov",

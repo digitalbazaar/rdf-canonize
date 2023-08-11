@@ -10,6 +10,8 @@
   simplify a common case of using the internal parser to generate a dataset.
   - **NOTE**: The `inputFormat` option was previously ignored and is now used.
     Any calling code that was passing in an incorrect value needs to be fixed.
+- Add `"react-native"` section to `package.json` (same as `"browser"`), and
+  instructions for how to use this library with React Native.
 
 ### Changed
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
