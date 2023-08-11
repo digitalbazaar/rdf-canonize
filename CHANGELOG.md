@@ -22,6 +22,8 @@
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsy, or
   "application/n-quads".
 - Add EARL Turtle test result mode.
+- Add `"react-native"` section to `package.json` (same as `"browser"`), and
+  instructions for how to use this library with React Native.
 
 ### Changed
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
