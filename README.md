@@ -187,7 +187,7 @@ import * as canonize from 'rdf-canonize'
 The polyfill needs to provide the following globals:
 
 * `crypto.subtle`
-* `TextEncoder` and `TextDecoder`
+* `TextEncoder`
 
 Tests
 -----
