@@ -72,6 +72,22 @@ const canonical = await canonize.canonize(dataset, {
 });
 ```
 
+### Using with React Native
+
+Using this library with React Native requires a polyfill such as
+[`data-integrity-rn`](https://github.com/digitalcredentials/data-integrity-rn)
+to be imported before this library:
+
+```js
+import '@digitalcredentials/data-integrity-rn'
+import * as canonize from 'rdf-canonize'
+```
+
+The polyfill needs to provide the following globals:
+
+* `crypto.subtle`
+* `TextEncoder`
+
 Algorithm Support
 -----------------
 
@@ -110,22 +126,6 @@ Related Modules
 ---------------
 
 * [jsonld.js][]: An implementation of the [JSON-LD][] specification.
-
-### Using with React Native
-
-Using this library with React Native requires a polyfill such as
-[`data-integrity-rn`](https://github.com/digitalcredentials/data-integrity-rn)
-to be imported before this library:
-
-```js
-import '@digitalcredentials/data-integrity-rn'
-import * as canonize from 'rdf-canonize'
-```
-
-The polyfill needs to provide the following globals:
-
-* `crypto.subtle`
-* `TextEncoder`
 
 Tests
 -----
