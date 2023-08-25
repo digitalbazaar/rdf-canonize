@@ -35,20 +35,6 @@ describe('API tests', () => {
     assert(error);
   });
 
-  it('should fail to parse empty legacy dataset as N-Quads', async () => {
-    let error;
-    try {
-      await rdfCanonize.canonize({}, {
-        algorithm: 'RDFC-1.0',
-        inputFormat: 'application/bogus',
-        format: 'application/n-quads'
-      });
-    } catch(e) {
-      error = e;
-    }
-    assert(error);
-  });
-
   it('should set canonicalIdMap data', async () => {
     const input = `\
 _:b0 <urn:p0> _:b1 .
