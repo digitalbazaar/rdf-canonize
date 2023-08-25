@@ -6,8 +6,8 @@
 - Test with karma.
 - Test with Node.js 20.x.
 - Add `inputFormat` option. Use "application/n-quads" for a N-Quads string that
-  will be parsed. Omit option for a JSON dataset or legacy dataset. This can
-  simplify a common case of using the internal parser to generate a dataset.
+  will be parsed. Omit option for a JSON dataset. This can simplify a common
+  case of using the internal parser to generate a dataset.
   - **NOTE**: The `inputFormat` option was previously ignored and is now used.
     Any calling code that was passing in an incorrect value needs to be fixed.
 
@@ -72,6 +72,7 @@
   updates to tooling that no longer support older Node.js versions. The library
   code has not yet changed to be incompatible with older Node.js versions but
   it will no longer be tested and may become incompatible at any time.
+- **BREAKING**: Remove deprecated support for legacy dataset format.
 - Remove `benchmark/benchmark.js` tool in favor of combined test system and
   benchmarking control via environment vars.
 
