@@ -163,6 +163,37 @@ const TEST_TYPES = {
       })
     ],
     compare: compareExpectedNQuads
+  },
+  'rdfc:RDFC10NegativeEvalTest': {
+    params: [
+      parseNQuads(readTestNQuads('action')),
+      createTestOptions({
+        algorithm: 'RDFC-1.0',
+        format: 'application/n-quads'
+      })
+    ]
+  },
+  'rdfc:RDFC10MapTest': {
+    params: [
+      parseNQuads(readTestNQuads('action')),
+      createTestOptions({
+        algorithm: 'RDFC-1.0',
+        format: 'application/n-quads'
+      })
+    ],
+    preRunAdjustParams: ({params, extra}) => {
+      // add canonicalIdMap
+      const m = new Map();
+      extra.canonicalIdMap = m;
+      params[1].canonicalIdMap = m;
+      return params;
+    },
+    postRunAdjustParams: ({params}) => {
+      // restore output param to empty map
+      const m = new Map();
+      params[1].canonicalIdMap = m;
+    },
+    compare: compareExpectedCanonicalIdMap
   }
 };
 
@@ -623,7 +654,14 @@ function makeFn({
       });
     }
 
-    const params = adjustParams(testInfo.params.map(param => param(test)));
+    let params = testInfo.params.map(param => param(test));
+    const extra = {};
+    // type specific pre run adjustments
+    if(testInfo.preRunAdjustParams) {
+      params = testInfo.preRunAdjustParams({params, extra});
+    }
+    // general adjustments
+    params = adjustParams(params);
     // resolve test data
     const values = await Promise.all(params);
     // copy used to check inputs do not change
@@ -633,6 +671,10 @@ function makeFn({
     // run and capture errors and results
     try {
       result = await run({test, testInfo, params: values});
+      // type specific post run adjustments
+      if(testInfo.postRunAdjustParams) {
+        testInfo.postRunAdjustParams({params: values, extra});
+      }
       // check input not changed
       assert.deepStrictEqual(valuesOrig, values);
     } catch(e) {
@@ -640,25 +682,22 @@ function makeFn({
     }
 
     try {
-      if(isJsonLdType(test, 'XXX:NegativeEvaluationTest')) {
+      if(isJsonLdType(test, 'rdfc:RDFC10NegativeEvalTest')) {
         if(!isBenchmark) {
-          // FIXME add if needed
-          //await compareExpectedError(test, err);
+          await compareExpectedError(test, err);
         }
-      } else if(isJsonLdType(test, 'XXX:PositiveEvaluationTest') ||
-        isJsonLdType(test, 'rdfc:Urgna2012EvalTest') ||
-        isJsonLdType(test, 'rdfc:Urdna2015EvalTest') ||
-        isJsonLdType(test, 'rdfc:RDFC10EvalTest')) {
+      } else if(isJsonLdType(test, 'rdfc:RDFC10EvalTest') ||
+        isJsonLdType(test, 'rdfc:RDFC10MapTest')) {
         if(err) {
           throw err;
         }
         if(!isBenchmark) {
-          await testInfo.compare(test, result);
+          await testInfo.compare({test, result, extra});
         }
       } else if(isJsonLdType(test, 'XXX:PositiveSyntaxTest')) {
         // no checks
       } else {
-        throw new Error('Unknown test type: ' + test.type);
+        throw new Error(`Unknown test type: "${test.type}"`);
       }
 
       let benchmarkResult = null;
@@ -804,6 +843,16 @@ function readManifestEntry(manifest, entry) {
   });
 }
 
+function readTestJson(property) {
+  return async function(test) {
+    if(!test[property]) {
+      return null;
+    }
+    const filename = await joinPath(test.dirname, test[property]);
+    return readJson(filename);
+  };
+}
+
 function readTestNQuads(property) {
   return async function(test) {
     if(!test[property]) {
@@ -843,7 +892,7 @@ function _getExpectProperty(test) {
   }
 }
 
-async function compareExpectedNQuads(test, result) {
+async function compareExpectedNQuads({test, result}) {
   let expect;
   try {
     expect = await readTestNQuads(_getExpectProperty(test))(test);
@@ -855,6 +904,43 @@ async function compareExpectedNQuads(test, result) {
       console.log('ACTUAL:\n' + result);
     }
     throw ex;
+  }
+}
+
+async function compareExpectedCanonicalIdMap({test, result, extra}) {
+  let expect;
+  try {
+    expect = await readTestJson(_getExpectProperty(test))(test);
+    const expectMap = new Map(Object.entries(expect));
+    assert.deepStrictEqual(extra.canonicalIdMap, expectMap);
+  } catch(err) {
+    if(options.bailOnError) {
+      console.log('\nTEST FAILED\n');
+      console.log('EXPECTED:\n ' + JSON.stringify(expect, null, 2));
+      console.log('ACTUAL:\n' + JSON.stringify(result, null, 2));
+    }
+    throw err;
+  }
+}
+
+async function compareExpectedError(test, err) {
+  //let expect;
+  //let result;
+  try {
+    // FIXME: check error details
+    //expect = test[_getExpectProperty(test)];
+    //result = getJsonLdErrorCode(err);
+    assert.ok(err, 'no error present');
+    //assert.strictEqual(result, expect);
+  } catch(_err) {
+    if(options.bailOnError) {
+      console.log('\nTEST FAILED\n');
+      //console.log('EXPECTED: ' + expect);
+      //console.log('ACTUAL: ' + result);
+    }
+    // log the unexpected error to help with debugging
+    console.log('Unexpected error:', err);
+    throw _err;
   }
 }
 
