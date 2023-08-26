@@ -106,6 +106,41 @@ URDNA2015 Migration
     for *development use only* to find where "URDNA2015" is being used. It
     could be *very* verbose.
 
+Complexity Control
+------------------
+
+Inputs may vary in complexity and some inputs may use more computational
+resources than desired. There also exists a class of inputs that are sometimes
+referred to as "poison" graphs. These are designed specifically to be difficult
+to process but often do not provide any useful purpose.
+
+The `canonize` API accepts an
+[`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+that can be used to control processing of computationally difficult inputs. It
+can be used in a number of ways:
+- Abort processing manually with
+  [`AbortController.abort()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort)
+- Abort processing after a timeout with
+  [`AbortSignal.timeout()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout_static)
+- Abort after any other desired condition with a custom `AbortSignal`. This
+  could track memory pressure or system load.
+- A combination of conditions with an aggregated `AbortSignal` such as with
+  [`AbortSignal.any()`](https://github.com/shaseley/abort-signal-any/) or
+  [signals](https://github.com/toebeann/signals).
+
+For performance reasons this signal is only checked periodically during
+processing and is not immediate.
+
+The `canonize` API also has a `maxDeepIterations` option to control how many
+times deep comparison algorithms run before throwing an error. This provides
+additional control over input complexity as this limit is generally very low
+(no more than 1 or 2) for common use case graphs.
+
+In practice, callers must balance system load, concurrent processing, expected
+input size and complexity, and other factors to determine which complexity
+controls to use. This library defaults to infinite `maxDeepIterations` and a 1
+second timeout, and these should be adjusted as needed.
+
 Related Modules
 ---------------
 
