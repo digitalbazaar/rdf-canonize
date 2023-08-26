@@ -4,6 +4,7 @@
 // disable so tests can be copy & pasted
 /* eslint-disable quotes, quote-props */
 const assert = require('assert');
+const graphs = require('./graphs.js');
 const rdfCanonize = require('..');
 
 describe('API tests', () => {
@@ -80,4 +81,86 @@ _:c14n1 <urn:p1> "v1" .
     }
     assert(error);
   });
+
+  it('should abort (timeout)', async () => {
+    const {data} = graphs.makeDataC({
+      counts: [10, 10, 10]
+    });
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads',
+        signal: AbortSignal.timeout(100),
+        maxDeepIterations: Infinity
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert(!output, 'abort should have no output');
+  });
+
+  it('should abort (iterations)', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 6,
+      objects: 6
+    });
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads',
+        signal: null,
+        maxDeepIterations: 1000
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert(!output, 'abort should have no output');
+  });
+
+  /*
+  it.only('should abort (playground)', async () => {
+    //const {data, n} = graphs.makeDataA({
+    //  subjects: 6,
+    //  objects: 6
+    //});
+    //const {data, n} = graphs.makeDataB({
+    //  subjects: 6
+    //});
+    const {data, n} = graphs.makeDataC({
+      counts: [10, 10, 10]
+    });
+    console.log('INPUT', data);
+    console.log('INPUTN', n);
+    console.log('INPUTSIZE', data.length);
+    let error;
+    let output;
+    const start = performance.now();
+    try {
+      const p = rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads',
+        signal: AbortSignal.timeout(100),
+        maxDeepIterations: 1000
+      });
+      output = await p;
+      //console.log('OUTPUT', output);
+    } catch(e) {
+      console.log('ERROR', e);
+      error = e;
+    }
+    const dt = performance.now() - start;
+    console.log('DT(ms)', dt);
+    assert(error, 'no abort error');
+    assert(!output, 'abort should have no output');
+  });
+  */
 });
