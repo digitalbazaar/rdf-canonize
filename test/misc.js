@@ -3,8 +3,8 @@
  */
 // disable so tests can be copy & pasted
 /* eslint-disable quotes, quote-props */
-const rdfCanonize = require('..');
 const assert = require('assert');
+const rdfCanonize = require('..');
 
 describe('API tests', () => {
   it('should reject invalid inputFormat', async () => {
@@ -45,8 +45,8 @@ _:c14n0 <urn:p0> _:c14n1 .
 _:c14n1 <urn:p1> "v1" .
 `;
     const expectIdMap = new Map(Object.entries({
-      '_:b0': '_:c14n0',
-      '_:b1': '_:c14n1'
+      'b0': 'c14n0',
+      'b1': 'c14n1'
     }));
 
     const canonicalIdMap = new Map();
