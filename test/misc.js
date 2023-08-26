@@ -61,7 +61,7 @@ _:c14n1 <urn:p1> "v1" .
   });
 
   it('should allow URDNA2015 by default', async () => {
-    await rdfCanonize.canonize({}, {
+    await rdfCanonize.canonize([], {
       algorithm: 'URDNA2015',
       format: 'application/n-quads'
     });
@@ -70,7 +70,7 @@ _:c14n1 <urn:p1> "v1" .
   it('should handle rejectURDNA2015 option', async () => {
     let error;
     try {
-      await rdfCanonize.canonize({}, {
+      await rdfCanonize.canonize([], {
         algorithm: 'URDNA2015',
         format: 'application/n-quads',
         rejectURDNA2015: true
