@@ -35,6 +35,12 @@
     `\u00xx`. All other characters are represented as native Unicode.
 - **BREAKING**: Use `globalThis` to access `crypto` in browsers. Use a polyfill
   if your environment doesn't support `globalThis`.
+- **BREAKING**: Change dataset handling of `BlankNodes` to match the [RDF/JS:
+  Data model specification](https://rdf.js.org/data-model-spec/). The `_:`
+  prefix is no longer used in the `BlankNode` `value` field. This should
+  improve compatibility with other RDF/JS tooling but may cause compatibility
+  issues with existing code. The previous behavior is historical and may
+  predate the RDF/JS spec.
 - Update tooling.
 - Update for latest [rdf-canon][] changes: test suite location, README, links,
   and identifiers.
