@@ -10,6 +10,9 @@
   case of using the internal parser to generate a dataset.
   - **NOTE**: The `inputFormat` option was previously ignored and is now used.
     Any calling code that was passing in an incorrect value needs to be fixed.
+- Add `signal` option to allow use of an `AbortSignal` for complexity control.
+  Enables the algorithm to abort after a timeout, manual abort, or other
+  condition.
 
 ### Changed
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
