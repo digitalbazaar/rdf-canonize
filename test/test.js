@@ -392,6 +392,12 @@ async function addTest(manifest, test, tests) {
         title: description + ` (asynchronous, js, jobs=${jobs})`,
         f: makeFn({
           test,
+          adjustParams: params => {
+            if(test.hashAlgorithm) {
+              params[1].messageDigestAlgorithm = test.hashAlgorithm;
+            }
+            return params;
+          },
           run: ({/*test, testInfo,*/ params}) => {
             // skip Promise.all
             if(jobs === 1 && fast1) {
@@ -425,7 +431,7 @@ async function addTest(manifest, test, tests) {
           test,
           adjustParams: params => {
             params[1].createMessageDigest =
-              () => new WebCryptoMessageDigest('sha256');
+              () => new WebCryptoMessageDigest(test.hashAlgorithm || 'sha256');
             return params;
           },
           run: ({/*test, testInfo,*/ params}) => {
@@ -461,6 +467,9 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
+            if(test.hashAlgorithm) {
+              params[1].messageDigestAlgorithm = test.hashAlgorithm;
+            }
             params[1].useNative = true;
             return params;
           },
@@ -495,6 +504,12 @@ async function addTest(manifest, test, tests) {
         title: description + ` (synchronous, js, jobs=${jobs})`,
         f: makeFn({
           test,
+          adjustParams: params => {
+            if(test.hashAlgorithm) {
+              params[1].messageDigestAlgorithm = test.hashAlgorithm;
+            }
+            return params;
+          },
           run: ({/*test, testInfo,*/ params}) => {
             // skip Promise.all
             if(jobs === 1 && fast1) {
@@ -529,6 +544,9 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
+            if(test.hashAlgorithm) {
+              params[1].messageDigestAlgorithm = test.hashAlgorithm;
+            }
             params[1].useNative = true;
             return params;
           },
