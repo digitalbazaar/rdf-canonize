@@ -112,13 +112,17 @@ Complexity Control
 
 Inputs may vary in complexity and some inputs may use more computational
 resources than desired. There also exists a class of inputs that are sometimes
-referred to as "poison" graphs. These are designed specifically to be difficult
-to process but often do not provide any useful purpose.
+referred to as "poison" graphs. These are structured or designed specifically
+to be difficult to process but often do not provide any useful purpose.
+
+### Signals
 
 The `canonize` API accepts an
 [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
-that can be used to control processing of computationally difficult inputs. It
-can be used in a number of ways:
+as the `signal` parameter that can be used to control processing of
+computationally difficult inputs. `signal` is not set by default. It can be
+used in a number of ways:
+
 - Abort processing manually with
   [`AbortController.abort()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort)
 - Abort processing after a timeout with
@@ -132,15 +136,37 @@ can be used in a number of ways:
 For performance reasons this signal is only checked periodically during
 processing and is not immediate.
 
-The `canonize` API also has a `maxDeepIterations` option to control how many
-times deep comparison algorithms run before throwing an error. This provides
-additional control over input complexity as this limit is generally very low
-(no more than 1 or 2) for common use case graphs.
+### Limits
+
+The `canonize` API has parameters to limit how many times the blank node deep
+comparison algorithm can be run to assign blank node labels before throwing an
+error. It is designed to control exponential growth related to the number of
+blank nodes. Graphs without blank nodes, and those with simple blank nodes will
+not run the algorithms that use this parameter. Those with more complex deeply
+connected blank nodes can result in significant time complexity which these
+parameters can control.
+
+The `canonize` API has the following parameters to control limits:
+
+- `maxWorkFactor`: Used to calculate a maximum number of deep iterations based
+  on the number of non-unique blank nodes.
+  - `0`: Deep inspection disallowed.
+  - `1`: Limit deep iterations to O(n). (default)
+  - `2`: Limit deep iterations to O(n^2).
+  - `3`: Limit deep iterations to O(n^3). Values at this level or higher will
+    allow processing of complex "poison" graphs but may take significant
+    amounts of computational resources.
+  - `Infinity`: No limitation.
+- `maxDeepIterations`: The exact number of deep iterations. This parameter is
+  for specialized use cases and use of `maxWorkFactor` is recommended. Defaults
+  to `Infinity` and any other value will override `maxWorkFactor`.
+
+### Usage
 
 In practice, callers must balance system load, concurrent processing, expected
 input size and complexity, and other factors to determine which complexity
-controls to use. This library defaults to infinite `maxDeepIterations` and a 1
-second timeout, and these should be adjusted as needed.
+controls to use. This library defaults to a `maxWorkFactor` of `1` and no
+timeout signal. These should be adjusted as needed.
 
 Related Modules
 ---------------
