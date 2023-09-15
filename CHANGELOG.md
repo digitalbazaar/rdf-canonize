@@ -20,6 +20,7 @@
   is recommeded to use this paramter instead of `maxDeepIterations` directly.
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsey, or
   "application/n-quads".
+- Add EARL Turtle test result mode.
 
 ### Changed
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
