@@ -57,18 +57,19 @@ Examples
 --------
 
 ```js
-const dataset = {
-  // ...
-};
+// canonize a dataset with the default algorithm
 
-// canonize a data set with a particular algorithm with async/await
+const dataset = [
+  // ...
+];
 const canonical = await canonize.canonize(dataset, {algorithm: 'RDFC-1.0'});
 
-// canonize a data set with a particular algorithm and force use of the
-// native implementation
-const canonical = await canonize.canonize(dataset, {
+// parse and canonize N-Quads with the default algorithm
+
+const nquads = "...";
+const canonical = await canonize.canonize(nquads, {
   algorithm: 'RDFC-1.0',
-  useNative: true
+  inputFormat: 'application/n-quads'
 });
 ```
 
