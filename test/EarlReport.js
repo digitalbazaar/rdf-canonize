@@ -71,6 +71,8 @@ class EarlReport {
     this.now = new Date();
     this.now.setMilliseconds(0);
     this.env = options.env;
+    this.format = options.format;
+    this.version = options.version;
     // test environment
     this._environment = null;
     /* eslint-disable quote-props */
@@ -104,7 +106,8 @@ class EarlReport {
       'doap:homepage': 'https://github.com/digitalbazaar/rdf-canonize',
       'doap:license':
         'https://github.com/digitalbazaar/rdf-canonize/blob/master/LICENSE',
-      'doap:description': 'A JSON-LD processor for JavaScript',
+      'doap:description':
+        'A RDF Dataset Canonicalization processor for JavaScript',
       'doap:programming-language': 'JavaScript',
       'dc:creator': 'https://digitalbazaar.com/',
       'doap:developer': {
@@ -117,7 +120,7 @@ class EarlReport {
         'foaf:homepage': 'https://digitalbazaar.com/'
       },
       'doap:release': {
-        'doap:revision': '',
+        'doap:revision': `${this.version}`,
         'doap:created': today
       },
       'subjectOf': []
@@ -154,11 +157,78 @@ class EarlReport {
   }
 
   report() {
-    return this._report;
+    if(this.format === 'json') {
+      return JSON.stringify(this._report, null, 2);
+    } else if(this.format === 'ttl') {
+      return this.asTurtle(this._report);
+    } else {
+      throw new Error(`Unknown report format: "${this.format}".`);
+    }
   }
 
-  reportJson() {
-    return JSON.stringify(this._report, null, 2);
+  asTurtle() {
+    console.log(this._report);
+    console.log(this._report.subjectOf[0]);
+    const r = this._report;
+    let report = '';
+    // add prefixes
+    report += `\
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:   <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix ex:   <http://example.org/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+`;
+
+    // add test subject
+    report += `\
+<> foaf:primaryTopic <${r['@id']}> ;
+  dc:issued "${r['doap:release']['doap:created']}"^^xsd:dateTime ;
+  foaf:maker <${r['doap:developer']['@id']}> .
+
+<${r['@id']}> a doap:Project, earl:TestSubject, earl:Software ;
+  doap:name "${r['doap:name']}" ;
+  doap:release [
+    doap:name "${r['doap:name']}@${r['doap:release']['doap:revision']}";
+    doap:revision "${r['doap:release']['doap:revision']}" ;
+    doap:created "${r['doap:release']['doap:created']}" ;
+  ] ;
+  doap:developer <${r['doap:developer']['@id']}> ;
+  doap:homepage <${r['doap:homepage']}> ;
+  doap:description "${r['doap:description']}"@en ;
+  doap:programming-language "${r['doap:programming-language']}" .
+
+`;
+
+    // add software developer
+    report += `\
+<${r['doap:developer']['@id']}> a foaf:Organization, earl:Assertor;
+  foaf:name "${r['doap:developer']['foaf:name']}";
+  foaf:homepage <${r['doap:developer']['foaf:homepage']}>;
+
+`;
+
+    // add assertions
+    for(const a of r.subjectOf) {
+      report += `\
+[ a earl:Assertion;
+  earl:assertedBy <${r['doap:developer']['@id']}>;
+  earl:subject <${r['@id']}>;
+  earl:test <https://w3c.github.io/rdf-canon/tests/${a['earl:test']}>;
+  earl:result [
+    a earl:TestResult;
+    earl:outcome ${a['earl:result']['earl:outcome']};
+    dc:date "${a['earl:result']['dc:date']}"^^xsd:dateTime];
+  earl:mode ${a['earl:mode']} ] .
+
+`;
+    }
+
+    return report;
   }
 
   // setup @context and environment to handle benchmark data
