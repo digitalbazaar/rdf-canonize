@@ -22,6 +22,16 @@ describe('API tests', () => {
     assert(error);
   });
 
+  it('should handle falsy inputFormat', async () => {
+    const input = [];
+    const expected = '';
+    const output = await rdfCanonize.canonize(input, {
+      algorithm: 'RDFC-1.0',
+      inputFormat: null
+    });
+    assert.deepStrictEqual(output, expected);
+  });
+
   it('should reject invalid output format', async () => {
     let error;
     try {
