@@ -22,6 +22,30 @@ describe('API tests', () => {
     assert(error);
   });
 
+  it('should reject invalid output format', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize([], {
+        algorithm: 'RDFC-1.0',
+        format: 'bogus'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
+  });
+
+  it('should handle falsy output format', async () => {
+    const input = [];
+    const expected = '';
+    const output = await rdfCanonize.canonize(input, {
+      algorithm: 'RDFC-1.0',
+      inputFormat: null,
+      format: null
+    });
+    assert.deepStrictEqual(output, expected);
+  });
+
   it('should fail to parse empty dataset as N-Quads', async () => {
     let error;
     try {
