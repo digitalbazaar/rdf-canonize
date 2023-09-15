@@ -353,6 +353,30 @@ async function addManifest(manifest, parent) {
 }
 
 /**
+ * Common adjust params helper.
+ *
+ * @param {object} params - The param to adjust.
+ * @param {object} test - The test.
+ */
+function _commonAdjustParams(params, test) {
+  if(test.hashAlgorithm) {
+    params.messageDigestAlgorithm = test.hashAlgorithm;
+  }
+  if(test.computationalComplexity === 'low') {
+    // simple test cases
+    params.maxWorkFactor = 0;
+  }
+  if(test.computationalComplexity === 'medium') {
+    // tests between O(n) and O(n^2)
+    params.maxWorkFactor = 2;
+  }
+  if(test.computationalComplexity === 'high') {
+    // poison tests between O(n^2) and O(n^3)
+    params.maxWorkFactor = 3;
+  }
+}
+
+/**
  * Adds a test.
  *
  * @param {object} manifest - The manifest.
@@ -393,9 +417,7 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
-            if(test.hashAlgorithm) {
-              params[1].messageDigestAlgorithm = test.hashAlgorithm;
-            }
+            _commonAdjustParams(params[1], test);
             return params;
           },
           run: ({/*test, testInfo,*/ params}) => {
@@ -430,6 +452,7 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
+            _commonAdjustParams(params[1], test);
             params[1].createMessageDigest =
               () => new WebCryptoMessageDigest(test.hashAlgorithm || 'sha256');
             return params;
@@ -467,9 +490,7 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
-            if(test.hashAlgorithm) {
-              params[1].messageDigestAlgorithm = test.hashAlgorithm;
-            }
+            _commonAdjustParams(params[1], test);
             params[1].useNative = true;
             return params;
           },
@@ -505,9 +526,7 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
-            if(test.hashAlgorithm) {
-              params[1].messageDigestAlgorithm = test.hashAlgorithm;
-            }
+            _commonAdjustParams(params[1], test);
             return params;
           },
           run: ({/*test, testInfo,*/ params}) => {
@@ -544,9 +563,7 @@ async function addTest(manifest, test, tests) {
         f: makeFn({
           test,
           adjustParams: params => {
-            if(test.hashAlgorithm) {
-              params[1].messageDigestAlgorithm = test.hashAlgorithm;
-            }
+            _commonAdjustParams(params[1], test);
             params[1].useNative = true;
             return params;
           },
@@ -702,7 +719,7 @@ function makeFn({
     try {
       if(isJsonLdType(test, 'rdfc:RDFC10NegativeEvalTest')) {
         if(!isBenchmark) {
-          await compareExpectedError(test, err);
+          await checkError({test, err});
         }
       } else if(isJsonLdType(test, 'rdfc:RDFC10EvalTest') ||
         isJsonLdType(test, 'rdfc:RDFC10MapTest')) {
@@ -941,23 +958,14 @@ async function compareExpectedCanonicalIdMap({test, result, extra}) {
   }
 }
 
-async function compareExpectedError(test, err) {
-  //let expect;
-  //let result;
+async function checkError({/*test, */err}) {
   try {
-    // FIXME: check error details
-    //expect = test[_getExpectProperty(test)];
-    //result = getJsonLdErrorCode(err);
     assert.ok(err, 'no error present');
-    //assert.strictEqual(result, expect);
   } catch(_err) {
     if(options.bailOnError) {
       console.log('\nTEST FAILED\n');
-      //console.log('EXPECTED: ' + expect);
-      //console.log('ACTUAL: ' + result);
+      console.log('EXPECTED ERROR');
     }
-    // log the unexpected error to help with debugging
-    console.log('Unexpected error:', err);
     throw _err;
   }
 }
