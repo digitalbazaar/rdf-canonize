@@ -96,7 +96,7 @@ URDNA2015 Migration
 
 * The deprecated "URDNA2015" algorithm name is currently supported as an alias
   for "RDFC-1.0".
-* There is a minor difference that could cause compatibilty issues. It is
+* There is a minor difference that could cause compatibility issues. It is
   considered an edge case that will not be an issue in practice. See above for
   details.
 * Two tools are currently provided to help transition to "RDFC-1.0":
@@ -183,9 +183,9 @@ The test suite is included in an external repository:
 
     https://github.com/w3c/rdf-canon
 
-This should be a sibling directory of the rdf-canonize directory or in a
-`test-suites` dir. To clone shallow copies into the `test-suites` dir you can
-use the following:
+This should be a sibling directory of the `rdf-canonize` directory or in a
+`test-suites` directory. To clone shallow copies into the `test-suites`
+directory you can use the following:
 
     npm run fetch-test-suite
 
