@@ -1,7 +1,7 @@
 {
   "name": "rdf-canonize",
   "version": "3.4.1-0",
-  "description": "An implementation of the RDF Dataset Normalization Algorithm in JavaScript",
+  "description": "An implementation of the RDF Dataset Canonicalization algorithm in JavaScript",
   "homepage": "https://github.com/digitalbazaar/rdf-canonize",
   "author": {
     "name": "Digital Bazaar, Inc.",
