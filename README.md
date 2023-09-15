@@ -189,21 +189,27 @@ directory you can use the following:
 
     npm run fetch-test-suite
 
-Node.js tests can be run with a simple command:
+Node.js tests:
 
     npm test
+
+Browser tests via Karma:
+
+    npm run test-karma
 
 If you installed the test suites elsewhere, or wish to run other tests, use
 the `TEST_DIR` environment var:
 
     TEST_DIR="/tmp/tests" npm test
 
-To generate earl reports:
+To generate EARL reports:
 
-    # generate the earl report for node.js
+    # generate a JSON-LD EARL report with Node.js
     EARL=earl-node.jsonld npm test
 
-Browser testing with karma is done indirectly through [jsonld.js][].
+    # generate a Turtle EARL report with Node.js
+    # used for official reports
+    EARL=js-rdf-canonize-earl.ttl npm test
 
 Benchmark
 ---------

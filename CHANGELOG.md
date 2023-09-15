@@ -21,6 +21,7 @@
   If `maxDeepIterations` is provided, then `maxWorkFactor` will be ignored.
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsy, or
   "application/n-quads".
+- Add EARL Turtle test result mode.
 
 ### Changed
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
