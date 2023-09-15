@@ -70,6 +70,7 @@
   - Use a pre-computed map of replacement values.
   - Performance difference depends on the number of replacements. The
     [rdf-canon][] escaping test showed up to 15% improvement.
+- Support generalized RDF `BlankNode` predicate during N-Quads serialization.
 
 ### Fixed
 - Disable native lib tests in a browser.
