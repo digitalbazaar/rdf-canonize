@@ -9,7 +9,8 @@
  * Set dirs, manifests, or js to run:
  *   TESTS="r1 r2 ..."
  * Output an EARL report:
- *   EARL=filename
+ *   EARL=filename (default: none)
+ *   JSON or Turtle type determined by extension.
  * Test environment details for EARL report:
  *   This is useful for benchmark comparison.
  *   By default no details are added for privacy reasons.
@@ -235,7 +236,10 @@ if(options.env.TEST_ENV) {
 // create earl report
 if(options.earl && options.earl.filename) {
   options.earl.report = new EarlReport({
-    env: testEnv
+    env: testEnv,
+    format: options.earl.filename.endsWith('.ttl') ? 'ttl' : 'json',
+    // FIXME: enable easier override
+    version: options.testEnvDefaults.version
   });
   if(benchmarkOptions.enabled) {
     options.earl.report.setupForBenchmarks({testEnv});
@@ -259,7 +263,7 @@ if(options.earl.report) {
     const _it = result.hadOnly ? it.only : it;
     _it('should print the earl report', function() {
       return options.writeFile(
-        options.earl.filename, options.earl.report.reportJson());
+        options.earl.filename, options.earl.report.report());
     });
   });
 }
