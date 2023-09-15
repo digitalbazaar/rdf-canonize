@@ -174,6 +174,28 @@ _:c14n1 <urn:p1> "v1" .
     assert(!output, 'abort should have no output');
   });
 
+  it('should abort (work factor)', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 6,
+      objects: 6
+    });
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        format: 'application/n-quads',
+        signal: null,
+        maxWorkFactor: 1
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert(!output, 'abort should have no output');
+  });
+
   it('should abort (iterations)', async () => {
     const {data} = graphs.makeDataA({
       subjects: 6,
@@ -219,8 +241,9 @@ _:c14n1 <urn:p1> "v1" .
         algorithm: 'RDFC-1.0',
         inputFormat: 'application/n-quads',
         format: 'application/n-quads',
-        signal: AbortSignal.timeout(100),
-        maxDeepIterations: 1000
+        //signal: AbortSignal.timeout(1000),
+        //maxWorkFactor: 3
+        //maxDeepIterations: 9
       });
       output = await p;
       //console.log('OUTPUT', output);
