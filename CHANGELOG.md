@@ -13,6 +13,8 @@
 - Add `signal` option to allow use of an `AbortSignal` for complexity control.
   Enables the algorithm to abort after a timeout, manual abort, or other
   condition.
+- **BREAKING**: Check output `format` parameter. Must be omitted, falsey, or
+  "application/n-quads".
 
 ### Changed
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
