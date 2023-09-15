@@ -257,4 +257,24 @@ _:c14n1 <urn:p1> "v1" .
     assert(!output, 'abort should have no output');
   });
   */
+
+  it('should serialize generalized RDF', async () => {
+    const input =
+[
+  {
+    subject: {termType: 'BlankNode', value: 'b0'},
+    predicate: {termType: 'BlankNode', value: 'b1'},
+    object: {termType: 'BlankNode', value: 'b2'},
+    graph: {termType: 'DefaultGraph', value: ''}
+  }
+]
+;
+    const expected = `\
+_:b0 _:b1 _:b2 .
+`;
+
+    const output = rdfCanonize.NQuads.serialize(input);
+    assert.deepStrictEqual(output, expected);
+  });
+
 });
