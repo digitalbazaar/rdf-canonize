@@ -8,6 +8,28 @@ const graphs = require('./graphs.js');
 const rdfCanonize = require('..');
 
 describe('API tests', () => {
+  it('should reject no algorithm', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize([]);
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
+  });
+
+  it('should reject invalid algorithm', async () => {
+    let error;
+    try {
+      await rdfCanonize.canonize([], {
+        algorithm: 'bogus'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
+  });
+
   it('should reject invalid inputFormat', async () => {
     let error;
     try {
@@ -30,6 +52,21 @@ describe('API tests', () => {
       inputFormat: null
     });
     assert.deepStrictEqual(output, expected);
+  });
+
+  it('should reject invalid messageDigestAlgorithm', async () => {
+    let error;
+    try {
+      const input = '_:b0 <ex:p> _:b1 .';
+      await rdfCanonize.canonize(input, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        messageDigestAlgorithm: 'bogus'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error);
   });
 
   it('should reject invalid output format', async () => {
