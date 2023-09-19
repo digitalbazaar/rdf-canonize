@@ -16,6 +16,8 @@ describe('API tests', () => {
       error = e;
     }
     assert(error);
+    assert.match(error.message,
+      /No RDF Dataset Canonicalization algorithm specified./);
   });
 
   it('should reject invalid algorithm', async () => {
@@ -28,6 +30,8 @@ describe('API tests', () => {
       error = e;
     }
     assert(error);
+    assert.match(error.message,
+      /Invalid RDF Dataset Canonicalization algorithm/);
   });
 
   it('should reject invalid inputFormat', async () => {
@@ -35,13 +39,13 @@ describe('API tests', () => {
     try {
       await rdfCanonize.canonize('', {
         algorithm: 'RDFC-1.0',
-        inputFormat: 'application/bogus',
-        format: 'application/n-quads'
+        inputFormat: 'application/bogus'
       });
     } catch(e) {
       error = e;
     }
     assert(error);
+    assert.match(error.message, /Unknown canonicalization input format/);
   });
 
   it('should handle falsy inputFormat', async () => {
@@ -67,6 +71,7 @@ describe('API tests', () => {
       error = e;
     }
     assert(error);
+    assert.match(error.message, /Unsupported algorithm/);
   });
 
   it('should reject invalid output format', async () => {
@@ -80,6 +85,17 @@ describe('API tests', () => {
       error = e;
     }
     assert(error);
+    assert.match(error.message, /Unknown canonicalization output format/);
+  });
+
+  it('should handle valid output format', async () => {
+    const input = [];
+    const expected = '';
+    const output = await rdfCanonize.canonize(input, {
+      algorithm: 'RDFC-1.0',
+      format: 'application/n-quads'
+    });
+    assert.deepStrictEqual(output, expected);
   });
 
   it('should handle falsy output format', async () => {
@@ -98,13 +114,13 @@ describe('API tests', () => {
     try {
       await rdfCanonize.canonize([], {
         algorithm: 'RDFC-1.0',
-        inputFormat: 'application/bogus',
-        format: 'application/n-quads'
+        inputFormat: 'application/n-quads'
       });
     } catch(e) {
       error = e;
     }
     assert(error);
+    assert.match(error.message, /N-Quads input must be a string./);
   });
 
   it('should set canonicalIdMap data', async () => {
@@ -125,7 +141,6 @@ _:c14n1 <urn:p1> "v1" .
     const output = await rdfCanonize.canonize(input, {
       algorithm: 'RDFC-1.0',
       inputFormat: 'application/n-quads',
-      format: 'application/n-quads',
       canonicalIdMap
     });
     assert.deepStrictEqual(output, expected);
@@ -134,8 +149,7 @@ _:c14n1 <urn:p1> "v1" .
 
   it('should allow URDNA2015 by default', async () => {
     await rdfCanonize.canonize([], {
-      algorithm: 'URDNA2015',
-      format: 'application/n-quads'
+      algorithm: 'URDNA2015'
     });
   });
 
@@ -144,13 +158,14 @@ _:c14n1 <urn:p1> "v1" .
     try {
       await rdfCanonize.canonize([], {
         algorithm: 'URDNA2015',
-        format: 'application/n-quads',
         rejectURDNA2015: true
       });
     } catch(e) {
       error = e;
     }
     assert(error);
+    assert.match(error.message,
+      /Invalid RDF Dataset Canonicalization algorithm/);
   });
 
   it('should abort (timeout)', async () => {
@@ -163,9 +178,31 @@ _:c14n1 <urn:p1> "v1" .
       output = await rdfCanonize.canonize(data, {
         algorithm: 'RDFC-1.0',
         inputFormat: 'application/n-quads',
-        format: 'application/n-quads',
         signal: AbortSignal.timeout(100),
         maxDeepIterations: Infinity
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert.match(error.message, /Abort signal received/);
+    assert.match(error.message, /TimeoutError/);
+    assert(!output, 'abort should have no output');
+  });
+
+  it('should abort (work factor = 0)', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 2,
+      objects: 2
+    });
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        signal: null,
+        maxWorkFactor: 0
       });
     } catch(e) {
       error = e;
@@ -174,10 +211,10 @@ _:c14n1 <urn:p1> "v1" .
     assert(!output, 'abort should have no output');
   });
 
-  it('should abort (work factor)', async () => {
+  it('should abort (work factor = 1)', async () => {
     const {data} = graphs.makeDataA({
-      subjects: 6,
-      objects: 6
+      subjects: 3,
+      objects: 3
     });
     let error;
     let output;
@@ -185,7 +222,6 @@ _:c14n1 <urn:p1> "v1" .
       output = await rdfCanonize.canonize(data, {
         algorithm: 'RDFC-1.0',
         inputFormat: 'application/n-quads',
-        format: 'application/n-quads',
         signal: null,
         maxWorkFactor: 1
       });
@@ -196,7 +232,74 @@ _:c14n1 <urn:p1> "v1" .
     assert(!output, 'abort should have no output');
   });
 
-  it('should abort (iterations)', async () => {
+  it('should not abort (work factor = Infinity)', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 3,
+      objects: 3
+    });
+    await rdfCanonize.canonize(data, {
+      algorithm: 'RDFC-1.0',
+      inputFormat: 'application/n-quads',
+      maxWorkFactor: Infinity
+    });
+  });
+
+  it('should not abort (work factor = 1, max iterations set)', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 3,
+      objects: 3
+    });
+    await rdfCanonize.canonize(data, {
+      algorithm: 'RDFC-1.0',
+      inputFormat: 'application/n-quads',
+      maxWorkFactor: 1,
+      maxDeepIterations: 33
+    });
+  });
+
+  it('should abort (iterations [max deep = 0])', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 2,
+      objects: 2
+    });
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        maxDeepIterations: 0
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert.match(error.message, /Maximum deep iterations exceeded/);
+    assert(!output, 'abort should have no output');
+  });
+
+  it('should abort (iterations [max work factor = 0])', async () => {
+    const {data} = graphs.makeDataA({
+      subjects: 2,
+      objects: 2
+    });
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(data, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads',
+        maxWorkFactor: 0
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert.match(error.message, /Maximum deep iterations exceeded/);
+    assert(!output, 'abort should have no output');
+  });
+
+  it('should abort (iterations [max deep = 1000])', async () => {
     const {data} = graphs.makeDataA({
       subjects: 6,
       objects: 6
@@ -207,14 +310,13 @@ _:c14n1 <urn:p1> "v1" .
       output = await rdfCanonize.canonize(data, {
         algorithm: 'RDFC-1.0',
         inputFormat: 'application/n-quads',
-        format: 'application/n-quads',
-        signal: null,
         maxDeepIterations: 1000
       });
     } catch(e) {
       error = e;
     }
     assert(error, 'no abort error');
+    assert.match(error.message, /Maximum deep iterations exceeded/);
     assert(!output, 'abort should have no output');
   });
 
@@ -274,6 +376,22 @@ _:b0 _:b1 _:b2 .
 `;
 
     const output = rdfCanonize.NQuads.serialize(input);
+    assert.deepStrictEqual(output, expected);
+  });
+
+  it('should handle duplicate quads', async () => {
+    const input = `\
+_:b0 <ex:p> _:b1 .
+_:b0 <ex:p> _:b1 .
+`;
+    const expected = `\
+_:c14n1 <ex:p> _:c14n0 .
+`;
+
+    const output = await rdfCanonize.canonize(input, {
+      algorithm: 'RDFC-1.0',
+      inputFormat: 'application/n-quads'
+    });
     assert.deepStrictEqual(output, expected);
   });
 
