@@ -17,7 +17,7 @@
   of non-unique blank nodes. This defaults to `1` for roughly O(n) behavior and
   will handle common graphs. It must be adjusted to higher values if there is a
   need to process graphs with complex blank nodes or other "poison" graphs. It
-  is recommeded to use this paramter instead of `maxDeepIterations` directly.
+  is recommended to use this parameter instead of `maxDeepIterations` directly.
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsey, or
   "application/n-quads".
 

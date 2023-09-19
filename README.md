@@ -166,7 +166,7 @@ The `canonize` API has the following parameters to control limits:
 In practice, callers must balance system load, concurrent processing, expected
 input size and complexity, and other factors to determine which complexity
 controls to use. This library defaults to a `maxWorkFactor` of `1` and no
-timeout signal. These should be adjusted as needed.
+timeout signal. These can be adjusted as needed.
 
 Related Modules
 ---------------
