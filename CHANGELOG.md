@@ -18,6 +18,7 @@
   will handle common graphs. It must be adjusted to higher values if there is a
   need to process graphs with complex blank nodes or other "poison" graphs. It
   is recommended to use this parameter instead of `maxDeepIterations` directly.
+  If `maxDeepIterations` is provided, then `maxWorkFactor` will be ignored.
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsey, or
   "application/n-quads".
 
