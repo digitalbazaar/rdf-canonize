@@ -49,6 +49,7 @@
   improve compatibility with other RDF/JS tooling but may cause compatibility
   issues with existing code. The previous behavior is historical and may
   predate the RDF/JS spec.
+- **BREAKING**: Change maximum deep iterations error text.
 - Update tooling.
 - Update for latest [rdf-canon][] changes: test suite location, README, links,
   and identifiers.
