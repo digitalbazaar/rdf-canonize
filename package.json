@@ -32,7 +32,6 @@
     "benchmark": "^2.1.4",
     "browserify": "^17.0.0",
     "chai": "^4.3.7",
-    "delay": "^5.0.0",
     "envify": "^4.1.0",
     "eslint": "^8.43.0",
     "eslint-config-digitalbazaar": "^5.0.1",
