@@ -26,6 +26,7 @@
   instructions for how to use this library with React Native.
 
 ### Changed
+- **BREAKING**: Remove support for Node.js < 18.
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
   spec changes. Use of "URDNA2015" is now deprecated and an alias for
   "RDFC-1.0". An API option `rejectURDNA2015` is available to disable
