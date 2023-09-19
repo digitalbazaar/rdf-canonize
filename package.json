@@ -57,7 +57,7 @@
     "webpack": "^5.88.0"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "keywords": [
     "JSON",
