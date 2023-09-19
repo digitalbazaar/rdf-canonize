@@ -5,13 +5,13 @@
 
 const canonize = require('./index')._canonizeSync;
 //const canonize = require('./index').canonize;
-const delay = require('delay');
+import {setTimeout} from 'node:timers/promises';
 const nsolid = require('nsolid');
 const KEYS = ['subject', 'predicate', 'object', 'graph'];
 
 (async () => {
   if(nsolid.profile) {
-    await delay(3000);
+    await setTimeout(3000);
     nsolid.profile(60000);
   }
 
