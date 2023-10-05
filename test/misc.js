@@ -395,4 +395,44 @@ _:c14n1 <ex:p> _:c14n0 .
     assert.deepStrictEqual(output, expected);
   });
 
+  it('should fail on invalid N-Quads', async () => {
+    const input = `\
+_:b0 <ex:p> .
+`;
+    let error;
+    let output;
+    try {
+      output = await rdfCanonize.canonize(input, {
+        algorithm: 'RDFC-1.0',
+        inputFormat: 'application/n-quads'
+      });
+    } catch(e) {
+      error = e;
+    }
+    assert(error, 'no abort error');
+    assert.match(error.message, /N-Quads parse error/);
+    assert(!output, 'abort should have no output');
+  });
+
+  it.skip('should escape IRI', async () => {
+    // FIXME: determine what inputs trigger escaping code
+    const input =
+[
+  {
+    subject: {termType: 'NamedNode', value: 'ex:s'},
+    predicate: {termType: 'NamedNode', value: 'ex:p'},
+    object: {termType: 'NamedNode', value: 'ex:o'},
+    graph: {termType: 'NamedNode', value: 'ex:g'}
+  }
+]
+;
+    const expected = `\
+<ex:s> <ex:p> <ex:o> <ex:g>.
+`;
+
+    const output = await rdfCanonize.canonize(input, {
+      algorithm: 'RDFC-1.0'
+    });
+    assert.deepStrictEqual(output, expected);
+  });
 });
