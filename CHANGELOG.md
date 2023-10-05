@@ -22,6 +22,7 @@
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsy, or
   "application/n-quads".
 - Add EARL Turtle test result mode.
+- Add `EARL_OFFICIAL` env flag to setep official test report mode.
 - Add `"react-native"` section to `package.json` (same as `"browser"`), and
   instructions for how to use this library with React Native.
 

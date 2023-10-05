@@ -96,8 +96,11 @@ const bailOnError = isTrue(options.env.BAIL || 'false');
 const verboseSkip = isTrue(options.env.VERBOSE_SKIP || 'false');
 
 const doAsync = isTrue(options.env.ASYNC || 'true');
-const doSync = isTrue(options.env.SYNC || 'true');
-const doWebCrypto = isTrue(options.env.WEBCRYPTO || 'true') && options.nodejs;
+const doSync = isTrue(options.env.SYNC || 'true') &&
+  !isTrue(options.env.EARL_OFFICIAL || 'false');
+const doWebCrypto = isTrue(options.env.WEBCRYPTO || 'true') &&
+  !isTrue(options.env.EARL_OFFICIAL || 'false') &&
+  options.nodejs;
 
 const benchmarkOptions = {
   enabled: false,

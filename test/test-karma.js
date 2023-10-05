@@ -62,6 +62,7 @@ const env = {
   ASYNC: process.env.ASYNC,
   BAIL: process.env.BAIL,
   BENCHMARK: process.env.BENCHMARK,
+  EARL_OFFICIAL: process.env.EARL_OFFICIAL,
   SYNC: process.env.SYNC,
   TEST_ENV: process.env.TEST_ENV,
   VERBOSE_SKIP: process.env.VERBOSE_SKIP,
