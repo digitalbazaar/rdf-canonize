@@ -167,8 +167,6 @@ class EarlReport {
   }
 
   asTurtle() {
-    console.log(this._report);
-    console.log(this._report.subjectOf[0]);
     const r = this._report;
     let report = '';
     // add prefixes
