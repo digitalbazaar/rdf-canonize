@@ -65,6 +65,8 @@ module.exports = function(config) {
           'process.env.BAIL': JSON.stringify(process.env.BAIL),
           'process.env.BENCHMARK': JSON.stringify(process.env.BENCHMARK),
           'process.env.EARL': JSON.stringify(process.env.EARL),
+          'process.env.EARL_OFFICIAL':
+            JSON.stringify(process.env.EARL_OFFICIAL),
           'process.env.SYNC': JSON.stringify(process.env.SYNC),
           'process.env.TESTS': JSON.stringify(process.env.TESTS),
           'process.env.TEST_ENV': JSON.stringify(process.env.TEST_ENV),
@@ -97,6 +99,7 @@ module.exports = function(config) {
             BAIL: process.env.BAIL,
             BENCHMARK: process.env.BENCHMARK,
             EARL: process.env.EARL,
+            EARL_OFFICIAL: process.env.EARL_OFFICIAL,
             SYNC: process.env.SYNC,
             TESTS: process.env.TESTS,
             TEST_ENV: process.env.TEST_ENV,

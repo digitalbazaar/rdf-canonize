@@ -224,8 +224,11 @@ To generate EARL reports:
     EARL=earl-node.jsonld npm test
 
     # generate a Turtle EARL report with Node.js
-    # used for official reports
     EARL=js-rdf-canonize-earl.ttl npm test
+
+    # generate official Turtle EARL report with Node.js
+    # turns ASYNC on and SYNC and WEBCRYPTO off
+    EARL_OFFICIAL=true EARL=js-rdf-canonize-earl.ttl npm test
 
 Benchmark
 ---------
