@@ -1,6 +1,6 @@
 {
   "name": "rdf-canonize",
-  "version": "4.0.1",
+  "version": "4.0.2-0",
   "description": "An implementation of the RDF Dataset Canonicalization algorithm in JavaScript",
   "homepage": "https://github.com/digitalbazaar/rdf-canonize",
   "author": {
