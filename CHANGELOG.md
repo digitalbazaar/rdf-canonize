@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 4.0.0 - 2023-03-xx
+## 4.0.0 - 2023-11-15
 
 ### Added
 - Test with karma.
