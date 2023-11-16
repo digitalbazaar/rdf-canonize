@@ -206,7 +206,7 @@ class EarlReport {
     report += `\
 <${r['doap:developer']['@id']}> a foaf:Organization, earl:Assertor;
   foaf:name "${r['doap:developer']['foaf:name']}";
-  foaf:homepage <${r['doap:developer']['foaf:homepage']}>;
+  foaf:homepage <${r['doap:developer']['foaf:homepage']}> .
 
 `;
 
