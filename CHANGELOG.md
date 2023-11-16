@@ -1,5 +1,10 @@
 # rdf-canonize ChangeLog
 
+## 4.0.1 - 2023-11-xx
+
+### Fixed
+- Fix EARL Turtle report.
+
 ## 4.0.0 - 2023-11-15
 
 ### Added
