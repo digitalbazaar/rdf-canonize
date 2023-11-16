@@ -22,14 +22,17 @@
 - **BREAKING**: Check output `format` parameter. Must be omitted, falsy, or
   "application/n-quads".
 - Add EARL Turtle test result mode.
-- Add `EARL_OFFICIAL` env flag to setep official test report mode.
+- Add `EARL_OFFICIAL` env flag to setup official test report mode.
 - Add `"react-native"` section to `package.json` (same as `"browser"`), and
   instructions for how to use this library with React Native.
 
 ### Changed
-- **BREAKING**: Remove support for Node.js < 18.
+- **BREAKING**: Remove support for Node.js < 18. This is done to allow updates
+  to tooling that no longer support older Node.js versions. The library code
+  has not yet changed to be incompatible with older Node.js versions but it
+  will no longer be tested and may become incompatible at any time.
 - **BREAKING**: Change algorithm name from "URDNA2015" to "RDFC-1.0" to match
-  spec changes. Use of "URDNA2015" is now deprecated and an alias for
+  [rdf-canon][] changes. Use of "URDNA2015" is now deprecated and an alias for
   "RDFC-1.0". An API option `rejectURDNA2015` is available to disable
   "URDNA2015" support. A global `RDF_CANONIZE_TRACE_URDNA2015` is available to
   developers to trace calls that use "URDNA2015". See the README for important
@@ -92,10 +95,6 @@
 - **BREAKING**: Remove URGNA2012 support. [rdf-canon][] no longer supports or
   has a test suite for URGNA2012. URDNA2015 has been the preferred algorithm
   for many years.
-- **BREAKING**: Remove support for Node.js 12.x and 14.x. This is done to allow
-  updates to tooling that no longer support older Node.js versions. The library
-  code has not yet changed to be incompatible with older Node.js versions but
-  it will no longer be tested and may become incompatible at any time.
 - **BREAKING**: Remove deprecated support for legacy dataset format.
 - Remove `benchmark/benchmark.js` tool in favor of combined test system and
   benchmarking control via environment vars.
