@@ -87,11 +87,6 @@ module.exports = async function(options) {
 const assert = options.assert;
 const benchmark = options.benchmark;
 
-// use native bindings if available
-if(options.rdfCanonizeNative) {
-  rdfCanonize._rdfCanonizeNative(options.rdfCanonizeNative);
-}
-
 const bailOnError = isTrue(options.env.BAIL || 'false');
 const verboseSkip = isTrue(options.env.VERBOSE_SKIP || 'false');
 
@@ -409,9 +404,6 @@ async function addTest(manifest, test, tests) {
     const types = getJsonLdType(test);
     throw new Error(`Unknown test type: "${JSON.stringify(types)}"`);
   }
-  const params = testInfo.params.map(param => param(test));
-  const testOptions = params[1];
-
   // number of parallel jobs for benchmarks
   const jobTests = benchmarkOptions.enabled ? benchmarkOptions.jobs : [1];
   const fast1 = benchmarkOptions.enabled ? benchmarkOptions.fast1 : true;
@@ -488,43 +480,6 @@ async function addTest(manifest, test, tests) {
     });
   }
 
-  // async native
-  if(doAsync && options.rdfCanonizeNative &&
-    testOptions.algorithm === 'RDFC-1.0') {
-    jobTests.forEach(jobs => {
-      const _an_test = {
-        title: description + ` (asynchronous, native, jobs=${jobs})`,
-        f: makeFn({
-          test,
-          adjustParams: params => {
-            _commonAdjustParams(params[1], test);
-            params[1].useNative = true;
-            return params;
-          },
-          run: ({/*test, testInfo,*/ params}) => {
-            // skip Promise.all
-            if(jobs === 1 && fast1) {
-              return options.rdfCanonizeNative.canonize(...params);
-            }
-            const all = [];
-            for(let j = 0; j < jobs; j++) {
-              all.push(options.rdfCanonizeNative.canonize(...params));
-            }
-            return Promise.all(all);
-          },
-          jobs,
-          isBenchmark: benchmarkOptions.enabled
-        })
-      };
-      // 'only' based on test manifest
-      // 'skip' handled via skip()
-      if('only' in test) {
-        _an_test.only = test.only;
-      }
-      tests.push(_an_test);
-    });
-  }
-
   // sync js
   if(doSync) {
     jobTests.forEach(jobs => {
@@ -561,42 +516,6 @@ async function addTest(manifest, test, tests) {
     });
   }
 
-  // sync native
-  if(doSync && options.rdfCanonizeNative &&
-    testOptions.algorithm === 'RDFC-1.0') {
-    jobTests.forEach(jobs => {
-      const _sn_test = {
-        title: description + ` (synchronous, native, jobs=${jobs})`,
-        f: makeFn({
-          test,
-          adjustParams: params => {
-            _commonAdjustParams(params[1], test);
-            params[1].useNative = true;
-            return params;
-          },
-          run: async ({/*test, testInfo,*/ params}) => {
-            // skip Promise.all
-            if(jobs === 1 && fast1) {
-              return options.rdfCanonizeNative.canonizeSync(...params);
-            }
-            const all = [];
-            for(let j = 0; j < jobs; j++) {
-              all.push(options.rdfCanonizeNative.canonizeSync(...params));
-            }
-            return Promise.all(all);
-          },
-          jobs,
-          isBenchmark: benchmarkOptions.enabled
-        })
-      };
-      // 'only' based on test manifest
-      // 'skip' handled via skip()
-      if('only' in test) {
-        _sn_test.only = test.only;
-      }
-      tests.push(_sn_test);
-    });
-  }
 }
 
 function makeFn({
