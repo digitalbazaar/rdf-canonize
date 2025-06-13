@@ -1,5 +1,13 @@
 # rdf-canonize ChangeLog
 
+## Unreleased
+
+### Removed
+- **BREAKING**: Remove all support for `rdf-canonize-native`. The JavaScript
+  implementation is now the only supported method. Native bindings support 
+  has been completely removed from the library, tests, and documentation due 
+  to limited performance benefits and maintenance overhead.
+
 ## 4.0.1 - 2023-11-15
 
 ### Fixed

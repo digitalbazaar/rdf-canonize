@@ -25,29 +25,6 @@ npm install rdf-canonize
 const canonize = require('rdf-canonize');
 ```
 
-### Node.js + npm + native bindings
-
-This package has support for [rdf-canonize-native][]. This package can be
-useful if your application requires doing many canonizing operations
-asynchronously in parallel or in the background. It is **highly recommended**
-that you understand your requirements and benchmark using JavaScript vs native
-bindings. The native bindings add overhead and the JavaScript implementation
-may be faster with modern runtimes.
-
-The native bindings are not installed by default and must be explicitly
-installed.
-
-```
-npm install rdf-canonize
-npm install rdf-canonize-native
-```
-
-Note that the native code is not automatically used. To use the native bindings
-you must have them installed and set the `useNative` option to `true`.
-
-```js
-const canonize = require('rdf-canonize');
-```
 
 ### Browser + npm
 
@@ -255,4 +232,3 @@ Commercial support for this library is available upon request from
 [URDNA2015]: https://w3c.github.io/rdf-canon/spec/#urdna2015
 [URGNA2012]: https://w3c.github.io/rdf-canon/spec/#urgna2012
 [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
-[rdf-canonize-native]: https://github.com/digitalbazaar/rdf-canonize-native

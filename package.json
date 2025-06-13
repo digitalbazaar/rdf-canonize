@@ -81,13 +81,11 @@
   },
   "browser": {
     "./lib/MessageDigest.js": "./lib/MessageDigest-webcrypto.js",
-    "./lib/platform.js": "./lib/platform-browser.js",
-    "rdf-canonize-native": false
+    "./lib/platform.js": "./lib/platform-browser.js"
   },
   "react-native": {
     "./lib/MessageDigest.js": "./lib/MessageDigest-webcrypto.js",
-    "./lib/platform.js": "./lib/platform-browser.js",
-    "rdf-canonize-native": false
+    "./lib/platform.js": "./lib/platform-browser.js"
   },
   "nyc": {
     "reporter": [
