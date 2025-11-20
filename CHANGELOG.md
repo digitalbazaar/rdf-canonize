@@ -1,6 +1,6 @@
 # rdf-canonize ChangeLog
 
-## 5.0.0 - 2025-11-xx
+## 5.0.0 - 2025-11-20
 
 ### Removed
 - **BREAKING**: Remove support for `rdf-canonize-native` and only support the
