@@ -25,7 +25,7 @@ set:
     ONLY=1 npm run benchmark
     ONLY=1 TEST_DIR=./benchmark npm run benchmark
 
-Tests are benchmarked with a matrix of {async/sync} {js} {x1/x10}.
+Tests are benchmarked with a matrix of {async/sync} {x1/x10}.
 
 To run large "block" benchmarks, run the builder script first:
 
